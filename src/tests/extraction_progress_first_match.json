@@ -1,0 +1,233 @@
+{
+  "completed": true,
+  "found_entities": [
+    {
+      "entity_name": "NumdosGR",
+      "value": "173250383",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Nom",
+      "value": "DA SILVA",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Pr\u00e9nom",
+      "value": "jose",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Sexe",
+      "value": "Masculin",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "H\u00f4pital",
+      "value": "INSTITUT DE CANCEROLOGIE GUSTAVE ROUSSY",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Localisations du cancer",
+      "value": "Cancer l\u00e8vres-bouche-pharynx",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Types histologiques",
+      "value": "Carcinome \u00e9pidermo\u00efde",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Localisation",
+      "value": "carcinome oropahryng\u00e9, r\u00e9cidive lat\u00e9ro-cervicale bilat\u00e9rale",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Th\u00e9rapie innovante",
+      "value": "Oui",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Traitement hors AMM",
+      "value": "Non",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Inclusion dans un essai th\u00e9rapeutique",
+      "value": "Oui",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Demande compl\u00e9ment d'examen compl\u00e9mentaire",
+      "value": "Oui",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "EVASAN",
+      "value": "Non",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_1",
+        "page_id": 1
+      }
+    },
+    {
+      "entity_name": "Nom de naissance",
+      "value": "DA SILVA",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_2",
+        "page_id": 2
+      }
+    },
+    {
+      "entity_name": "Site demandeur",
+      "value": "INSTITUT DE CANCEROLOGIE GUSTAVE ROUSSY",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_2",
+        "page_id": 2
+      }
+    },
+    {
+      "entity_name": "Adresse postale",
+      "value": "114, rue Edouard Vaillant - 94 805 VILLEJUIF Cedex - France",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_2",
+        "page_id": 2
+      }
+    },
+    {
+      "entity_name": "Date de naissance",
+      "value": "13/05/1095",
+      "metadata": {
+        "filename": "good_deduplication_v2_filtered_output.txt",
+        "created_at": null,
+        "section_id": "text_chunk_13",
+        "page_id": 13
+      }
+    }
+  ],
+  "not_found_entities": [
+    {
+      "entity_name": "NumdosGR"
+    },
+    {
+      "entity_name": "Nom"
+    },
+    {
+      "entity_name": "Nom de naissance"
+    },
+    {
+      "entity_name": "Pr\u00e9nom"
+    },
+    {
+      "entity_name": "Sexe"
+    },
+    {
+      "entity_name": "Date de naissance"
+    },
+    {
+      "entity_name": "Site demandeur"
+    },
+    {
+      "entity_name": "Adresse postale"
+    },
+    {
+      "entity_name": "Adresse \u00e9lectronique"
+    },
+    {
+      "entity_name": "H\u00f4pital"
+    },
+    {
+      "entity_name": "Localisations du cancer"
+    },
+    {
+      "entity_name": "Types histologiques"
+    },
+    {
+      "entity_name": "Localisation"
+    },
+    {
+      "entity_name": "Th\u00e9rapie innovante"
+    },
+    {
+      "entity_name": "Traitement hors AMM"
+    },
+    {
+      "entity_name": "Inclusion dans un essai th\u00e9rapeutique"
+    },
+    {
+      "entity_name": "Demande compl\u00e9ment d'examen compl\u00e9mentaire"
+    },
+    {
+      "entity_name": "EVASAN"
+    }
+  ],
+  "processing_type": "first_match",
+  "timestamp": "2025-06-26T00:32:55.232432"
+}

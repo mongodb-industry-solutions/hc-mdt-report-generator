@@ -1,0 +1,135 @@
+{
+  "metadata": {
+    "title": "SimbadScan2014149",
+    "filename": "SimbadScan2014149.pdf",
+    "file_type": ".pdf",
+    "file_size": 2712377,
+    "created_at": "2025-06-20T00:27:22.556938",
+    "character_count": 12633,
+    "word_count": 2054,
+    "author": null,
+    "subject": null,
+    "keywords": []
+  },
+  "document_elements": [
+    {
+      "page_id": 0,
+      "content": "# ASSISTANCE PUBLIQUE HÔPITAUX DE PARIS\n\n## Hôpital Henri-Mondor AP-HP\n\n1, rue Gustave Eiffel 94000 CRETEIL 01.49.81.21.11\n\n## DMU Médecine\n\nService de Cardiologie\nPr Emmanuel TEIGER\nChef de Service\n\n## Unité de Soins\n\nIntensifs de Cardiologie\n\n## SOS ENDOCARDITE\n\n## SOS EMBOLIE\n\nPULMONAIRE\n\n## Pr Pascal LIM\n\n## Secrétariat :\n\nMme E.CHUPIN\nTel: 01.45.17.83.51\nMail : elodie.chaupin@aphp.fr Mme A.MARQUETTE\nTel:0145178351\nMail:alexie.marquette@aphp.fr\nDr R. HUGUET (PH)\nDr D. AOUATE (PH\nDr C.BOYER (CCA)\nDr M.KHOURY (CCA)\nDr A. BEN YOUNES (AHS)\n\nMadame Docteur Marianne I\nCDS MUNICIPAL F DEWERPE\n64 AVENUE GEORGES GOSNAT\n94200 IVRY SUR SEINE",
+      "category": "HOSPITAL INFORMATION",
+      "merge": false,
+      "section_id": 1
+    },
+    {
+      "page_id": 0,
+      "content": "CRETEIL, le 15/04/2025\n\n## RÉFérences: DSM/DSM\n\n## COMPTE RENDU D'HOSPITALISATION du 13/04/2025 au 15/04/2025\n\n## MOTIF D'HOSPITALISATION\n\nMadame\n, née le 14/10/1952, âgée de 72 ans, a été hospitalisée du 13/04/2025 au 15/04/2025 pour Syncope - Suspicion de BAVc.\nMode de sortie : Domicile",
+      "category": "HOSPITALIZATION DETAILS",
+      "merge": false,
+      "section_id": 2
+    },
+    {
+      "page_id": 0,
+      "content": "## MODE DE VIE\n\nVit en appartement au 3ème étage sans ascenseur\nVeuve depuis 1 an\nAutonomie relative\nOriginaire de Tunisie",
+      "category": "PATIENT LIFESTYLE",
+      "merge": false,
+      "section_id": 3
+    },
+    {
+      "page_id": 0,
+      "content": "## ANTÉCÉDENTS\n\n## Antécédents médicaux :\n\n- Cancer du sein droit en 2008 opéré par mastectomie en 2015\n\nCancer du sein gauche en 2024 traité par radiothérapie et Tamoxifène\nDiabète de type 2 non insulino-dépendant\nAsthme\nAllergie: Pollens\nAntécédents chirurgicaux :\n\n- Cataracte sénile, sans précision (H259).",
+      "category": "PATIENT MEDICAL HISTORY",
+      "merge": false,
+      "section_id": 4
+    },
+    {
+      "page_id": 0,
+      "content": "## TRAITEMENT A L'ENTRÉE\n\nMetformine 1000mg: 1-1-1\nTahor 10 mg : 1 cp le soir\nTamoxifen\nVentoline\nAspegic 100mg : 1-0-0\nCardensiel 2.5 mg : $1 / 2 \\mathrm{cp}$ le midi\n\nFurosemide 40mg 1-0-0\nLercanidipine 20mg: 1-0-0\nTriatec 1.25mg : 0-0-1\nCacit 500mg: 1-0-0\nZyma D 50000 UI\nSeretide 250/25μg : 2 inhalations le matin et le soir\nThealose : 1 gtte x3/jour",
+      "category": "PATIENT MEDICATIONS",
+      "merge": false,
+      "section_id": 5
+    },
+    {
+      "page_id": 0,
+      "content": "RESUME CLINIQUE - HISTOIRE DE LA MALADIE\n\nCe jour, alors qu'elle sortait faire ses courses, la patiente a ressenti un accès de vertiges, suivi\nquelques seconde après d'une perte de connaissance brutale, avec probable atonie associée, et\nsans mouvement anormal retrouvé (dans le dossier du SAMU), avec reprise relativement rapide de\nla conscience (se souvient d'un homme et d'une femme qui l'ont réveillé avec des secousses sur les\njoues), puis ses premiers souvenirs remontraient à l'arrivée du SAMU. La patiente ne décrit pas de\ndouleur thoracique, ni dyspnée, ni palpitation avant ou après la perte de connaissance.\n\nA l'arrivée du SAMU, il aurait été diagnostiqué sur le scope, mais non documenté sur un ECG, et\nnon retrouvé à l'interrogation du scope du SAMU. La patiente est par la suite transférée à l'USIC du\nCHU Henri Mondor.\n\nEvaluation de la douleur : EN = 0 (évaluation du 13/4/2025 23:55)",
+      "category": "CLINICAL SUMMARY",
+      "merge": false,
+      "section_id": 6
+    },
+    {
+      "page_id": 0,
+      "content": "EXAMEN CLINIQUE A L'ENTRÉE\n\nLa pression artérielle est à 141/66 mmHg, la fréquence cardiaque est à 87 bpm, la saturation est à\n97 % en air ambiant.\nPoids 71 kg Taille 171 cm IMC 28 kg/m²\nPas de douleur thoracique, palpitations, lipothymies ou syncope. Dyspnée NYHA 4.\nAbsence de signes de bas débit.\nAbsence de signes d'insuffisance cardiaque droite ou gauche.\nL'auscultation pulmonaire est claire.\nLes bruits du cœur sont réguliers sans souffle.\nLes pouls sont perçus aux 4 membres.\nL'abdomen est souple indolore dépressible. Le reste de l'examen clinique est sans particularités.",
+      "category": "CLINICAL EXAMINATION",
+      "merge": false,
+      "section_id": 7
+    },
+    {
+      "page_id": 0,
+      "content": "EXAMENS COMPLÉMENTAIRES RÉALISÉS À L'ENTRÉE\nBiologie\n\nHEMATOLOGIE - CYTOLOGIE\nNumération\nCompte globules (..¹ : DXH2401\nLeucocytes Giga/l 7.5\nHématies Téra/l 3.9\nHémoglobine g/dl 11.5\nHématocrite % 34\nVGM fl 86\nTCMH pg 29\nCCMH g/dl 34\nIDR % 15\nPlaquettes Giga/l 332\nVMP fl 7.8\n\nBIOCHIMIE\nExamens sanguins\nSodium [mmol/l 140\nPotassium [mmol/l 3.8\nChlorure [mmol/l 100\nBicarbonate [mmol/l 27.0\nProtéines sériques [g/L 73\nUrée [mmol/l 10.3\nCréatinine [µmol/l 102\nDFG calculé par MDRD[mL/min/..146..¹\nDFG calculé par C..² [mL/min/..147..¹:4.0-10.0\n- [4.2-5.4\n- [12-16\n- [36-48\n[80-100\n[>27\n[32-36\n[<15\n[150-400\n[7.5-11.2\n\n[136-145\n[3.4-5.0\n[98-107\n[22.0-29.0\n[64-83\n[<11.9\n+ [<80\n- [>90\n- [>90\n\nCRH SERVICE HMN CARDIO HC SI CARDIO - BATH 12E R\n\n|  HEMATOLOGIE - CYTOLOGIE |  |  |  |   || --- | --- | --- | --- | --- |\n|  Numération |  |  |  |   |\n|  Compte globules (.. ${ }^{1}$ |  |  | DXH2401 |   |\n|  Leucocytes |  | Giga/1 | 8.1 | $4.0-10.0$  |\n|  Hématies |  | Téra/1 | 3.8 | $4.2-5.4$  |\n|  Hémoglobine |  | g/dl | 11.0 | $12-16$  |\n|  Hématocrite |  | \\% | 32 | $36-48$  |\n|  VGM |  | fl | 86 | $80-100$  |\n|  TCMH |  | pg | 29 | $>27$  |\n|  CCMH |  | g/dl | 34 | $32-36$  |\n|  IDR |  | \\% | 15 | $<15$  |\n|  Plaquettes |  | Giga/1 | 291 | $150-400$  |\n|  VMP |  | fl | 7.7 | $7.5-11.2$  |",
+      "category": "LABORATORY RESULTS",
+      "merge": false,
+      "section_id": 8
+    },
+    {
+      "page_id": 1,
+      "content": "# Imagerie\n\nL'ETT, réalisé par le Dr URIEN, retrouve:\n\n1) VG non dilaté (DTDVG= 5 cm ), non hypertrophié (SIVd : 0.9 cm ; MVG : $94 \\mathrm{~g} / \\mathrm{m}^{2}$ ), ressaut septal, sans autre trouble de la cinétique, FEVG préservée à $65 \\%$ en SBP. DC $=6.11 \\mathrm{l} / \\mathrm{min}$, soit IC $=3.51 \\mathrm{l} / \\mathrm{min} / \\mathrm{m}^{2}$. 2) Les pressions de remplissage du ventricule gauche sont non augmentées : E/A : 0.6 ; E/E' moy : 7.6, OG non dilatée ( $29 \\mathrm{ml} / \\mathrm{m}^{2}$ ), Vmax de l'Insuffisance Tricuspide à $2.54 \\mathrm{~m} / \\mathrm{s}$ 3) Valve aortique est tricuspide, sclérose aortique sans Rétrocissement Aortique ni Insuffisance Aortique. 4) Pas d'Insuffisance Mitrale. 5) Le ventricule droit est de taille et de fonction normales (TAPSE $=2 \\mathrm{~cm}, \\mathrm{~S}^{\\prime}$ tricuspide $=15 \\mathrm{~cm} / \\mathrm{s}$ ). PAPs $=26 \\mathrm{mmHg}+$ POD soit 29 mmHg , sur le flux d'IT. VCI fine et compliante. 6) Péricarde libre 7) Aorte initiale non dilatée : Valsalva à 2.9 cm , JST à 2.6 cm , aorte tubulaire ascendante à 2.9 cm .\n\n## CONCLUSION:\n\n- FEVG préservée, pas de valvulopathie mitrale ni aortique significative.",
+      "category": "IMAGING RESULTS",
+      "merge": false,
+      "section_id": 10
+    },
+    {
+      "page_id": 1,
+      "content": "## ECG\n\nECG du SAMU: Rythme Sinusal, FC variable entre 30 et 60 bpm, axe gauche, PR < 200ms, QRS élargis, aspect de Bloc de branche complet Gauche, trouble de la repolarisation secondaire. Le QTc est à 420 ms . Passage en dysfonction sinusal avec $F C=30$ bom, et absence d'onde $P$ bloquée.\n\nECG en USIC: RS, FC $=85 \\mathrm{bpm}$, axe gauche, PR < 200ms, QRS fins, trouble de la repolarisation secondaire, $\\mathrm{QTc}=470 \\mathrm{~ms}$.",
+      "category": "ECG RESULTS",
+      "merge": false,
+      "section_id": 11
+    },
+    {
+      "page_id": 1,
+      "content": "## EXAMENS COMPLÉMENTAIRES RÉALISÉS PENDANT LE SÉJOUR\n\n## Autres\n\n## IMPLANTATION PACE MAKER DU 15/04/2025\n\nOpérateurs: Dr LABBE Jean Philippe, Pr LELLOUCHE Nicolas Durée procédure: 60 min , scopie : $4 \\mathrm{~min} 0 \\mathrm{~s}$. PDS total : $221 \\mathrm{cGy} . \\mathrm{cm}^{2}$. Air Kerma cumulé : 144 mGy . Double badigeon à la bétadine. Antibioprophylaxie par Cefazoline 2000 mg . Après anesthésie locale, une incision est réalisée dans le sillon delto-pectoral gauche. Réalisation de la loge du stimulateur en pré-pectoral gauche. Fermeture par un surjet intradermique résorbable. Stimulateur:\n\n- ASSURITY MRI DR ST JUDE PM2272 (St Jude) N 6147685.\n\nSonde de stimulation:\n\n- SOLIA S 53cm (Biotronik) N 8001916580.\n- SOLIA S 60cm (Biotronik) N 8001949991.# IMPLANTATION DE L'ELECTRODE ATRIALE DROITE (AURICULE). Une électrode bipolaire de marque Biotronik (SOLIA S 53cm - 8001916580) a été implantée le 15/04/2025 par un abord céphalique gauche au niveau de l'auricule droit. Le seuil de stimulation est de 0,6 Volts pour $0,4 \\mathrm{~ms}$. L'impédance de stimulation est de 525 Ohms. La détection est de $1,7 \\mathrm{mV}$.\n\n# IMPLANTATION DE L'ELECTRODE VENTRICULAIRE DROITE (SEPTUM MID).\n\nUne électrode de marque Biotronik (SOLIA S 60cm - 8001949991) a été implantée le 15/04/2025 par un abord céphalique gauche au niveau du ventricule droit (septum mid). Le seuil de stimulation est de 0,5 Volts pour $0,5 \\mathrm{~ms}$. L'impédance de stimulation est de 689 Ohms. La détection bipolaire est de $6,7 \\mathrm{mV}$.\n\n# IMPLANTATION DU STIMULATEUR CARDIAQUE.\n\nUN STIMULATEUR CARDIAQUE DE MARQUE ST JUDE (ASSURITY MRI DR PM2272 5147685) A ETE IMPLANTE LE 15/04/2025 DANS UNE LOGE PRE-PECTORALE GAUCHE.",
+      "category": "CARDIAC DEVICE IMPLANTATION",
+      "merge": false,
+      "section_id": 12
+    },
+    {
+      "page_id": 1,
+      "content": "## ÉVOLUTION\n\na été hospitalisée pour implantation d'un stimulateur cardiaque double chambre pour bloc atrioventriculaire sur coeur sain\n\nA l'arrivée en USIC, la pat\"iente est stable sur le plan hémodynamique et eupnéique en air ambiant. L'ECG retrouve un rythme sinusal et régulier à 71 bpm, PR 200 ms , BBQ complet QRS 140 ms , pas de troubles de la repolarisation. L'ETT retrouve un ventricule gauche non dilaté, non hypertrophié de fonction systolique segmentaire et globale préservée à $65 \\%$ et une absence de valvulopathie significative.\n\nGeste réalisé le 15/04/2025 : implantation d'un boîtier de marque Saint-Jude.\nAbsence de pneumothorax et sondes en place à la radiographie thoracique de J1.\nAbsence de saignement ou hématome de loge.\nContrôle du boitier le 15/04 par le Dr BIA\n\n- $\\quad$ Sonde OD : détection 3.4 mV , impédance 550 ohms, seuil de stimulation 0.75 V 0.4 ms\n- $\\quad$ Sonde VD : détection 5.5 mV , impédance 580 ohms, seuil de stimulation 0.5 V 0.4 ms\n- Programmation : DDD 60-130bpm\n\nL'ECG de sortie montre un rythme sinusal 79bpm, BAV 1, BBQ complet avec axe hypergauche\nAblation du pansement compressif le 17/04 par IDE.\nRéfection du pansement tous les 2 jours par IDE jusqu'à cicatrisation, environ 10 jours. Fils résorbables, pas de nécessité d'ablation.\n\nSur le plan thérapeutique: arrêt du cardensiel et du furosemide.\nRetour à domicile le 16/04/25.\nConsultation de rythmologie pour contrôle du boitier dans 6 mois avec le Pr Lellouche.\nPoursuite du suivi avec le cardiologue traitant.",
+      "category": "PATIENT EVOLUTION",
+      "merge": false,
+      "section_id": 14
+    },
+    {
+      "page_id": 2,
+      "content": "## Prescriptions de sortie\n\n## Médicaments\n\nMETFORMINE 1000 mg : 1 comprimé le matin, 1 comprimé le midi et 1 comprimé le soir\nLERCANIDIPINE 20 mg : 1 comprimé le matin\nRAMIPRIL 1.25 mg : 1 comprimé le soir\nATORVASTATINE 10 mg : 1 comprimé le soir\nLercanidipine 20mg: 1 cp matin\nAspegic 100mg : 1 cp matin\nSeretide $250 / 25 \\mu \\mathrm{~g}$ : 2 inhalations le matin et le soir\nThealose : 1 gtte $x 3 /$ jour\nCardensiel 2.5 mg : arrêt\n\nFurosemide 40mg: arrêt\n\nQSP 6 mois",
+      "category": "MEDICATIONS",
+      "merge": false,
+      "section_id": 14
+    },
+    {
+      "page_id": 2,
+      "content": "## Soins infirmiers\n\n# ORDONNANCE POUR SOINS LOCAUX POST-POSE DE DÉFIBRILLATEUR OU DE STIMULATEUR CARDIAQUE\n\nPour l'application de soins locaux sur la cicatrice opératoire tous les 2 jours pendant 10 jours suivant l'intervention :\n\n- 1 flacon de BISEPTINE 500ml pour application locale.\n- 1 boîte de 50 compresses stériles 10x10cm.\n- 1 boîte de pansements MEDIPORE + Pad (avec compresse intégrée).\n\nQSP 1 mois\n\n# ORDONNANCE POUR SOINS LOCAUX POST-POSE DE DÉFIBRILLATEUR OU DE STIMULATEUR CARDIAQUE\n\nEffectuer réfection de pansement de la loge de PM/DAI, tous les deux jours pendant 10 jours (plus si nécessaire), dimanche et jours fériés inclus, par une IDE à domicile.\n\nFil résorbable, pas de nécessité d'ablation des fils\n\nQSP 1 mois",
+      "category": "POST-OPERATIVE CARE",
+      "merge": false,
+      "section_id": 15
+    },
+    {
+      "page_id": 2,
+      "content": "# AU TOTAL\n\n*Patiente de 72 ans hospitalisée pour syncope en lien avec un bloc atrioventriculaire de haut degré sur l'ECG post-critique (BAV 2:1)*\n\n*Implantation d'un pace maker double chambre de marque ABBOTT. Suites simples.*",
+      "category": "PATIENT SUMMARY",
+      "merge": false,
+      "section_id": 16
+    },
+    {
+      "page_id": 2,
+      "content": "## Planification des soins / Suites à donner\n\n## Rendez-vous pris\n\n- 15/04/2025 à 12:00 : (--)\n- 29/09/2025 à 13:30 : (BCT ORTHOPTIE)\n- 29/09/2025 à 14:00 : (BCT CS OPHTALMOLOGIE)\n\n## Événements recensés au cours de ce séjour :\n\n- Information du patient / de sa famille : Oui\n- Administration de produits sanguins labiles : Non\n- Administration de produits dérivés du sang : Non\n- Porteur / Contact BMR ou BHRe : Non\n- Inclusion dans un protocole de recherche : Non\n- Dispositif médical implantable permanent : Oui. PM Abbott\n- Conseils hygiéno-diététiques donnés : Non\n- Survenue d'événements indésirable : Non",
+      "category": "FOLLOW-UP CARE",
+      "merge": false,
+      "section_id": 17
+    },
+    {
+      "page_id": 2,
+      "content": "## Courrier non validé\n\n## Le document a été remis au patient lors de sa sortie\n\nPour assurer votre prise en charge, l'AP-HP s'engage à collecter vos données personnelles (ex. : nom, prénom, antécédents médicaux) dans des outils numériques hautement sécurisés et conformément à la réglementation applicable.\nPour optimiser leur activité, certains services sont susceptibles d'utiliser des outils d'intelligence artificielle, avec une validation humaine.\nPar ailleurs, certaines de vos données sont pseudonymisées (c'est-à-dire privées de toutes informations directement identifiantes) et rassemblées dans un entrepôt de données de santé (EDS), afin d'être réutilisées pour produire des indicateurs de pilotage de l'activité hospitalière, ou pour faire progresser la recherche sous réserve de l'avis du comité scientifique et éthique de l'EDS.\nPour information : retrouvez vos documents AP-HP sur le carnet de santé national Mon espace santé https://monespacesante.fr, ainsi que sur l'espace documentaire de votre Espace patient AP-HP https://mon.aphp.fr\nPour plus d'informations sur le traitement de vos données personnelles et exercer vos droits, notamment d'opposition, rendez-vous sur https://www.aphp.fr/RGPD\n\nCopie à :\nMadame",
+      "category": "ADMINISTRATIVE INFORMATION",
+      "merge": false,
+      "section_id": 18
+    }
+  ]
+}

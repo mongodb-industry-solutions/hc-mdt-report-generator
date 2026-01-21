@@ -1,0 +1,19 @@
+version: '3.8'  
+services:  
+  mongodb-test:  
+    image: mongo:latest  
+    ports:  
+      - "27017:27017"  
+    environment:  
+      MONGO_INITDB_DATABASE: test_document_parser  
+    tmpfs:  
+      - /data/db  
+    
+  test-runner:  
+    build: .  
+    depends_on:  
+      - mongodb-test  
+    environment:  
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}  
+      - MONGODB_URI=mongodb://mongodb-test:27017/  
+    command: pytest -v  

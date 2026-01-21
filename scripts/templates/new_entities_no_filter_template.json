@@ -1,0 +1,84 @@
+{
+  "template_name": "ORL Clinical Template no filters",
+  "template_description": "Template pour l'extraction des données cliniques ORL SANS filtres - recherche dans tous les documents",
+  "entities": [
+    {
+      "name": "Date de diagnostic",
+      "definition": "Date du diagnostique correspond à date de la biopsie anatomopathologique",
+      "extraction_instructions": "Extraire la date de la biopsie anatomopathologique qui correspond à la date officielle du diagnostic. Chercher: 'date de biopsie', 'date de prélèvement', 'reçu le', 'date d'examen'. Format attendu: JJ/MM/AAAA.",
+      "type": "date",
+      "source_filters": []
+    },
+    {
+      "name": "Localisation primitive",
+      "definition": "Localisation anatomique de la tumeur primitive",
+      "extraction_instructions": "Extraire la localisation de la tumeur PRIMITIVE. Chercher: 'tumeur primitive', 'localisation primitive', 'site primaire', 'origine tumorale'. Dans les CR Opératoires, chercher les résultats de pan-endoscopie. Dans les RCP, chercher la conclusion sur le site primitif.",
+      "type": "string",
+      "source_filters": []
+    },
+    {
+      "name": "Lésion primaire",
+      "definition": "Description de la lésion primaire sur imagerie CT/IRM",
+      "extraction_instructions": "Extraire la description de la lésion primaire dans le dernier compte-rendu d'imagerie (scanner ou IRM). Inclure: taille, localisation précise, caractéristiques morphologiques, extension locale.",
+      "type": "string",
+      "source_filters": []
+    },
+    {
+      "name": "Bilan complémentaire",
+      "definition": "Bilan d'extension à distance - résultats des examens complémentaires",
+      "extraction_instructions": "Extraire les résultats du bilan d'extension (scanner, IRM, TEP-scan, scintigraphie). Se concentrer sur la CONCLUSION des examens. Identifier les sites métastatiques éventuels.",
+      "type": "string",
+      "source_filters": []
+    },
+    {
+      "name": "Classification TNM",
+      "definition": "Stade TNM du cancer. Regarder la conclusion du compte rendu de médecine nucléaire",
+      "extraction_instructions": "Extraire la classification TNM complète (T, N, M et stade global). Chercher: 'cTNM', 'pTNM', 'stade', 'classification'. Privilégier le pTNM (pathologique) sur le cTNM (clinique).",
+      "type": "string",
+      "source_filters": []
+    },
+    {
+      "name": "Adénopathies",
+      "definition": "Description des adénopathies cervicales et à distance",
+      "extraction_instructions": "Extraire les informations sur les adénopathies: localisation (niveaux cervicaux I-VI), taille, caractéristiques suspectes, résultats du curage ganglionnaire si réalisé.",
+      "type": "string",
+      "source_filters": []
+    },
+    {
+      "name": "Antécédents personnels notables",
+      "definition": "Antécédents médicaux et chirurgicaux significatifs",
+      "extraction_instructions": "Extraire les antécédents médicaux pertinents: autres cancers, comorbidités majeures (diabète, cardiopathie, BPCO, insuffisance rénale), intoxication tabagique/alcoolique, chirurgies majeures antérieures.",
+      "type": "string",
+      "source_filters": []
+    },
+    {
+      "name": "Histoire de la maladie",
+      "definition": "Histoire clinique de la maladie actuelle",
+      "extraction_instructions": "Extraire l'histoire de la maladie: symptômes révélateurs, circonstances de découverte, évolution chronologique, traitements entrepris. Chercher dans les consultations d'accueil et premières consultations.",
+      "type": "string",
+      "source_filters": []
+    },
+    {
+      "name": "Score OMS",
+      "definition": "Score de performance OMS (0-4)",
+      "extraction_instructions": "Extraire le score OMS/ECOG/PS. Chercher: 'OMS', 'ECOG', 'PS', 'Performance Status', suivi d'un chiffre de 0 à 4. Prendre le score le plus récent.",
+      "type": "enum",
+      "valid_values": ["0", "1", "2", "3", "4"],
+      "source_filters": []
+    },
+    {
+      "name": "Anomalies moléculaires",
+      "definition": "Anomalies moléculaires et génétiques tumorales",
+      "extraction_instructions": "Extraire les résultats de biologie moléculaire: mutations (EGFR, KRAS, BRAF, TP53, PIK3CA), statut HPV/p16, instabilité microsatellitaire (MSI), charge mutationnelle (TMB), expression PD-L1.",
+      "type": "string",
+      "source_filters": []
+    },
+    {
+      "name": "Métastases à distance",
+      "definition": "Sites métastatiques à distance",
+      "extraction_instructions": "Extraire les métastases à distance confirmées ou suspectées. Chercher: 'métastase', 'M1', 'localisation secondaire', 'dissémination'. Inclure le site, la taille, et le statut (confirmé/suspect).",
+      "type": "string",
+      "source_filters": []
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+RAPPORT DE SCANNER THORACO-ABDOMINO-PELVIEN
+
+Patient: Jane DOE
+Date de naissance: 15/08/1975
+Patient ID: jane-doe
+Date d'examen: 20/11/2024
+Médecin: Dr. Pierre Moreau
+
+TECHNIQUE:
+Scanner multi-détecteurs avec injection de produit de contraste
+Coupes de 3mm
+
+RÉSULTATS:
+
+THORAX:
+- Masse œsophagienne au tiers moyen
+- Localisation: 25-30 cm des arcades dentaires
+- Taille: 3.5 x 2.8 cm
+- Épaississement circonférentiel de la paroi œsophagienne
+- Sténose partielle de la lumière œsophagienne
+- Pas d'envahissement trachéal
+- Ganglions médiastinaux suspects: 2 ganglions de 1.5 cm
+- Pas d'épanchement pleural
+
+ABDOMEN:
+- Foie de taille normale
+- Pas de métastase hépatique visible
+- Rate normale
+- Pancréas normal
+- Reins normaux
+- Pas d'adénopathie abdominale significative
+
+PELVIS:
+- Normal
+
+CONCLUSION:
+Masse œsophagienne suspecte de malignité
+Sténose partielle de l'œsophage
+Ganglions médiastinaux suspects
+Pas de métastase viscérale visible
+
+RECOMMANDATIONS:
+- Fibroscopie avec biopsies en urgence
+- Échographie endoscopique pour stadification
+- Bilan d'extension complet
+
+Dr. Pierre Moreau
+Radiologue 

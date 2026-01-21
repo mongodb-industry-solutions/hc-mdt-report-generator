@@ -1,0 +1,55 @@
+  version: '3.8'
+  services:
+    mongodb:
+      image: mongodb/mongodb-community-server:5.0-ubuntu2004
+      container_name: mongodb
+      restart: unless-stopped
+      ports:
+        - "27017:27017"
+      volumes:
+        - mongodb_data:/data/db
+      networks:
+        - claritygr-internal
+      healthcheck:
+        test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        start_period: 40s
+
+    app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: claritygr-app
+      restart: unless-stopped
+      ports:
+        - "8000:8000"
+      depends_on:
+        mongodb:
+          condition: service_healthy
+      env_file:
+        - ./.env
+      environment:
+        MONGODB_URI: mongodb://mongodb:27017/${MONGODB_DB:-clarityGR}
+        MONGODB_DB: ${MONGODB_DB:-clarityGR}
+        SECRET_KEY: ${SECRET_KEY}
+        GPT_OPEN_BASE_URL: ${GPT_OPEN_BASE_URL}
+        HOST: 0.0.0.0
+        PORT: 8000
+        ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:5173"
+      volumes:
+        - easyocr_models:/root/.EasyOCR
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+      networks:
+        - claritygr-internal
+
+  networks:
+    claritygr-internal:
+      driver: bridge
+      internal: false
+
+  volumes:
+    mongodb_data:
+    easyocr_models:

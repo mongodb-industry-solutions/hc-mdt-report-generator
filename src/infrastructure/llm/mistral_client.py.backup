@@ -1,0 +1,133 @@
+import time  
+import asyncio  
+import logging  
+from mistralai import Mistral  
+from typing import Dict, Any  
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type  
+from config.ner_config import settings  
+  
+logger = logging.getLogger(__name__)  
+  
+class AsyncMistralClient:  
+    def __init__(self):  
+        logger.info("🔧 Initializing AsyncMistralClient...")  
+        self.client = Mistral(api_key=settings.mistral_api_key)  
+        self.model = settings.mistral_model  
+        self.max_retries = getattr(settings, 'mistral_max_retries', 3)  
+        self.timeout_seconds = getattr(settings, 'mistral_timeout', 60)  
+        logger.info(f"✅ AsyncMistralClient initialized with model: {self.model}")  
+  
+    async def __aenter__(self):  
+        logger.info("🚪 Entering AsyncMistralClient context")  
+        return self  
+  
+    async def __aexit__(self, exc_type, exc_val, exc_tb):  
+        logger.info("🚪 Exiting AsyncMistralClient context")  
+        if exc_type:  
+            logger.error(f"❌ Exception in context: {exc_type.__name__}: {exc_val}")  
+          
+        if hasattr(self.client, 'close'):  
+            try:  
+                await self.client.close()  
+                logger.info("🔌 Client connection closed")  
+            except Exception as e:  
+                logger.warning(f"⚠️ Error closing client: {e}")  
+        return False  
+  
+    @retry(  
+        stop=stop_after_attempt(3),  
+        wait=wait_exponential(multiplier=1, min=2, max=10),  
+        retry=retry_if_exception_type((Exception,)),  
+        reraise=True  
+    )  
+    def invoke_mistral_sync_with_retry(self, system_prompt: str, prompt: str) -> str:  
+        """Synchronous Mistral call with built-in retry logic."""  
+          
+        logger.info("🤖 Starting Mistral API call with retry logic...")  
+        logger.debug(f"Model: {self.model}")  
+        logger.debug(f"System prompt length: {len(system_prompt) if system_prompt else 0}")  
+        logger.debug(f"User prompt length: {len(prompt) if prompt else 0}")  
+          
+        try:  
+            logger.info("📤 Sending request to Mistral API...")  
+            chat_response = self.client.chat.complete(  
+                model=self.model,  
+                messages=[  
+                    {"role": "system", "content": system_prompt},  
+                    {"role": "user", "content": prompt}  
+                ],
+                temperature=0.0,
+                max_tokens=40000  
+            )  
+              
+            logger.info("📥 Received response from Mistral API")  
+              
+            # Validate response  
+            if not chat_response:  
+                raise ValueError("Empty response from Mistral API")  
+              
+            if not chat_response.choices:  
+                raise ValueError("No choices in Mistral API response")  
+              
+            if not chat_response.choices[0].message:  
+                raise ValueError("No message in first choice")  
+              
+            content = chat_response.choices[0].message.content  
+            if not content:  
+                raise ValueError("Empty content in response")  
+              
+            logger.info(f"✅ Successfully got response (length: {len(content)})")  
+            logger.debug(f"Response preview: {content[:200]}...")  
+              
+            # Rate limiting delay  
+            time.sleep(0.5)  
+            return content  
+              
+        except Exception as e:  
+            logger.error(f"❌ API call failed: {type(e).__name__}: {e}")  
+            # The @retry decorator will handle retries  
+            raise  
+  
+    async def invoke_mistral_async_robust(  
+        self,   
+        system_prompt: str,   
+        prompt: str,  
+        timeout_override: int = None  
+    ) -> str:  
+        """Async wrapper with timeout and comprehensive error handling."""  
+          
+        timeout = timeout_override or self.timeout_seconds  
+        logger.info(f"🔄 Starting robust async Mistral call (timeout: {timeout}s)...")  
+          
+        try:  
+            # Use asyncio.timeout for the entire operation  
+            async with asyncio.timeout(timeout):  
+                result = await asyncio.to_thread(  
+                    self.invoke_mistral_sync_with_retry,  
+                    system_prompt,  
+                    prompt  
+                )  
+                logger.info("✅ Robust async Mistral call completed")  
+                return result  
+                  
+        except asyncio.TimeoutError:  
+            logger.error(f"⏰ Mistral API call timed out after {timeout} seconds")  
+            raise TimeoutError(f"Mistral API call timed out after {timeout} seconds")  
+        except Exception as e:  
+            logger.error(f"❌ Robust async Mistral call failed: {type(e).__name__}: {e}")  
+            raise  
+  
+    # Keep the old method for backward compatibility but make it use the robust version  
+    async def invoke_mistral_async(self, system_prompt: str, prompt: str) -> str:  
+        """Legacy method - redirects to robust version."""  
+        return await self.invoke_mistral_async_robust(system_prompt, prompt)  
+  
+    async def extract_entities(self, prompt: str, system_prompt: str = "") -> Dict[str, Any]:  
+        """For compatibility with existing code."""  
+        try:  
+            content = await self.invoke_mistral_async_robust(system_prompt, prompt)  
+            return {"content": content}  
+        except Exception as e:  
+            logger.error(f"❌ extract_entities failed: {e}")  
+            # Return a failed result instead of crashing  
+            return {"content": "", "error": str(e)}  

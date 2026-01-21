@@ -1,0 +1,50 @@
+CONSULTATION D'ONCOLOGIE - Dr. Marie Dubois
+
+Patient: Jane DOE
+Date de naissance: 15/08/1975
+Patient ID: jane-doe
+Date de consultation: 02/12/2024
+
+DIAGNOSTIC CONFIRMÉ:
+Adénocarcinome œsophagien modérément différencié
+Stade IIB (T3N1M0)
+Localisation: Tiers moyen de l'œsophage
+
+BILAN D'EXTENSION:
+- Scanner thoraco-abdomino-pelvien: Masse œsophagienne + ganglions médiastinaux
+- Fibroscopie: Sténose serrée, biopsies positives
+- Anatomopathologie: Adénocarcinome confirmé
+- Bilan biologique: Anémie, syndrome inflammatoire
+
+ÉTAT GÉNÉRAL:
+- Performance Status: 1
+- Perte de poids: 5 kg
+- Dysphagie sévère
+- Fatigue importante
+
+TRAITEMENT PROPOSÉ:
+Protocole trimodal:
+1. Chimiothérapie néoadjuvante (2 cycles)
+   - Cisplatine 80 mg/m² J1
+   - 5-FU 800 mg/m²/j J1-J4
+   - Cycles toutes les 3 semaines
+
+2. Chirurgie (après chimiothérapie)
+   - Œsophagectomie subtotale
+   - Gastrectomie partielle
+   - Anastomose œso-gastrique
+
+3. Chimiothérapie adjuvante (2 cycles)
+   - Même protocole
+
+OBJECTIFS:
+- Contrôle local de la maladie
+- Amélioration de la survie
+- Traitement curatif
+
+RENDEZ-VOUS:
+- Consultation chirurgicale: 05/12/2024
+- Début chimiothérapie: 10/12/2024
+
+Dr. Marie Dubois
+Oncologue médical 

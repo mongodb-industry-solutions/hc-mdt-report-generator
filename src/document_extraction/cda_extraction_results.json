@@ -1,0 +1,141 @@
+{
+  "patient_id": "GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7",
+  "documents": [
+    {
+      "file_path": "../../../test_data/POCIAMONGO/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_anonymized/CRB/GR-AutresK-QUAL-2024/600/0be/8a0/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_mbiolims.xml",
+      "extraction_success": true,
+      "document_id": "GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7",
+      "title": "Prélèvements/CRB",
+      "date": "2023-12-04",
+      "date_raw": "20231204",
+      "MDT": false,
+      "PMSI": false,
+      "content": {
+        "text": "<biobanquesXML> <date>2023-12-04T14:28:12Z</date> <formatVersion>0.5</formatVersion> <biobank> <biobank_id>CRB Recherche ancillaire</biobank_id> <biobank_name>CRB Recherche ancillaire</biobank_name> </biobank> <samples> <sample> <sample_id>1-TS14H06677</sample_id> <collect_date>2014-07-17T00:00</collect_date> <storage_conditions>&lt;-135oC</storage_conditions> <origin>C80.9</origin> <tumor_diagnosis>0000</tumor_diagnosis> <notes> <note> <key>OPPOSITION_PATIENT</key> <value>N</value> </note> <note> <key>PREL_TYPE</key> <value>Comité 010 - ORL - Tissu sain</value> </note> <note> <key>SAMPLE_NATURE</key> <value>Frozen Specimen</value> </note> <note> <key>NUM_PREL</key> <value>14H06677</value> </note> </notes> </sample> <sample> <sample_id>1-TTP14H06677</sample_id> <collect_date>2014-07-17T00:00</collect_date> <storage_conditions>&lt;-135oC</storage_conditions> <origin>C06.9</origin> <tumor_diagnosis>E7T0</tumor_diagnosis> <notes> <note> <key>OPPOSITION_PATIENT</key> <value>N</value> </note> <note> <key>PREL_TYPE</key> <value>Comité 010 - ORL - Tissu tumoral primitif</value> </note> <note> <key>SAMPLE_NATURE</key> <value>Frozen Specimen</value> </note> <note> <key>NUM_PREL</key> <value>14H06677</value> </note> </notes> </sample> <sample> <sample_id>1-TTG19H10116</sample_id> <collect_date>2019-10-15T00:00</collect_date> <storage_conditions>&lt;-135oC</storage_conditions> <origin>C77.9</origin> <tumor_diagnosis>EMT2</tumor_diagnosis> <notes> <note> <key>OPPOSITION_PATIENT</key> <value>N</value> </note> <note> <key>PREL_TYPE</key> <value>Comité 010 - ORL - Tissu tumoral ganglionnaire</value> </note> <note> <key>SAMPLE_NATURE</key> <value>Frozen Specimen</value> </note> <note> <key>NUM_PREL</key> <value>19H10116</value> </note> </notes> </sample> <sample> <sample_id>2-TTG19H10116</sample_id> <collect_date>2019-10-15T00:00</collect_date> <storage_conditions>&lt;-135oC</storage_conditions> <origin>C77.9</origin> <tumor_diagnosis>EMT2</tumor_diagnosis> <notes> <note> <key>OPPOSITION_PATIENT</key> <value>N</value> </note> <note> <key>PREL_TYPE</key> <value>Comité 010 - ORL - Tissu tumoral ganglionnaire</value> </note> <note> <key>SAMPLE_NATURE</key> <value>Frozen Specimen</value> </note> <note> <key>NUM_PREL</key> <value>19H10116</value> </note> </notes> </sample> </samples> </biobanquesXML>",
+        "title": "Prélèvements/CRB",
+        "value": "N"
+      },
+      "has_pdfs": false
+    },
+    {
+      "file_path": "../../../test_data/POCIAMONGO/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_anonymized/Documents/GR-AutresK-QUAL-2024/600/0be/8a0/SIMBAD_CR_120724350.xml",
+      "extraction_success": true,
+      "document_id": "SIMBAD_CR_120724350",
+      "title": "Note du 2020-07-30",
+      "date": "2020-07-30",
+      "date_raw": "20200730",
+      "MDT": false,
+      "PMSI": false,
+      "content": {
+        "text": "Contenu DR VERLINGUE - DITEP Les résultats RAGNAR et de la RCP Moléculaire ont été transmis par mail aux docteurs : MURATORI leonardo, HERSHKOVITCH Juliette, IACOB Mariana, FERRAND François Regis.",
+        "title": "Note du 2020-07-30"
+      },
+      "has_pdfs": false
+    },
+    {
+      "file_path": "../../../test_data/POCIAMONGO/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_anonymized/Documents/GR-AutresK-QUAL-2024/600/0be/8a0/SIMBAD_CR_120727723.xml",
+      "extraction_success": true,
+      "document_id": "SIMBAD_CR_120727723",
+      "title": "RESUME D'HOSPITALISATION FAISANT FONCTION DE LETTRE DE LIAISON",
+      "date": "2020-07-30",
+      "date_raw": "20200730",
+      "MDT": false,
+      "PMSI": false,
+      "content": {
+        "text": "Contenu SERVICE D'HOSPITALISATION RHONE - COMPTE RENDU D'HOSPITALISATION CHIMIOTHERAPIE + 24 HEURESDicté par : Docteur Leonardo Muratori, Interne Dicté le : 26/06/2020 Service : RHO-RHONE Type de document : RHO RH HOSPI + 24 H (S) Ref : 1031933 _____________________________________________________________ Patient : José XXXXXX Identifiant : XXXXXX Date de naissance : XXXXXX Sexe: Masculin _____________________________________________________________ Secrétaire : IAV Approuvé par : Dr IACOB Docteur MURATORI /Docteur IACOB Chirurgien référent IGR : Dr BREUSKIN Oncologue référent IGR : Dr BILLARD-SANDU Date d'entrée : 26/06/2020 Motif d'hospitalisation : Patient âgé de 59 ans, hospitalisé pour équilibration de la douleur, dans le cadre de la prise en charge d'un carcinome épidermoïde oropharyngé en récidive latérocervicale bilatéral en cours de traitement par NIVOLUMAB de 2ème ligne. Antécédents chirurgicaux - Carcinome épidermoïde hypopharyngé (récidive) traité par PLT avec lambeau de grand pectoral et lambeau antéro-latéral de cuisse, - Trachéotomie, - Opéré d'une maladie de Dupuytren à 2 reprises (à gauche et à droite). Antécédents médicaux - Crise comitiale généralisée avec dernier évènement il y a plus de 10 ans, pas de suivi neurologique, que l'on recommande notamment sur le plan thérapeutique, - Psoriasis diffus essentiellement aux mains et aux avant-pieds, pas de traitement systémique, - Hypothyroïdie, Allergie Aucune. Histoire de la maladie : Pour mémoire, traitement initial par radiochimiothérapie en octobre 2014 jusqu'à mars 2018. Récidive biopsiée en octobre 2019. C1 Tpex le 30/10/19. C4 le 03/01/20 : réponse métabolique. Progression après 2 mois de traitement d'entretien par CETUXIMAB le 13/03/20. C1 NIVOLUMAB le 25/03. C6 NIVOLUMAB le 02/06. Screening KOTIP : HRAS non muté, mutation oncogénique délétère de TP53,variante de signification inconnue de CDKN2A. Intercure : - Le 25/06/2020 : consultation en petite chirurgie pour sonde de gastrostomie mal posée. Remplacement de la sonde. Absence de douleurs pendant le geste. - Le 23/06/2020 : consultation à l'hôpital de jour en soin palliatif, la douleur n'est pas bien contrôlée malgré le DUROGESIC et interdose d'ORAMORPH. - Le 26/03/2020 :hospitalisation pour équilibration antalgique avec mise en place PCA Morphine Examen clinique et biologique à l'entrée OMS 2 Poids : 73 kg Taille : 161 cm SC : 1 m2 IMC : 16,99 kg/m2 TA : 114/73mmHg FC : 81 bpm T : 37,1°C. EVA : 8/10 (épaule) Saturation : 93% en AA Trachéotomie : en place Alimentation : par gastrostomie exclusive Au plan clinique loco-régional : Examen ORL : RAS Adénopathie : non palpable Auscultation cardio-pulmonaire : sans particularité Abdomen : souple et dépressible, indolore, sans masse palpable, pas de hépatosplénomégalie. Transit : tendance à la constipation Pas d'oedème des membres inférieurs. Au plan bio-hématologique : Hémoglobine : 13,8 g/dl Leucocytes : 12800/mm3 PNN : 10800/mm3 Plaquettes : 258000/mm3 Créatininémie à 51 μmol/l. Ionogramme : Magnésium 0,8 mmol/l, Potassium 4 mmol/l, Sodium 137 mmol/l, Phosphore 0,8 mmol/l, Calcium 2,5 mmol/l. Bilan hépatique : Normal / ASAT 18 UI/l, ALAT 15 UI/l, Gamma GT 83 UI/l, PAL 88 UI/l, Albumine : 37 g/l Evolution dans le service - Au plan antalgique: Début PCA de morphine à 4mg/h avec bolus de 4 mg et LAROXYL 12,5 mg le soir, le 26/06/2020 avec amélioration de la douleur. - Au plan ORL: Le 28/06/2020 vers 4h du matin hémorragie au niveau cervical gauche et au niveau de la cavite buccale. Vu par l'interne de garde : A mon arrivée patient assis au bord du lit, cyanosé. Sp02 95% en AA, FC 140 bpm, PA 160/110 mmHg. En dyspnée aigue. => Mesures immédiates: - compression cervicale G - aspiration sang dans la bouche - Administration de SOLUMEDROL 60 mg et EXACYL 1g en IV - 02 montée sur trachéostomie Cliniquement hémodynamique stable, auscultation cardiopulmonaire normale hormis tachycardie. Hémorragie cervicale gauche par un orifice de 1cm de grand axe à la base du cou G (paquet ganglionnaire). Le saignement est maîtrisé grâce à la compression et aux mesures mises en place. Appel interne de chirurgie qui vient évaluer le patient. Appel l'ORL d'astreinte qui demande la réalisation d'un angioTDM en urgence à la recherche d'un saignement actif. Angioscanner : Pas d'argument en faveur de saignement actif.Engainement de la carotide commune gauche jusqu'à la bifurcation avec trajet fistuleux au contact de l'axe carotidien et risque vasculaire majeur. Avis RI et decision d'embolisation le 29/06/2020: Occlusion de tout l'axe carotidien à gauche, l'hémisphère gauche du cerveau est perfusé par la droite. Patient tranfere en USCC pour surveillance apres le geste. Conformément à l'article R710-2-1 du code de Santé Publique : Transfusion de produits sanguins labiles : NON. Portage de germe multirésistant : NON. _________________________________________________Signé électroniquement par Docteur Mariana IACOB Le mercredi 29 juillet 2020 à 18:08",
+        "title": "RESUME D'HOSPITALISATION FAISANT FONCTION DE LETTRE DE LIAISON"
+      },
+      "has_pdfs": false
+    },
+    {
+      "file_path": "../../../test_data/POCIAMONGO/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_anonymized/Documents/GR-AutresK-QUAL-2024/600/0be/8a0/SIMBAD_CR_120732565.xml",
+      "extraction_success": true,
+      "document_id": "SIMBAD_CR_120732565",
+      "title": "CONSULTATION ORL - Interne ORL",
+      "date": "2020-07-29",
+      "date_raw": "20200729",
+      "MDT": true,
+      "PMSI": false,
+      "content": {
+        "text": "Contenu CONSULTATION ORL - INTERNE ORLDicté par : Docteur Malek Drira Dicté le : 19/06/2020 Service : ORL-CONSULTATIONS ORL Type de document : ORL CC PETITE CHIRURGIE Ref : 1025333 _____________________________________________________________ Patient : José XXXXXX Identifiant : XXXXXX Date de naissance : XXXXXX Sexe: Masculin _____________________________________________________________ Secrétaire : wai Patient agé de 58 ans vu ce jour en présence de son épouse dans le cadre de la prise en charge d'un carcinome épidermoïde oropharyngé HPV négatif en récidive latérocervicale bilatérale potentiellement pleural sous NIVOLUMAB en 2e ligne de récidive métastatique. Le patient vient pour une biopsie cervico latérale gauche. Après concertation avec Le Docteur Breuskin, on procède à une biopsie cervico latérale gauche sous AL, Xylocaïne adrénalinée. Bande anapath bien remplie. On vérifie avec le patient que l'ordonnance d'analgésiques est suffisante. Le patient à un patch de Durogesic 75 mg et n'a pas de douleur. Il peut retourner à la maison après avoir fait une bonne hémostase à la pince bipolaire et après avoir refait un pansement compressif. L verra le Docteur Ferrand le 30/06. _________________________________________________Signé électroniquement par Docteur Malek DRIRA Le jeudi 16 juillet 2020 à 11:38",
+        "title": "CONSULTATION ORL - Interne ORL"
+      },
+      "has_pdfs": false
+    },
+    {
+      "file_path": "../../../test_data/POCIAMONGO/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_anonymized/Documents/GR-AutresK-QUAL-2024/600/0be/8a0/SIMBAD_CR_120736865.xml",
+      "extraction_success": true,
+      "document_id": "SIMBAD_CR_120736865",
+      "title": "HOPITAL DE JOUR DE MEDECINE ONCOLOGIQUE ADULTES",
+      "date": "2020-07-29",
+      "date_raw": "20200729",
+      "MDT": false,
+      "PMSI": false,
+      "content": {
+        "text": "Contenu DEPARTEMENT DE MEDECINE - HOPITAL DE JOUR MEDECINE Dicté par : Docteur Monica Pierro, Interne Dicté le : 08/04/2020 Service : HJM-HOPITAL DE JOUR MEDECINE Type de document : HJM CC GENERIQUE Ref : 976118 _____________________________________________________________ Patient : José XXXXXX Identifiant : XXXXXX Date de naissance : XXXXXX Sexe: Masculin _____________________________________________________________ Secrétaire : LSJ/A COMPTE-RENDU DE CONSULTATION EN HOPITAL DE JOUR DE MEDECINE Monsieur DA Silva patient de 58 ans vu ce jour en HDJ avant le NIVOLUMAB dans le cadre de la prise en charge d'un carcinome épidermoïde de l'oropharynx traité par radio-chimiothérapie en octobre 2014 suivie de chirurgie de rattrapage en novembre 2017 et mars 2018. Pour mémoire : le patient est connu pour présenter un pharyngostome gauche. A l'examen clinique ce jour : Examen de l'oropharynx : l'orifice de trachéotomie est normal sans signe inflammatoire ni de sécrétion. Pas de collection, pas écoulement Douleurs au niveau de la bouche suite à des lésions de morsure de la langue au bord latéral de la langue mobile gauche sans axe et sans écoulement en cours de traitement par Paroex pendant 30 jours. Il sera revu en consultation de petite chirurgie si pas d'améliorationPas d'autre signe de toxicité. Pas de fièvre. Pas de signe d'infection. Pas de toux. Pas de dyspnée. Pas de douleur abdominale. L'examen clinique cardio-pulmonaire est sans particularité. Le bilan biologique réalisé le 7 avrilà l'IGR est satisfaisant pour l'immunothérapie. Hémoglobine 16 g/dl, leucocytes 9800/mm3 dont 6300 PNN/mm3. Pas de trouble ionique, créatinine à 45 μmol/l. Bilan hépatique normal hormis les GGT 2N Albumine 44. Le reste du bilan est sans particularité. En pratique : Nous validons pour ce jour l'injection de NIVOLUMAB : * NIVOLUMAB 240 mg DT Modification de la thérapie antalgique suite à la persistance de la douleur. Majoration du SKENAN de 10 mg à 20 mg LP matin et soir et poursuite des interdoses de ORAMORPH 10 mg. Renouvellement d'une ordonnance de LYRICA 25 mg et de PANTOPRAZOLE. Le patient sera revu en HDJ le 21 avril avec une consultation nutritionnelle et un bilan. Prochaine injection de NIVOLUMAB prévue le 22 avril 2020. _________________________________________________Signé électroniquement par Docteur Maria KFOURY Le samedi 13 juin 2020 à 12:25_________________________________________________Signé électroniquement par Docteur Monica PIERRO Le mardi 28 juillet 2020 à 14:49",
+        "title": "HOPITAL DE JOUR DE MEDECINE ONCOLOGIQUE ADULTES"
+      },
+      "has_pdfs": false
+    },
+    {
+      "file_path": "../../../test_data/POCIAMONGO/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_anonymized/Documents/GR-AutresK-QUAL-2024/600/0be/8a0/SIMBAD_CR_120754932.xml",
+      "extraction_success": true,
+      "document_id": "SIMBAD_CR_120754932",
+      "title": "CONSULTATION ORL - Interne ORL",
+      "date": "2020-07-27",
+      "date_raw": "20200727",
+      "MDT": true,
+      "PMSI": false,
+      "content": {
+        "text": "Contenu CONSULTATION ORL - INTERNE ORLDicté par : Docteur Mohamed El Yagoubi, Interne Dicté le : 22/06/2020 Service : ORL-CONSULTATIONS ORL Type de document : ORL CC PETITE CHIRURGIE Ref : 1026422 _____________________________________________________________ Patient : José XXXXXX Identifiant : XXXXXX Date de naissance : XXXXXX Sexe: Masculin _____________________________________________________________ Secrétaire : LIJ Le patient consulte ce jour pour mal position de sonde de gastrostomie. La sonde est effectivement placée en dehors de l'estomac au niveau de la paroi abdominale antérieure. Remplacement de la sonde de gastrostomie, gonflement du ballonnet à 6 ml d'H2O. Test à la seringue positif. Pansement par Algostéril. Absence de douleur au décours du geste. _________________________________________________Signé électroniquement par Docteur Mohamed EL YAGOUBI , InterneLe samedi 25 juillet 2020 à 17:10",
+        "title": "CONSULTATION ORL - Interne ORL"
+      },
+      "has_pdfs": false
+    },
+    {
+      "file_path": "../../../test_data/POCIAMONGO/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_anonymized/Documents/GR-AutresK-QUAL-2024/600/0be/8a0/SIMBAD_CR_120751905.xml",
+      "extraction_success": true,
+      "document_id": "SIMBAD_CR_120751905",
+      "title": "Réunion de Concertation Pluridisciplinaire Moléculaire",
+      "date": "2020-07-24",
+      "date_raw": "20200724",
+      "MDT": true,
+      "PMSI": false,
+      "content": {
+        "text": "Contenu Présents : Docteur MARTIN ROMANO, Docteur VASSEUR, Docteur ROULEAU, Docteur GERAUD, Docteur ALDEA Compte rendu dicté par le Dr MARTIN ROMANO HISTOIRE DE LA MALADIE - Prise en charge pour un carcinome épidermoïde initialement de l'oropharynx vélaire et des piliers postérieurs bilatéralement traité par radiochimiothérapie en octobre 2014. - Août 2017 : Seconde localisation de carcinome épidermoïde de l' hypopharynx droit. - 13/11/17 : Traitement par pharyngo-laryngectomie totale droite et reconstruction par lambeau musculo-cutané de grand pectoral. Suites compliquées d'un pharyngostome à plusieurs reprises. Monté d'un lambeau de grand dorsal le 06/12/2017. Malgré les reprises, persistance d'un pharyngostome et déhiscence des sutures avec pharyngostome large. - 19/03/18 : reprise de cervicotomie pour rétablissement de la continuité digestive et réfection d'un trachéostome dans le contexte de pharyngostome large post-PLT de rattrapage avec fermeture par un lambeau libre antéro-latéral de cuisse prélevé à gauche et lambeau pédiculé supra-claviculaire avec anastomose de perforante delto-acromial prélevé à gauche. - Récidive latéro-cervical gauche nécrotique envahissant les tissus mous, péri carotidienne non résécable et adénopathie en 2 à droite envahissant la veine jugulaire découverte à l'été 2019 par la majoration d'un oedème du visage et de douleur. Biopsié, AP : Carcinome épidermoïde HPV-, P16-. - RCP ORL du 17/10/19 : décision d'un traitement systémique (pas de réirradiation envisagée). - Début d'un traitement par Tpex (C1 le 30/10/19) - 10/06/2020 TDMprogression des masses cervicales selon RECIST apparition d'un épanchement pleural gauche. Cette progression entraine un trajet fistuleux au contact de l'axe carotidien gauche entrainant un risque vasculaire. Consultation avec son oncologue référent le 16/06/2020, le Dr FERRAND, et discussion en staff Onco ORL le même jour avec proposition thérapeutiques : - mono-chimiothérapie de type 5 FU, METHOTREXATE ou une reprise de TAXANE. - inclusion dans un essai clinique de phase I, ou inclusion si patient non incluable dans un essai de phase I, inclusion dans le protocole UPSTREAM (bras combo d'immunothérapie MONALIZUMAB DURVALUMAB) Antécédents médico-chirurgicaux Chirurgicaux - carcinome épidermoïde hypopharyngé (récidive) traité par PLT avec lambeau de grand pectoral et lambeau antéro-latéral de cuisse, - trachéotomie, - opéré d'une maladie de Dupuytren à 2 reprises (à gauche et à droite). Médicaux - crise comitiale généralisée avec dernier évènement il y a plus de 10 ans, pas de suivi neurologique, que l'on recommande notamment sur le plan thérapeutique, - psoriasis diffus essentiellement aux mains et aux avant-pieds, pas de traitement systémique, - hypothyroïdie, - pas d'allergie. Anomalies moléculaires connues / Motif du passage en RCP Dossier présenté pour discuter la prise en charge thérapeutique en fonction du profil moléculaire. Protocole RAGNARNuméro 102101 - Prélèvement archivé du 15.10.2019 , Panel/technique : FMI PTEN loss CCND1 amplification FGF12 amplification - equivocal NKX2-1 amplification WHSC1L1 amplification NFKBIA amplification FGF19 amplification RPTOR amplification - equivocal FGF4 amplification FGFR1 amplification FGF3 amplification MDM2 amplification CDKN2A D105fs*42 NOTCH1 C1554* TP53 R248W Suggestions thérapeutiques, orientation moléculaire Pas de traitement orienté. ----------------------------------------------------------------- Classification ESCAT tier X oncoKB NS Orientation thérapeutique : non",
+        "title": "Réunion de Concertation Pluridisciplinaire Moléculaire"
+      },
+      "has_pdfs": false
+    },
+    {
+      "file_path": "../../../test_data/POCIAMONGO/GR-AutresK-QUAL-20246000be8a04c5831890a8520772d2741035511e5bcf3bda1c57db384728ad26d7_anonymized/Documents/GR-AutresK-QUAL-2024/600/0be/8a0/SIMBAD_CR_120782405.xml",
+      "extraction_success": true,
+      "document_id": "SIMBAD_CR_120782405",
+      "title": "Entretien Service Social",
+      "date": "2020-07-22",
+      "date_raw": "20200722",
+      "MDT": false,
+      "PMSI": false,
+      "content": {
+        "text": "Contenu Assistante sociale : Léa DialloN°de poste: 66.29 10/07 : Sortie en USP, en ce jour à Paul Brousse.",
+        "title": "Entretien Service Social"
+      },
+      "has_pdfs": false
+    }
+  ],
+  "downloaded_pdf_files": [
+    "/Users/chris.beltran/code/ClarityGR/emulated_container_fs/SimbadScan2014149.pdf"
+  ],
+  "summary": {
+    "total_files_found": 2355,
+    "documents_processed": 8,
+    "files_skipped": 2180,
+    "mdt_documents": 3,
+    "pmsi_documents": 0,
+    "date_range": {
+      "start": "20200101",
+      "end": "20231231"
+    },
+    "processing_date": "2025-06-27T22:55:49.378996"
+  }
+}

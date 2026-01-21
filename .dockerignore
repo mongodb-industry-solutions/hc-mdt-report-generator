@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Don't ignore the quantized models directory
+!quantized-models/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Tests
+.pytest_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.temp
+
+# Virtual environments
+env/
+.env.local
+.env.*.local
+
+# Node modules (if any)
+node_modules/
+
+# Documentation
+docs/
+*.md
+
+# Build artifacts
+build/
+dist/
+*.egg-info/ 

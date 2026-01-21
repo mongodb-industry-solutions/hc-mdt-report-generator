@@ -1,0 +1,73 @@
+# Web Framework  
+fastapi>=0.104.0  
+uvicorn[standard]>=0.24.0  
+  
+# Environment & Configuration  
+python-dotenv>=1.0.0  
+pydantic>=2.0.0  
+pydantic-settings>=2.0.0  
+  
+# Database  
+pymongo>=4.5.0  
+motor>=3.3.0  # Added: Async MongoDB driver (critical for async operations)  
+  
+# HTTP Clients  
+requests>=2.31.0  
+aiohttp>=3.9.0  # Added: Missing async HTTP client  
+httpx>=0.25.0   # Added: Alternative async HTTP client (more modern than aiohttp)  
+  
+# File Handling  
+python-multipart>=0.0.6  
+aiofiles>=23.0.0  
+Pillow>=10.0.0  
+  
+# AI/ML  
+mistralai>=1.8.2  
+openai>=1.0.0  # Added: Often used alongside Mistral
+# PyTorch for local Mistral inference (CUDA support required)
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+# Transformers and related dependencies for Mistral3 support - LATEST VERSIONS
+transformers>=4.47.0
+accelerate>=0.35.0
+tokenizers>=0.20.0
+# bitsandbytes removed as it was only needed for vLLM
+# Local inference dependencies
+# vLLM removed as it's no longer needed
+huggingface_hub>=0.20.0  # Required for model downloading and caching
+# Token counting for better max_tokens heuristics
+tiktoken>=0.7.0
+  
+# Cloud Services  
+boto3>=1.26.0  
+botocore>=1.29.0  # Added: Explicit boto3 dependency  
+  
+# MCP (Model Context Protocol)  
+mcp>=0.4.0  
+fastmcp>=2.8.1  
+  
+# Reliability & Resilience  
+tenacity>=8.2.0  # Added version for your existing entry  
+circuitbreaker>=1.4.0  # Added: For implementing circuit breaker pattern  
+asyncio-throttle>=1.0.0  # Added: For rate limiting async operations  
+  
+# Authentication & Security
+python-jose[cryptography]>=3.3.0  # JWT token handling
+passlib[bcrypt]>=1.7.4  # Password hashing with bcrypt
+python-multipart>=0.0.6  # Form data handling for auth
+cryptography>=41.0.0  # AES-256 encryption for sensitive data
+
+# Development & Testing  
+pytest>=7.0.0  
+pytest-asyncio>=0.21.0  # Added: Essential for testing async code  
+black>=23.0.0  # Added: Code formatting  
+isort>=5.12.0  # Added: Import sorting  
+  
+# Monitoring & Logging  
+loguru>=0.7.0  # Added: Better logging than standard library  
+
+# PDF & OCR Processing
+pypdf>=4.2.0
+pymupdf>=1.24.0  # PDF text extraction (faster than pypdf for many operations)
+easyocr>=1.7.0  # OCR for scanned documents (requires torch)

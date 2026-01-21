@@ -1,0 +1,1920 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>MDT Report</title>  
+    <style>  
+        body {  
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
+            line-height: 1.6;  
+            color: #333;  
+            max-width: 1200px;  
+            margin: 0 auto;  
+            padding: 20px;  
+            background-color: #f5f5f5;  
+        }  
+          
+        .container {  
+            background-color: white;  
+            border-radius: 8px;  
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);  
+            padding: 30px;  
+        }  
+          
+        h1 {  
+            color: #2c3e50;  
+            border-bottom: 3px solid #3498db;  
+            padding-bottom: 10px;  
+            margin-bottom: 30px;  
+        }  
+          
+        h2 {  
+            color: #34495e;  
+            margin-top: 30px;  
+            margin-bottom: 20px;  
+            padding: 10px;  
+            background-color: #ecf0f1;  
+            border-left: 4px solid #3498db;  
+        }  
+          
+        .entity-section {  
+            margin-bottom: 30px;  
+            border: 1px solid #ddd;  
+            border-radius: 5px;  
+            overflow: hidden;  
+        }  
+          
+        .entity-card {  
+            margin-bottom: 15px;  
+            border: 1px solid #e0e0e0;  
+            border-radius: 5px;  
+            background-color: #fafafa;  
+        }  
+          
+        .entity-header {  
+            background-color: #3498db;  
+            color: white;  
+            padding: 15px;  
+            font-weight: bold;  
+            cursor: pointer;  
+            display: flex;  
+            justify-content: space-between;  
+            align-items: center;  
+        }  
+          
+        .entity-header:hover {  
+            background-color: #2980b9;  
+        }  
+          
+        .toggle-btn {  
+            background: none;  
+            border: none;  
+            color: white;  
+            font-size: 14px;  
+            cursor: pointer;  
+            padding: 5px 10px;  
+            border-radius: 3px;  
+            background-color: rgba(255,255,255,0.2);  
+        }  
+          
+        .entity-content {  
+            padding: 15px;  
+            display: none;  
+        }  
+          
+        .entity-content.show {  
+            display: block;  
+        }  
+          
+        .entity-value {  
+            background-color: white;  
+            border: 1px solid #ddd;  
+            border-radius: 3px;  
+            margin-bottom: 10px;  
+            padding: 10px;  
+        }  
+          
+        .main-value {  
+            font-weight: bold;  
+            color: #2c3e50;  
+            margin-bottom: 10px;  
+            padding: 15px;  
+            background-color: #e8f4fd;  
+            border-left: 4px solid #3498db;  
+        }  
+          
+        .aggregated-value {  
+            background-color: #e8f8f5;  
+            border-left: 4px solid #27ae60;  
+            font-weight: bold;  
+        }  
+          
+        /* Formatted content styles */  
+        .formatted-content {  
+            margin-top: 10px;  
+            line-height: 1.8;  
+        }  
+          
+        .formatted-content .main-list {  
+            margin: 15px 0;  
+            padding-left: 20px;  
+        }  
+          
+        .formatted-content .main-item {  
+            margin-bottom: 15px;  
+            padding: 8px;  
+            background-color: rgba(52, 152, 219, 0.1);  
+            border-left: 3px solid #3498db;  
+            border-radius: 4px;  
+        }  
+          
+        .formatted-content .sub-list {  
+            margin: 8px 0 8px 20px;  
+            padding-left: 15px;  
+        }  
+          
+        .formatted-content .sub-item {  
+            margin-bottom: 8px;  
+            padding: 5px;  
+            background-color: rgba(46, 204, 113, 0.1);  
+            border-left: 2px solid #27ae60;  
+            border-radius: 3px;  
+        }  
+          
+        .formatted-content .bullet-list {  
+            margin: 10px 0;  
+            padding-left: 20px;  
+        }  
+          
+        .formatted-content .bullet-item {  
+            margin-bottom: 8px;  
+            padding: 5px;  
+        }  
+          
+        .formatted-content .text-line {  
+            margin: 8px 0;  
+            text-align: justify;  
+        }  
+          
+        .formatted-content strong {  
+            color: #2c3e50;  
+            font-weight: 600;  
+        }  
+          
+        .formatted-content em {  
+            color: #34495e;  
+            font-style: italic;  
+        }  
+          
+        .metadata {  
+            background-color: #f8f9fa;  
+            border-top: 1px solid #e9ecef;  
+            padding: 8px;  
+            font-size: 12px;  
+            color: #6c757d;  
+            display: none;  
+        }  
+          
+        .metadata.show {  
+            display: block;  
+        }  
+          
+        .metadata-item {  
+            margin-bottom: 5px;  
+        }  
+          
+        .not-found {  
+            background-color: #fff3cd;  
+            border: 1px solid #ffeaa7;  
+            border-radius: 5px;  
+            padding: 10px;  
+            margin-bottom: 10px;  
+        }  
+          
+        .not-found-header {  
+            background-color: #f39c12;  
+            color: white;  
+            padding: 10px;  
+            font-weight: bold;  
+            margin: -10px -10px 10px -10px;  
+        }  
+          
+        .value-count {  
+            background-color: #e74c3c;  
+            color: white;  
+            border-radius: 50%;  
+            padding: 2px 6px;  
+            font-size: 12px;  
+            margin-left: 10px;  
+        }  
+          
+        .show-metadata-btn {  
+            background-color: #6c757d;  
+            color: white;  
+            border: none;  
+            padding: 3px 8px;  
+            border-radius: 3px;  
+            font-size: 11px;  
+            cursor: pointer;  
+            margin-top: 5px;  
+        }  
+          
+        .show-metadata-btn:hover {  
+            background-color: #5a6268;  
+        }  
+          
+        .error-section {  
+            background-color: #f8d7da;  
+            color: #721c24;  
+            border: 1px solid #f5c6cb;  
+            border-radius: 5px;  
+            padding: 10px;  
+            margin: 10px 0;  
+        }  
+          
+        .entity-error {  
+            background-color: #f8d7da;  
+            color: #721c24;  
+            border: 1px solid #f5c6cb;  
+            border-radius: 3px;  
+            padding: 8px;  
+            margin: 5px 0;  
+        }  
+          
+        .no-value {  
+            background-color: #fff3cd;  
+            color: #856404;  
+            border: 1px solid #ffeaa7;  
+            border-radius: 3px;  
+            padding: 8px;  
+            margin: 5px 0;  
+        }  
+          
+        .timestamp {  
+            text-align: right;  
+            font-size: 12px;  
+            color: #6c757d;  
+            margin-top: 20px;  
+            padding-top: 10px;  
+            border-top: 1px solid #e9ecef;  
+        }  
+    </style>  
+</head>  
+<body>  
+    <div class="container">  
+        <h1>MDT Report</h1>  
+        <h2>First Match</h2><div class="entity-section">  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_0')">  
+            <span>NumdosGR</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_0">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">201910010RM</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_0_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_0_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_1')">  
+            <span>Sexe</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_1">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Masculin</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_1_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_1_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_2')">  
+            <span>Date de naissance</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_2">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">06/03/1965</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_2_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_2_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_3')">  
+            <span>Site demandeur</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_3">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">DEPARTEMENT DE MEDECINE ONCOLOGIQUE - SERVICE DE DERMATOLOGIE</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_3_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_3_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_4')">  
+            <span>Hôpital</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_4">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Autre</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_4_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_4_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_5')">  
+            <span>Localisations du cancer</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_5">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Cancer de la peau</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_5_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_5_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_6')">  
+            <span>Types histologiques</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_6">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Mélanome</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_6_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_6_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_7')">  
+            <span>Localisation</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_7">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">pectorale</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_7_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_7_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_8')">  
+            <span>Demande complément d&#x27;examen complémentaire</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_8">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Demande de réalisation de dosage des CPK.</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_8_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_8_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 6</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_9')">  
+            <span>Nom</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_9">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">ROUTIER</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_9_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_9_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_10')">  
+            <span>Traitement hors AMM</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_10">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Un traitement par Rituximab (schéma S0-S2-M6) pourra être proposé en fonction de la réponse thérapeutique</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_10_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_10_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_11')">  
+            <span>Thérapie innovante</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_11">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Non</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_11_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_11_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_12')">  
+            <span>Inclusion dans un essai thérapeutique</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_12">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Non</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_12_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_12_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_13')">  
+            <span>EVASAN</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_13">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Non</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_13_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_13_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_14')">  
+            <span>Prénom</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_14">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Madame</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_14_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_14_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_15')">  
+            <span>Adresse postale</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_15">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">64 AVENUE GEORGES GOSNAT 94200 IVRY SUR SEINE</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_15_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_15_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div></div><div class="not-found"><div class="not-found-header">Entities Not Found</div><div>• Nom de naissance</div><div>• Adresse électronique</div></div>
+<h2>Multiple Match</h2><div class="entity-section">  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_0')">  
+            <span>Spécialités médicales demandées</span>  
+            <div>  
+                <span class="value-count">3</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_0">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Comité 090 (dermatologie)</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_0_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_0_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">RCP pneumologique, RCP dermatologique, RCP TOX, RCP immunotox</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_0_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_0_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">RCP immuno-TOX, RCP dermatologique</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_0_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_0_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_1')">  
+            <span>Anomalie moléculaire</span>  
+            <div>  
+                <span class="value-count">5</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_1">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">muté BRAF V600E</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_1_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_1_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">TP53 - p.(Leu137Gln)</p> <p class="text-line">mutation BRAF V600</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_1_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_1_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">anti-BRAF/anti-MEK</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_1_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_1_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">ENCORAFENIB, BINIMETINIB</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_1_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_1_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 37</div><div class="metadata-item"><strong>Page Id:</strong> 4</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">muté BRAF V600E</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_1_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_1_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_2')">  
+            <span>Site métastatique</span>  
+            <div>  
+                <span class="value-count">6</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_2">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Poumon, Ganglion</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_2_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_2_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Poumon, Ganglion</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_2_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_2_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Ganglion</p> <p class="text-line">Cerveau</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_2_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_2_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">adénopathie lomboaortique, adénopathie nécrotique, pré-cave en arrière de la tête du pancréas, hyperactivité ganglionnaire précave, masse tissulaire nécrotique</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_2_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_2_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Ganglion</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_2_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_2_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 39</div><div class="metadata-item"><strong>Page Id:</strong> 5</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Poumon</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_2_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_2_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_3')">  
+            <span>Motifs de présentation</span>  
+            <div>  
+                <span class="value-count">6</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_3">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">PEC L2 et plus (récidive/progression)</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_3_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_3_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">PEC L2 et plus (récidive/progression)</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_3_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_3_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">PEC L2 et plus (récidive/progression)</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_3_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_3_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">PEC L2 et plus (récidive/progression)</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_3_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_3_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Syncope - Suspicion de BAVc</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_3_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_3_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">syncope en lien avec un bloc atrioventriculaire de haut degré sur l&#x27;ECG post-critique (BAV 2:1)</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_3_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_3_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_4')">  
+            <span>Chimiothérapie(s) réalisée(s)</span>  
+            <div>  
+                <span class="value-count">4</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_4">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Traitement adjuvant par NIVOLUMAB 240 mg J1=J14, J1 le 02/11/2019 (en alternance avec Montargis) dernière cure le 07/10/2020.</p> <p class="text-line">Actuellement sous traitement par encorafénib/binimétinib en 2ème ligne métastatique, C1J1 le 11/06/2024.</p> <p class="text-line">PEMBROLIZUMAB du 26/09/2023 au 14/05/2024 (arrêt sur progression tumorale ainsi qu&#x27;une majoration de la toxicité buccale depuis janvier 2024).</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_4_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_4_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Première ligne métastatique par PEMBROLIZUMAB réalisée au CHAM Montargis C1J1 le 26/09/2023 jusqu&#x27;au 14/05/2024 (la cure du 12/03/2024 n&#x27;a pas été réalisée devant la majoration de la toxicité buccale) : arrêt pour progression tumorale unique de l&#x27;adénopathie lomboaortique droite précave et devant la majoration de la toxicité buccale.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_4_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_4_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">C1J1 de Rituximab le 09/01/2025. C1J15 le 23/01/2025</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_4_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_4_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 32</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Patient suivi pour un mélanome pectoral initialement de stade IIIA, traité par immunothérapie adjuvante entre le 02/11/2019 et 07/10/2020 compliquée d&#x27;une Pemphigoîde cicatricielle de la muqueuse buccale de grade III. Récidive du mélanome avec un nodule pulmonaire unique en juillet 2023 traité en 1ère ligne métastatique par PEMBROLIZUMAB du 26/09/2023 au 14/05/2024 (arrêt sur progression tumorale ainsi qu&#x27;une majoration de la toxicité buccale depuis janvier 2024). Actuellement sous traitement par encorafénib/binimétinib en 2ème ligne métastatique, C1J1 le 11/06/2024.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_4_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_4_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_5')">  
+            <span>Radiothérapie réalisée</span>  
+            <div>  
+                <span class="value-count">6</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_5">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Radiothérapie de l&#x27;adénopathie porto-cave réalisée du 14/10/2024 au 18/10/2024.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_5_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_5_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">RCP dermatologique du 22/08/2024 : dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéale.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_5_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_5_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Radiothérapie de l&#x27;adénopathie porto-cave à la dose de 30 Gy en 5 fractions de 6 Gy a été réalisée du 14/10/2024 au 18/10/2024. A noter que la lésion est au contact avec le duodénum sur plusieurs centimètres et est très proche du côlon, ce qui a baissé la dose et découvert partiellement le volume cible.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_5_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_5_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Diagnostic d&#x27;une probable gastrite ? probablement induite par la radiothérapie ?</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_5_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_5_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 32</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Radiothérapie de l&#x27;adénopathie porto-cave réalisée du 14/10/2024 au 18/10/2024.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_5_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_5_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Cancer du sein gauche en 2024 traité par radiothérapie</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_5_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_5_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_6')">  
+            <span>Chirurgie(s) réalisée(s)</span>  
+            <div>  
+                <span class="value-count">7</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_6">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">23/05/2019 : exérèse d&#x27;un mélanome pectoral de 3 mm de Breslow, ulcéré.</p> <p class="text-line">03/09/2019 : reprise d&#x27;exérèse et ganglion sentinelle : remaniement fibro-cicatriciel et granulome de type résorptif, absence de reliquat tumoral. Ganglions sentinelles axillaire gauche : 1 N+ R-/2 N.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_6_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_6_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Biopsie réalisée en RI le 14/08/2023 : CRH : BIOPSIE PULMONAIRE LID : localisation pulmonaire du mélanome connu (prélèvement totalement tumoral).</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_6_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_6_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Chirurgicaux : aucun.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_6_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_6_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 37</div><div class="metadata-item"><strong>Page Id:</strong> 4</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Cicatrice d&#x27;exérèse du mélanome pectoral saine, sans signe de récidive visible ou palpable.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_6_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_6_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 39</div><div class="metadata-item"><strong>Page Id:</strong> 5</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Cancer du sein droit en 2008 opéré par mastectomie en 2015</p> <p class="text-line">Cataracte sénile, sans précision (H259)</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_6_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_6_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">IMPLANTATION PACE MAKER DU 15/04/2025</p> <p class="text-line">Opérateurs: Dr LABBE Jean Philippe, Pr LELLOUCHE Nicolas Durée procédure: 60 min , scopie : $4 \mathrm{~min} 0 \mathrm{~s}$. PDS total : $221 \mathrm{cGy} . \mathrm{cm}^{2}$. Air Kerma cumulé : 144 mGy . Double badigeon à la bétadine. Antibioprophylaxie par Cefazoline 2000 mg . Après anesthésie locale, une incision est réalisée dans le sillon delto-pectoral gauche. Réalisation de la loge du stimulateur en pré-pectoral gauche. Fermeture par un surjet intradermique résorbable. Stimulateur:</p> <ul class="bullet-list"> <li class="bullet-item">ASSURITY MRI DR ST JUDE PM2272 (St Jude) N 6147685.</li> <p class="text-line">Sonde de stimulation:</p> <ul class="bullet-list"> <li class="bullet-item">SOLIA S 53cm (Biotronik) N 8001916580.</li> <ul class="bullet-list"> <li class="bullet-item">SOLIA S 60cm (Biotronik) N 8001949991.</li> <p class="text-line">IMPLANTATION DE L&#x27;ELECTRODE ATRIALE DROITE (AURICULE). Une électrode bipolaire de marque Biotronik (SOLIA S 53cm - 8001916580) a été implantée le 15/04/2025 par un abord céphalique gauche au niveau de l&#x27;auricule droit. Le seuil de stimulation est de 0,6 Volts pour $0,4 \mathrm{~ms}$. L&#x27;impédance de stimulation est de 525 Ohms. La détection est de $1,7 \mathrm{mV}$.</p> <p class="text-line">IMPLANTATION DE L&#x27;ELECTRODE VENTRICULAIRE DROITE (SEPTUM MID). Une électrode de marque Biotronik (SOLIA S 60cm - 8001949991) a été implantée le 15/04/2025 par un abord céphalique gauche au niveau du ventricule droit (septum mid). Le seuil de stimulation est de 0,5 Volts pour $0,5 \mathrm{~ms}$. L&#x27;impédance de stimulation est de 689 Ohms. La détection bipolaire est de $6,7 \mathrm{mV}$.</p> <p class="text-line">IMPLANTATION DU STIMULATEUR CARDIAQUE. UN STIMULATEUR CARDIAQUE DE MARQUE ST JUDE (ASSURITY MRI DR PM2272 5147685) A ETE IMPLANTE LE 15/04/2025 DANS UNE LOGE PRE-PECTORALE GAUCHE.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_6_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_6_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 12</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">hospitalisée pour implantation d&#x27;un stimulateur cardiaque double chambre pour bloc atrioventriculaire sur coeur sain</p> <p class="text-line">Geste réalisé le 15/04/2025 : implantation d&#x27;un boîtier de marque Saint-Jude.</p> <p class="text-line">Implantation d&#x27;un pace maker double chambre de marque ABBOTT.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_6_metadata_6')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_6_metadata_6">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_7')">  
+            <span>Antécédents personnels notables</span>  
+            <div>  
+                <span class="value-count">13</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_7">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Patient suivi pour un mélanome pectoral initialement de stade IIIA, muté BRAF V600E, traité par immunothérapie adjuvante entre le 02/11/2019 et 07/10/2020 compliquée d&#x27;une Pemphigoïde cicatricielle de la muqueuse buccale de grade III.</p> <p class="text-line">Récidive du mélanome avec un nodule pulmonaire unique en juillet 2023.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Dysthyroîdie supplémentée par LEVOTHYROX depuis mai 2020. Pemphigoîde cicatricielle atteignant la muqueuse buccale et le front suivie initialement au KB. IFD le 18/02/2021 : dépôt linéaire et discontinu de IgG et situé en bordure de décollement. Histologie non spécifique dans la bouche (tissu de granulation) et atteinte spécifique sur la peau du front avec décollement sous épidermique avec un infiltrat à prédominance lymphocytaire. Pas d&#x27;atteinte de muqueuse ophtalmique, ni ORL autre que la bouche, pas de douleur anorectale. Echec du traitement initial par dermocorticoîdes, puis échec de traitement par Doxycycline, puis sous Disulone depuis le 16/04/2021. Consultation de suivi avec le Dr GOTTLIEB le 28/04/2022 : il existe une contre-indication assez formelle à la reprise du GLIPTIN. Prescription d&#x27;un test au Synacthène puis arrêt si possible de l&#x27;hydrocortisone. EMG de principe. Baisse progressive des traitements en commençant par la Salazopyrine. Résultat biologique du 19/07/2022 : glycémie à jeun à 1,23 g/l, HbA1c 5,9 % (chez un patient diabétique), triglycérides 5,46 g/l, cholestérol total 1,89 g/l, HDL 0,33 g/l, LDL 0,72 g/l, TSH 1,45. Il est en rémission complète avec arrêt du CORTANCYL depuis avril 2022 et arrêt de la DOXYCYCLINE. Arrêt également de l&#x27;hydrocortisone après réalisation du test au Synacthène. A noter que la Disulone a été arrêtée par le patient depuis le 26/08/2022. EMG le 07/06/2022 : neuropathie à prédominance sensitive distale des membres inférieurs, modérée, n&#x27;expliquant pas la faiblesse proximale d&#x27;allure musculaire et probablement secondaire à hypothyroîdie et la corticothérapie, à suivre. Demande de réalisation de dosage des CPK. Consultation Dr GOTTLIEB le 03/10/2022 : il existe une contre-indication assez formelle à la reprise d&#x27;une GLIPTINE. Rémission partielle voire complète de la pemphigoîde bulleuse des muqueuses (les 2 dernières bulles séro-hématiques qui ont guéri spontanément en 7 jours peuvent être liées à de la fragilité gingivale). Poursuivre une surveillance seule. Le patient est également suivi en endocrinologie pour son hypothyroîdie sous LEVOTHYROX. Sur le plan du diabète, arrêt du DIAMICRON et poursuite FORXIGA. Consultation Dr GOTTLIEB le 20/03/2023 : il garde une fragilité de la muqueuse buccale sans récidive de lésion bulleuse. Il identifie les nitrites comme aggravant potentiel (possible réaction de contact surajoutée ?). Sur la peau, prurit intermittent contrôlé par le patient. Pour rappel, contre-indication définitive à la reprise de GLIPTINE pour le diabète.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 6</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">#$$1GRECIDIVE EN PULMONAIRE :#$$0G - Scanner C-TAP du 20/06/2023 : présence d&#x27;un nodule lobaire inférieur droit de 13 mm, pas d&#x27;autre anomalie du parenchyme pulmonaire.</p> <p class="text-line">#$- Relecture à GR : examen comparé au scanner du 02/05/2022 : apparition d&#x27;un nodule solide de 11 mm du segment apical du lobe inférieur droit, mesurant 11 mm (image 231, série 4), et n&#x27;était pas visible sur le Pet-scanner du 21/11/2022, d&#x27;allure suspect. Pas d&#x27;autre lésion suspecte.</p> <p class="text-line">#$- TEP scanner le 07/07/2023 : en comparaison avec la TEP du 21/11/2022 : apparition d&#x27;un nodule pulmonaire droit de 12 mm se projetant sur l&#x27;apical du lobe inférieur droit moyennement hypermétabolique SUVmax 6.3. Absence d&#x27;apparition de foyer suspect sur le reste du champ corporel exploré.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">il a des antécédents d&#x27;ACFA début mai 2018 (actuellement en rythme Sinusal) pour laquelle il a été mis sous Eliquis et sotalol. Arrêt de l&#x27;Eliquis après un mois de traitement et poursuite du sotalol. Dr ZAHNAN a suspendu le sotalol et l&#x27;a remplacé par bisoprolol devant le risque majoré d&#x27;une prolongation de l&#x27;onde QT.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">#$- Scanner TAP le 12/08/2024 : ganglion de 80 mm de grand axe, localisée entre la veine cave inférieure et le tronc porte.</p> <p class="text-line">#$- Scanner cérébral d&#x27;août 2024 : normal.</p> <p class="text-line">#$- Relecture du scanner du 12/08/2024 avec le TEP scanner du 04/04/2024 : majoration de la lésion ganglionnaire rétropéritonéale, qui mesure ce jour 62 mm de plus grand axe, image 365, série deux), contre 48 mm précédemment (série huit, image 564).</p> <p class="text-line">#$- Progression sur les critères de RECIST 1.1 : +29 %</p> <p class="text-line">#$- Bilan biologique du 13/09/2024 : bilirubine totale normale, GGT 88 (légèrement élevée, 1.4xN, limite supérieure normale à 61, grade 0), AP normale, ASAT 77 (légèrement élevée, 1,9xN, grade 0), ALAT 167 (élevée, 4xN, grade II).</p> <p class="text-line">#$- Echographie abdomino-pelvienne le 17/09/2024 : stéatose hépatique hétérogène, sans lésion nodulairee identifiable ce jour. Absence de dilatation des voies biliaires intrahépatiques. Absence de lithiase intravésiculaire et intrarénale. Masse en regard de la tête du pancréas de 72 mm de grand axe.</p> <p class="text-line">#$- Bilan biologique le 16/09/2024 : ASAT 114 (élevé, grade I, 2.78xN), ALAT 219 (élevé, grade III, 5.34xN), GGT 106 (légèrement élevé, grade 0), bilirubine totale normale, LDH 322 (élevé, lié à la maladie), CPK normaux, sérologies virales comprenant hépatite A, hépatite B, hépatite C, VIH et bilan auto-immun comprenant ANA, anticorps anti ADN natif, anticorps anti antigènes nucléaires solubles, anticorps anti réticulum endoplasmique, anticorps antimitochondries, anticorps anti SLA, anticorps antimuscle lisse sont négatifs. PCR hépatite E est négative.</p> <p class="text-line">#$- Bilan biologique le 24/09/2024 : ASAT 54 (légèrement élevée, grade 0 vs 114 le 16/09/2024), ALAT 122 (élevée, 2.97xN, grade 0/I, vs 219 le 16/09/2024), AP normale, GGT 122 (légèrement élevé, sans particularité), bilirubine totale normale.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Validation de la reprise du traitement par thérapie ciblée à un palier -1 (03/10/2024).</p> <p class="text-line">Consultation de diabétologie le 07/10/2024 : dégradation brutale de l&#x27;équilibre glycémique, sans cétose, dans un contexte de récidive néoplasique avec apparition d&#x27;une adénopathie lomboaortique du mélanome. Introduction d&#x27;une insulinothérapie basale, poursuite du FORXIGA qui sera arrêté en cas d&#x27;apparition d&#x27;une insuffisance rénale aiguë, introduction du Galvus, prescription d&#x27;un freestyle libre 2.</p> <p class="text-line">le patient a eu une intoxication alimentaire le lundi 14/10/2024 qui s&#x27;est manifestée avec de la fièvre et 2 épisodes de vomissements qui ont duré une journée.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Depuis décembre 2024, présence d&#x27;une vision floue pour laquelle il a consulté un ophtalmologue le 20/11/2025 : fin d&#x27;une crise d&#x27;uvéite antérieure de l&#x27;œil gauche. Synéchies irido-cristalliniennes, traitement par Dexocol, atropine collyre, Mydriaticum collyre. Pas de contre-indication sur le plan ophtalmologique à la prise du rituximab car cause infectieuse non retenue pour cette uvéite qui est déjà à sa fin.</p> <p class="text-line">HDJ à l&#x27;hôpital Henri Mondor le 23/01/2025 : érythème gingival diffus avec collet fibrineux. Présence d&#x27;érosions à la partie inférieure générale. C1J1 de Rituximab le 09/01/2025. C1J15 le 23/01/2025 avec décision de réintroduire la Disulone comme traitement de fond à 25 mg/jour avec bains de bouche composé et contrôle biologique rapproché. À revoir dans 3 mois en consultation ou dans l&#x27;intervalle si besoin.</p> <p class="text-line">Nette amélioration des lésions de pemphigoïde bulleuse cicatricielle au niveau buccale depuis début novembre 2024. Pas d&#x27;apparition de lésion par ailleurs.</p> <p class="text-line">Il s&#x27;est présenté aux urgences le 25/01/2025 pour des épigastralgies intenses qui dataient depuis deux semaines. Réalisation d&#x27;un scanner abdomino-pelvien qui a montré une diverticulite sigmoïdienne. Prescription d&#x27;un traitement par Augmentin pendant 7 jours avec un traitement antalgique par paracétamol et Acupan. Il est rentré à domicile le même jour avec début du traitement par antibiothérapie qui n&#x27;a pas amélioré la symptomatologie malgré une semaine de prise. Il a revu son médecin traitant le 30/01/2025 qui lui a prescrit du Météospasmyl et du Spasfon qui n&#x27;ont pas amélioré également ses symptômes. Il est retourné aux urgences le 04/02/2025. Réalisation d&#x27;une échographie abdominale qui n&#x27;a pas montré d&#x27;anomalie hormis un foie de surcharge, absence de lithiase vésiculaire et absence de dilatation des voies biliaires intra ou extrahépatiques. Diagnostic d&#x27;une probable gastrite ? probablement induite par la radiothérapie ? Il a eu une prescription de pantoprazole 40 mg 1 cp matin et soir pendant 7 jours puis 1 cp/jour qui a complètement amélioré la symptomatologie (quasi disparition).</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_6')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_6">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 32</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Névrite vestibulaire gauche (l&#x27;IRM ne retrouvait pas de lésion des conduits auditifs internes, ni de l&#x27;angle pontocérébelleux gauche)</p> <p class="text-line">Diabète type 2</p> <p class="text-line">SAOS</p> <p class="text-line">AC/FA</p> <p class="text-line">Diverticules sigmoïdiens et coliques</p> <p class="text-line">Dysthyroïdie immuno-médiée supplémentée par LEVOTHYROX depuis mai 2020. Suivie par Dr KOUSSA.</p> <p class="text-line">Pemphigoïde cicatricielle immuno-médiée atteignant la muqueuse buccale et le front.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_7')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_7">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 37</div><div class="metadata-item"><strong>Page Id:</strong> 4</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">douleur chronique à ce niveau qui date depuis plusieurs années et qui survient en intermittence traitée par des anti-inflammatoires.</p> <p class="text-line">lésion érythémateuse pectorale droite qui a été biopsiée le 31/01/2022 et qui s&#x27;est avérée une hyperplasie lymphoïde bénigne.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_8')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_8">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 39</div><div class="metadata-item"><strong>Page Id:</strong> 5</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Patient suivi pour un mélanome pectoral initialement de stade IIIA, muté BRAF V600E, compliquée d&#x27;une Pemphigoîde cicatricielle de la muqueuse buccale de grade III. Récidive du mélanome avec un nodule pulmonaire unique en juillet 2023. Le patient souhaite faire une petite pause thérapeutique de la thérapie ciblée. Nous validons donc l&#x27;arrêt du traitement pendant 10 jours puis reprise après les 10 jours de pause. Le patient présente une asthénie importante reliée au traitement qui se manifeste plutôt par une difficulté à la marche qui date depuis plusieurs mois.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_9')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_9">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Cancer du sein droit en 2008</p> <p class="text-line">Cancer du sein gauche en 2024</p> <p class="text-line">Diabète de type 2 non insulino-dépendant</p> <p class="text-line">Asthme</p> <p class="text-line">Allergie: Pollens</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_10')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_10">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Pas de douleur thoracique, palpitations, lipothymies ou syncope. Dyspnée NYHA 4. Absence de signes de bas débit. Absence de signes d&#x27;insuffisance cardiaque droite ou gauche. L&#x27;auscultation pulmonaire est claire. Les bruits du cœur sont réguliers sans souffle. Les pouls sont perçus aux 4 membres. L&#x27;abdomen est souple indolore dépressible.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_11')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_11">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 7</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Patiente de 72 ans hospitalisée pour syncope en lien avec un bloc atrioventriculaire de haut degré sur l&#x27;ECG post-critique (BAV 2:1)</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_7_metadata_12')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_7_metadata_12">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_8')">  
+            <span>Spécialités demandées</span>  
+            <div>  
+                <span class="value-count">9</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_8">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <ul class="bullet-list"> <li class="bullet-item">endocrinologie</li> <ul class="bullet-list"> <li class="bullet-item">stomatologie</li>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 6</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Radiologie interventionnelle</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Oncologie médicale</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">radiothérapeutes</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">diabétologie, radiothérapie</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">gastro-entérologie, ophtalmologie, cardiologie</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 37</div><div class="metadata-item"><strong>Page Id:</strong> 4</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Cardiologie</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_6')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_6">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">rythmologie, cardiologie</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_7')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_7">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">BCT ORTHOPTIE, BCT CS OPHTALMOLOGIE</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_8_metadata_8')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_8_metadata_8">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('multiple_match_entity_9')">  
+            <span>Question posée à la RCP</span>  
+            <div>  
+                <span class="value-count">4</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="multiple_match_entity_9">  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">on propose d&#x27;effectuer une biopsie pulmonaire en radiologie interventionnelle et de rediscuter de la stratégie thérapeutique avec le résultat anatomo pathologique.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_9_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_9_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéale.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_9_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_9_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">will be empty.</p> <p class="text-line">Here is the extraction result:</p> <p class="text-line">```xml</p> <p class="text-line">&lt;ENTITY<em>1</em>OUTPUT&gt;</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_9_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_9_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 7</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">will be empty.</p> <p class="text-line">```xml</p> <p class="text-line">&lt;ENTITY<em>1</em>OUTPUT&gt;</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('multiple_match_entity_9_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="multiple_match_entity_9_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 10</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+    </div></div></div><div class="not-found"><div class="not-found-header">Entities Not Found</div><div>• Spécialités médicales demandées</div><div>• Anomalie moléculaire</div><div>• Site métastatique</div><div>• Motifs de présentation</div><div>• Spécialités demandées</div><div>• Chimiothérapie(s) réalisée(s)</div><div>• Radiothérapie réalisée</div><div>• Chirurgie(s) réalisée(s)</div><div>• Antécédents personnels notables</div><div>• Antécédents familiaux</div><div>• Question posée à la RCP</div></div>
+<h2>Aggregate All Matches</h2><div class="entity-section">  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_0')">  
+            <span>Commentaire tumeur primitive</span>  
+            <div>  
+                <span class="value-count">9</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_0">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">23/05/2019 : exérèse d&#x27;un mélanome pectoral de 3 mm de Breslow, ulcéré; nodule pulmonaire inférieur droit de 13 mm, pas d&#x27;autre anomalie du parenchyme pulmonaire; apparition d&#x27;un nodule solide de 11 mm du segment apical du lobe inférieur droit, mesurant 11 mm, et n&#x27;était pas visible sur le Pet-scanner du 21/11/2022, d&#x27;allure suspecte; apparition d&#x27;un nodule pulmonaire droit de 12 mm se projetant sur l&#x27;apical du lobe inférieur droit moyennement hypermétabolique SUVmax 6.3; localisation pulmonaire du mélanome connu (prélèvement totalement tumoral); récidive depuis janvier 2024 soit après 3 mois du début du traitement par immunothérapie des lésions de pemphigoïde bulleuse cicatricielle de la muqueuse buccale qui étaient très douloureuses; nette majoration de sa pemphigoïde bulleuse cicatricielle buccale depuis le 27/05/2024 avec apparition de multiples lésions endobuccales douloureuses, qui sont devenues très difficiles à gérer et qu&#x27;elles l&#x27;ont empêché de s&#x27;alimenter normalement; validation avec le Dr ROUTIER de la suspension des séances d&#x27;immunothérapie devant cette toxicité de grade III et la progression de sa maladie sous immunothérapie; activité de la maladie avec érosions importantes des collets dentaires et présence de bulles; scanner TAP le 12/08/2024 : ganglion de 80 mm de grand axe, localisée entre la veine cave inférieure et le tronc porte; scanner cérébral d&#x27;août 2024 : normal; relecture du scanner du 12/08/2024 avec le TEP scanner du 04/04/2024 : majoration de la lésion ganglionnaire rétropéritonéale, qui mesure ce jour 62 mm de plus grand axe, contre 48 mm précédemment; progression sur les critères de RECIST 1.1 : +29 %; RCP dermatologique du 22/08/2024 : dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéal; échographie abdomino-pelvienne le 17/09/2024 : Masse en regard de la tête du pancréas de 72 mm de grand axe; récidive néoplasique avec apparition d&#x27;une adénopathie lomboaortique du mélanome; absence de lésion suspecte à l&#x27;étage thoracique; diminution significative de la taille de la masse rétropancréatique (60 mm contre 80 mm); poursuite de la bonne réponse métabolique partielle de la masse ganglionnaire nécrotique pré-cave située au-dessus du hile rénal droit en arrière de la tête du pancréas et refoulant le segment D2 duodénal et SUVmax 4,2 ce jour versus 6,2 le 12/11/2024 versus 22,7 le 4/4/2024 et mesurant respectivement 48 mm versus 58 mm versus 50 mm dans le plan transverse; patient suivi pour un mélanome pectoral initialement de stade IIIA, muté BRAF V600E; cancer du sein droit en 2008 opéré par mastectomie en 2015; cancer du sein gauche en 2024 traité par radiothérapie et Tamoxifène.</p>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">23/05/2019 : exérèse d&#x27;un mélanome pectoral de 3 mm de Breslow, ulcéré.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">#$inférieur droit de 13 mm, pas d&#x27;autre anomalie du parenchyme #$pulmonaire.</p> <p class="text-line">#$apparition d&#x27;un nodule solide de 11 mm du segment apical du lobe #$inférieur droit, mesurant 11 mm (image 231, série 4), et n&#x27;était pas #$visible sur le Pet-scanner du 21/11/2022, d&#x27;allure suspect.</p> <p class="text-line">#$apparition d&#x27;un nodule pulmonaire droit de 12 mm se projetant sur #$l&#x27;apical du lobe inférieur droit moyennement hypermétabolique SUVmax #$6.3.</p> <p class="text-line">#$LID : localisation pulmonaire du mélanome connu (prélèvement #$totalement #$tumoral).</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Récidive depuis janvier 2024 soit après 3 mois du début du traitement par immunothérapie des lésions de pemphigoïde bulleuse cicatricielle de la muqueuse buccale qui étaient très douloureuses. Nette majoration de sa pemphigoïde bulleuse cicatricielle buccale depuis le 27/05/2024 avec apparition de multiples lésions endobuccales douloureuses, qui sont devenues très difficiles à gérer et qu&#x27;ils l&#x27;ont empêché de s&#x27;alimenter normalement. Validation avec le Dr ROUTIER de la suspension des séances d&#x27;immunothérapie devant cette toxicité de grade III et la progression de sa maladie sous immunothérapie. Activité de la maladie avec érosions importantes des collets dentaires et présence de bulles.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Scanner TAP le 12/08/2024 : ganglion de 80 mm de grand axe, localisée entre la veine cave inférieure et le tronc porte. Scanner cérébral d&#x27;août 2024 : normal. Relecture du scanner du 12/08/2024 avec le TEP scanner du 04/04/2024 : majoration de la lésion ganglionnaire rétropéritonéale, qui mesure ce jour 62 mm de plus grand axe, image 365, série deux), contre 48 mm précédemment (série huit, image 564). Progression sur les critères de RECIST 1.1 : +29 %. RCP dermatologique du 22/08/2024 : dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéale. Echographie abdomino-pelvienne le 17/09/2024 : Masse en regard de la tête du pancréas de 72 mm de grand axe.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">récidive néoplasique avec apparition d&#x27;une adénopathie lomboaortique du mélanome</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">absence de lésion suspecte à l&#x27;étage thoracique. diminution significative de la taille de la masse rétropancréatique (60 mm contre 80 mm).</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 32</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">poursuite de la bonne réponse métabolique partielle de la masse ganglionnaire nécrotique pré-cave située au-dessus du hile rénal droit en arrière de la tête du pancréas et refoulant le segment D2 duodénal et SUVmax 4,2 ce jour versus 6,2 le 12/11/2024 versus 22,7 le 4/4/2024 et mesurant respectivement 48 mm versus 58 mm versus 50 mm dans le plan transverse.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_6')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_6">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 39</div><div class="metadata-item"><strong>Page Id:</strong> 5</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Patient suivi pour un mélanome pectoral initialement de stade IIIA, #$muté BRAF V600E</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_7')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_7">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Cancer du sein droit en 2008 opéré par mastectomie en 2015 Cancer du sein gauche en 2024 traité par radiothérapie et Tamoxifène</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_0_metadata_8')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_0_metadata_8">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_1')">  
+            <span>Métastatique</span>  
+            <div>  
+                <span class="value-count">6</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_1">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">Oui</p>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Oui</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_1_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_1_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Oui</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_1_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_1_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Oui</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_1_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_1_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Oui</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_1_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_1_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Non</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_1_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_1_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 39</div><div class="metadata-item"><strong>Page Id:</strong> 5</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Oui</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_1_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_1_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_2')">  
+            <span>Date de présentation</span>  
+            <div>  
+                <span class="value-count">4</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_2">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">18/02/2021</p>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">11/04/2025</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_2_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_2_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">18/02/2021</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_2_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_2_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 6</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">07/02/2025</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_2_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_2_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 37</div><div class="metadata-item"><strong>Page Id:</strong> 4</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">13/04/2025</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_2_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_2_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_3')">  
+            <span>Diagnostiqué le</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_3">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">` tags.</p> <p class="text-line">Given the input:</p> <p class="text-line">```xml</p> <p class="text-line">&lt;ENTITY&gt;</p> <ul class="bullet-list"> <li class="bullet-item">Name: Diagnostiqué le</li> <ul class="bullet-list"> <li class="bullet-item">Definition: Date à laquelle le diagnostic a été établi</li> <p class="text-line">&lt;/ENTITY&gt;</p> <p class="text-line">&lt;VALUES&gt;</p> <p class="text-line">{&#x27;value&#x27;: &#x27;23/05/2019&#x27;, &#x27;metadata&#x27;: {&#x27;filename&#x27;: &#x27;10691<em>2019</em>20250ano.txt&#x27;, &#x27;created<em>at&#x27;: &#x27;2025-06-20T00:18:20.688555&#x27;, &#x27;section</em>id&#x27;: 1, &#x27;page_id&#x27;: 0}}</p> <p class="text-line">&lt;/VALUES&gt;</p> <p class="text-line">```</p> <p class="text-line">### Steps to Aggregate the Values:</p> <ol class="main-list"> <li class="main-item"><strong>Extract the Date</strong>:</li> <ul class="sub-list"><li class="sub-item">The value `&#x27;23/05/2019&#x27;` is the only date provided.</li></ul> <li class="main-item"><strong>Identify the Oldest Date</strong>:</li> <ul class="sub-list"><li class="sub-item">Since there is only one date, it is trivially the oldest date.</li></ul> <li class="main-item"><strong>Output the Result</strong>:</li> <ul class="sub-list"><li class="sub-item">The oldest date is `&#x27;23/05/2019&#x27;`.</li></ul> </ol> <p class="text-line">### Output:</p> <p class="text-line">```xml</p> <p class="text-line">&lt;OUTPUT&gt;23/05/2019</p>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">23/05/2019</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_3_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_3_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_4')">  
+            <span>Type histologique</span>  
+            <div>  
+                <span class="value-count">3</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_4">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">localisation pulmonaire du mélanome connu</p>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">mélanome</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_4_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_4_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">localisation pulmonaire du mélanome connu</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_4_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_4_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">mélanome</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_4_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_4_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_5')">  
+            <span>Métastases à distance</span>  
+            <div>  
+                <span class="value-count">7</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_5">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">présence d&#x27;un nodule lobaire inférieur droit de 13 mm, apparition d&#x27;un nodule solide de 11 mm du segment apical du lobe inférieur droit, apparition d&#x27;un nodule pulmonaire droit de 12 mm se projetant sur l&#x27;apical du lobe inférieur droit, progression tumorale unique de l&#x27;adénopathie lomboaortique droite précave, ganglion de 80 mm de grand axe localisée entre la veine cave inférieure et le tronc porte, majoration de la lésion ganglionnaire rétropéritonéale, qui mesure ce jour 62 mm de plus grand axe, contre 48 mm précédemment, adénopathie lomboaortique du mélanome</p>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">nodule pulmonaire unique</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_5_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_5_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">présence d&#x27;un nodule lobaire inférieur droit de 13 mm, apparition d&#x27;un nodule solide de 11 mm du segment apical du lobe inférieur droit, apparition d&#x27;un nodule pulmonaire droit de 12 mm se projetant sur l&#x27;apical du lobe inférieur droit, progression tumorale unique de l&#x27;adénopathie lomboaortique droite précave</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_5_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_5_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Deuxième ligne métastatique par thérapie ciblée par encorafénib et binimétinib</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_5_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_5_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">#$- Scanner TAP le 12/08/2024 : ganglion de 80 mm de grand axe, #$localisée entre la veine cave inférieure et le tronc porte. #$- Scanner cérébral d&#x27;août 2024 : normal. #$- Relecture du scanner du 12/08/2024 avec le TEP scanner du #$04/04/2024 #$: majoration de la lésion ganglionnaire rétropéritonéale, qui mesure #$ce jour 62 mm de plus grand axe, image 365, série deux), contre 48 mm #$précédemment (série huit, image 564).#$Progression sur les critères de RECIST 1.1 : +29 %</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_5_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_5_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">adénopathie lomboaortique du mélanome</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_5_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_5_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">absence d&#x27;argument pour des lésions secondaires</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_5_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_5_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 39</div><div class="metadata-item"><strong>Page Id:</strong> 5</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">nodule pulmonaire unique</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_5_metadata_6')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_5_metadata_6">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_6')">  
+            <span>Date de diagnostic</span>  
+            <div>  
+                <span class="value-count">2</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_6">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">23/05/2019</p>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">23/05/2019</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_6_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_6_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">2008</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_6_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_6_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_7')">  
+            <span>Proposition de la RCP</span>  
+            <div>  
+                <span class="value-count">7</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_7">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">Les propositions et recommandations de la Réunion de Concertation Pluridisciplinaire (RCP) sont les suivantes :</p> <ol class="main-list"> <li class="main-item"><strong>Consultations et Suivi Médical :</strong></li> <ul class="sub-list"><li class="sub-item">Consultation de suivi avec le Dr GOTTLIEB le 28/04/2022 : contre-indication à la reprise des GLIPTINES. Prescription d&#x27;un test au Synacthène et arrêt possible de l&#x27;hydrocortisone. EMG de principe. Baisse progressive des traitements en commençant par la Salazopyrine.</li></ul> <ul class="sub-list"><li class="sub-item">Consultation avec le Dr GOTTLIEB le 03/10/2022 : contre-indication à la reprise des GLIPTINES. Rémission partielle ou complète de la pemphigoïde bulleuse des muqueuses. Surveillance seule.</li></ul> <ul class="sub-list"><li class="sub-item">Consultation avec le Dr GOTTLIEB le 20/03/2023 : fragilité de la muqueuse buccale sans récidive de lésion bulleuse. Identification des nitrites comme aggravant potentiel. Prurit intermittent contrôlé par le patient. Contre-indication définitive à la reprise des GLIPTINES pour le diabète.</li></ul> <li class="main-item"><strong>Propositions de la RCP Pneumologique :</strong></li> <ul class="sub-list"><li class="sub-item">RCP pneumologique du 13/07/2023 : proposition d&#x27;effectuer une biopsie pulmonaire en radiologie interventionnelle et de rediscuter de la stratégie thérapeutique avec le résultat anatomo-pathologique.</li></ul> <li class="main-item"><strong>Propositions de la RCP Dermatologique :</strong></li> <ul class="sub-list"><li class="sub-item">RCP dermatologique du 29/08/2023 : proposition de reprendre un traitement par immunothérapie anti-PD1 en monothérapie par pembrolizumab 200 mg toutes les 3 semaines pour les 3 premiers mois, puis passage à toutes les 6 semaines si bonne tolérance, en première ligne métastatique. Cela, sous réserve de l&#x27;avis de la RCP immunotox pour discuter des antécédents de toxicités cutanée et neurologique.</li></ul> <li class="main-item"><strong>Propositions de la RCP TOX :</strong></li> <ul class="sub-list"><li class="sub-item">RCP TOX le 30/08/2023 : toxicité neurologique non imputable. Pas de contre-indication à la reprise de l&#x27;immunothérapie.</li></ul> <li class="main-item"><strong>Propositions de la RCP Immuno-TOX :</strong></li> <ul class="sub-list"><li class="sub-item">RCP immuno-TOX le 24/10/2024 : validation de la mise en place d&#x27;un traitement par RITUXIMAB devant la présence de la thérapie ciblée par anti-BRAF/anti-MEK.</li></ul> <li class="main-item"><strong>Traitements et Adaptations Thérapeutiques :</strong></li> <ul class="sub-list"><li class="sub-item">Un traitement par Rituximab (schéma S0-S2-M6) pourra être proposé en fonction de la réponse thérapeutique. Arrêt des GLIPTINES. Information envoyée au diabétologue pour l&#x27;arrêt et adaptation thérapeutique. Mise à jour vaccinale à faire (pneumocoque). Prescription du test de Synacthène pour arrêt de l&#x27;hydrocortisone. Ajout de doxycycline 100 mg par jour et, si pas d&#x27;amélioration dans 2 mois, indication au Rituximab vu l&#x27;absence de contre-indication.</li></ul> <ul class="sub-list"><li class="sub-item">Arrêt du cardensiel et du furosemide. Retour à domicile le 16/04/25. Consultation de rythmologie pour contrôle du boitier dans 6 mois avec le Pr Lellouche. Poursuite du suivi avec le cardiologue traitant.</li></ul> <li class="main-item"><strong>Traitements en Cours :</strong></li> <ul class="sub-list"><li class="sub-item">Actuellement sous traitement par encorafénib/binimétinib en 2ème ligne métastatique, C1J1 le 11/06/2024. Validation de l&#x27;arrêt du traitement pendant 10 jours puis reprise après les 10 jours de pause.</li></ul> <li class="main-item"><strong>Propositions de Radiothérapie :</strong></li> <ul class="sub-list"><li class="sub-item">Dossier à adresser aux collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéal.</li></ul> </ol>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Consultation de suivi avec le Dr GOTTLIEB le 28/04/2022 : il existe une contre-indication assez formelle à la reprise du GLIPTIN. Prescription d&#x27;un test au Synacthène puis arrêt si possible de l&#x27;hydrocortisone. EMG de principe. Baisse progressive des traitements en commençant par la Salazopyrine. Consultation Dr GOTTLIEB le 03/10/2022 : il existe une contre-indication assez formelle à la reprise d&#x27;une GLIPTINE. Rémission partielle voire complète de la pemphigoïde bulleuse des muqueuses (les 2 dernières bulles séro-hématiques qui ont guéri spontanément en 7 jours peuvent être liées à de la fragilité gingivale). Poursuivre une surveillance seule. Consultation Dr GOTTLIEB le 20/03/2023 : il garde une fragilité de la muqueuse buccale sans récidive de lésion bulleuse. Il identifie les nitrites comme aggravant potentiel (possible réaction de contact surajoutée ?). Sur la peau, prurit intermittent contrôlé par le patient. Pour rappel, contre-indication définitive à la reprise de GLIPTINE pour le diabète.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_7_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_7_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 6</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">RCP pneumologique du 13/07/2023 : on propose d&#x27;effectuer une biopsie pulmonaire en radiologie interventionnelle et de rediscuter de la stratégie thérapeutique avec le résultat anatomo pathologique.</p> <p class="text-line">RCP dermatologique du 29/08/2023 : on propose de reprendre un traitement par immunothérapie anti PD1 en monothérapie par pembrolizumab 200 mg / 3 sem pour les 3 premiers mois puis possible si bonne tolérance passage à toutes les 6 semaines, en première ligne métastatique. Cela, sous réserve de l&#x27;avis de la RCP immunotox afin de discuter des antécédents de toxicités cutanée et neurologique.</p> <p class="text-line">RCP TOX le 30/08/2023 : toxicité neurologique non imputable. Pas de contre-indication à la reprise de l&#x27;immunothérapie.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_7_metadata_1')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_7_metadata_1">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 8</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Un traitement par Rituximab (schéma S0-S2-M6) pourra être proposé en fonction de la réponse thérapeutique. Par ailleurs, arrêt de Gliptine. Information envoyée au diabétologue pour l&#x27;arrêt et adaptation thérapeutique. Mise à jour vaccinale à faire donc pneumocoque. Prescription du test de Synacthène pour arrêt de l&#x27;hydrocortisone. Après discussion avec Pr. ORO, décision de lui rajouter de la doxycycline 100 mg par jour et si pas d&#x27;amélioration dans 2 mois, indication au Rituximab vu l&#x27;absence de contre-indication.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_7_metadata_2')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_7_metadata_2">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 17</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéale.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_7_metadata_3')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_7_metadata_3">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 2</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">RCP immuno-TOX le 24/10/2024 : validation de la mise en place d&#x27;un traitement par RITUXIMAB devant la présence de la thérapie ciblée par anti-BRAF/anti-MEK.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_7_metadata_4')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_7_metadata_4">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 22</div><div class="metadata-item"><strong>Page Id:</strong> 3</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Actuellement sous traitement par encorafénib/binimétinib en 2ème ligne métastatique, C1J1 le 11/06/2024. Nous validons donc l&#x27;arrêt du traitement pendant 10 jours puis reprise après les 10 jours de pause.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_7_metadata_5')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_7_metadata_5">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 41</div><div class="metadata-item"><strong>Page Id:</strong> 6</div>  
+        </div>  
+    </div>  
+      
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">Sur le plan thérapeutique: arrêt du cardensiel et du furosemide.</p> <p class="text-line">Retour à domicile le 16/04/25.</p> <p class="text-line">Consultation de rythmologie pour contrôle du boitier dans 6 mois avec le Pr Lellouche.</p> <p class="text-line">Poursuite du suivi avec le cardiologue traitant.</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_7_metadata_6')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_7_metadata_6">  
+            <div class="metadata-item"><strong>Filename:</strong> SimbadScan2014149.pdf</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:27:22</div><div class="metadata-item"><strong>Section Id:</strong> 14</div><div class="metadata-item"><strong>Page Id:</strong> 1</div>  
+        </div>  
+    </div>  
+    </div></div>  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('aggregate_all_matches_entity_8')">  
+            <span>État général (OMS)</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="aggregate_all_matches_entity_8">  
+      
+    <div class="main-value aggregated-value">  
+        <strong>Aggregated Value:</strong><br>  
+        <div class="formatted-content">  
+            <p class="text-line">{&#x27;value&#x27;: &#x27;0&#x27;, &#x27;date&#x27;: &#x27;2025-06-20&#x27;}</p>  
+        </div>  
+    </div>  
+    <h4>Individual Values:</h4>  
+    <div class="entity-value">  
+        <div class="formatted-content">  
+            <p class="text-line">0</p>  
+        </div>  
+        <button class="show-metadata-btn" onclick="toggleMetadata('aggregate_all_matches_entity_8_metadata_0')" type="button">Show Metadata</button>  
+        <div class="metadata" id="aggregate_all_matches_entity_8_metadata_0">  
+            <div class="metadata-item"><strong>Filename:</strong> 10691_2019_20250ano.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 39</div><div class="metadata-item"><strong>Page Id:</strong> 5</div>  
+        </div>  
+    </div>  
+    </div></div></div><div class="not-found"><div class="not-found-header">Entities Not Found</div><div>• Commentaire tumeur primitive</div><div>• Métastatique</div><div>• CIM-O-3</div><div>• Date de présentation</div><div>• Diagnostiqué le</div><div>• Type histologique</div><div>• Métastases à distance</div><div>• Date de diagnostic</div><div>• État général (OMS)</div><div>• Score G8</div><div>• Proposition de la RCP</div></div>  
+        <div class="timestamp">Generated on: 2025-06-24 20:48:03</div>  
+    </div>  
+      
+    <script>  
+        function toggleEntity(entityId) {  
+            try {  
+                const content = document.getElementById(entityId);  
+                const header = document.querySelector('[onclick*="' + entityId + '"]');  
+                const btn = header ? header.querySelector('.toggle-btn') : null;  
+                  
+                if (content && btn) {  
+                    if (content.classList.contains('show')) {  
+                        content.classList.remove('show');  
+                        btn.textContent = 'Show Details';  
+                    } else {  
+                        content.classList.add('show');  
+                        btn.textContent = 'Hide Details';  
+                    }  
+                }  
+            } catch (error) {  
+                console.error('Error in toggleEntity:', error, 'EntityId:', entityId);  
+            }  
+        }  
+          
+        function toggleMetadata(metadataId) {  
+            try {  
+                const metadata = document.getElementById(metadataId);  
+                const btn = document.querySelector('[onclick*="' + metadataId + '"]');  
+                  
+                if (metadata && btn) {  
+                    if (metadata.classList.contains('show')) {  
+                        metadata.classList.remove('show');  
+                        btn.textContent = 'Show Metadata';  
+                    } else {  
+                        metadata.classList.add('show');  
+                        btn.textContent = 'Hide Metadata';  
+                    }  
+                }  
+            } catch (error) {  
+                console.error('Error in toggleMetadata:', error, 'MetadataId:', metadataId);  
+            }  
+        }  
+          
+        // Debug function to check if functions are loaded  
+        console.log('JavaScript functions loaded:', typeof toggleEntity, typeof toggleMetadata);  
+    </script>  
+</body>  
+</html>

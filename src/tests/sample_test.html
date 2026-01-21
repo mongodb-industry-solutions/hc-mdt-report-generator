@@ -1,0 +1,335 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>MDT Report</title>  
+    <style>  
+        body {  
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
+            line-height: 1.6;  
+            color: #333;  
+            max-width: 1200px;  
+            margin: 0 auto;  
+            padding: 20px;  
+            background-color: #f5f5f5;  
+        }  
+          
+        .container {  
+            background-color: white;  
+            border-radius: 8px;  
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);  
+            padding: 30px;  
+        }  
+          
+        h1 {  
+            color: #2c3e50;  
+            border-bottom: 3px solid #3498db;  
+            padding-bottom: 10px;  
+            margin-bottom: 30px;  
+        }  
+          
+        h2 {  
+            color: #34495e;  
+            margin-top: 30px;  
+            margin-bottom: 20px;  
+            padding: 10px;  
+            background-color: #ecf0f1;  
+            border-left: 4px solid #3498db;  
+        }  
+          
+        .entity-section {  
+            margin-bottom: 30px;  
+            border: 1px solid #ddd;  
+            border-radius: 5px;  
+            overflow: hidden;  
+        }  
+          
+        .entity-card {  
+            margin-bottom: 15px;  
+            border: 1px solid #e0e0e0;  
+            border-radius: 5px;  
+            background-color: #fafafa;  
+        }  
+          
+        .entity-header {  
+            background-color: #3498db;  
+            color: white;  
+            padding: 15px;  
+            font-weight: bold;  
+            cursor: pointer;  
+            display: flex;  
+            justify-content: space-between;  
+            align-items: center;  
+        }  
+          
+        .entity-header:hover {  
+            background-color: #2980b9;  
+        }  
+          
+        .toggle-btn {  
+            background: none;  
+            border: none;  
+            color: white;  
+            font-size: 14px;  
+            cursor: pointer;  
+            padding: 5px 10px;  
+            border-radius: 3px;  
+            background-color: rgba(255,255,255,0.2);  
+        }  
+          
+        .entity-content {  
+            padding: 15px;  
+            display: none;  
+        }  
+          
+        .entity-content.show {  
+            display: block;  
+        }  
+          
+        .entity-value {  
+            background-color: white;  
+            border: 1px solid #ddd;  
+            border-radius: 3px;  
+            margin-bottom: 10px;  
+            padding: 10px;  
+        }  
+          
+        .main-value {  
+            font-weight: bold;  
+            color: #2c3e50;  
+            margin-bottom: 10px;  
+            padding: 15px;  
+            background-color: #e8f4fd;  
+            border-left: 4px solid #3498db;  
+        }  
+          
+        .aggregated-value {  
+            background-color: #e8f8f5;  
+            border-left: 4px solid #27ae60;  
+            font-weight: bold;  
+        }  
+          
+        /* Formatted content styles */  
+        .formatted-content {  
+            margin-top: 10px;  
+            line-height: 1.8;  
+        }  
+          
+        .formatted-content .main-list {  
+            margin: 15px 0;  
+            padding-left: 20px;  
+        }  
+          
+        .formatted-content .main-item {  
+            margin-bottom: 15px;  
+            padding: 8px;  
+            background-color: rgba(52, 152, 219, 0.1);  
+            border-left: 3px solid #3498db;  
+            border-radius: 4px;  
+        }  
+          
+        .formatted-content .sub-list {  
+            margin: 8px 0 8px 20px;  
+            padding-left: 15px;  
+        }  
+          
+        .formatted-content .sub-item {  
+            margin-bottom: 8px;  
+            padding: 5px;  
+            background-color: rgba(46, 204, 113, 0.1);  
+            border-left: 2px solid #27ae60;  
+            border-radius: 3px;  
+        }  
+          
+        .formatted-content .bullet-list {  
+            margin: 10px 0;  
+            padding-left: 20px;  
+        }  
+          
+        .formatted-content .bullet-item {  
+            margin-bottom: 8px;  
+            padding: 5px;  
+        }  
+          
+        .formatted-content .text-line {  
+            margin: 8px 0;  
+            text-align: justify;  
+        }  
+          
+        .formatted-content strong {  
+            color: #2c3e50;  
+            font-weight: 600;  
+        }  
+          
+        .formatted-content em {  
+            color: #34495e;  
+            font-style: italic;  
+        }  
+          
+        .metadata {  
+            background-color: #f8f9fa;  
+            border-top: 1px solid #e9ecef;  
+            padding: 8px;  
+            font-size: 12px;  
+            color: #6c757d;  
+            display: none;  
+        }  
+          
+        .metadata.show {  
+            display: block;  
+        }  
+          
+        .metadata-item {  
+            margin-bottom: 5px;  
+        }  
+          
+        .not-found {  
+            background-color: #fff3cd;  
+            border: 1px solid #ffeaa7;  
+            border-radius: 5px;  
+            padding: 10px;  
+            margin-bottom: 10px;  
+        }  
+          
+        .not-found-header {  
+            background-color: #f39c12;  
+            color: white;  
+            padding: 10px;  
+            font-weight: bold;  
+            margin: -10px -10px 10px -10px;  
+        }  
+          
+        .value-count {  
+            background-color: #e74c3c;  
+            color: white;  
+            border-radius: 50%;  
+            padding: 2px 6px;  
+            font-size: 12px;  
+            margin-left: 10px;  
+        }  
+          
+        .show-metadata-btn {  
+            background-color: #6c757d;  
+            color: white;  
+            border: none;  
+            padding: 3px 8px;  
+            border-radius: 3px;  
+            font-size: 11px;  
+            cursor: pointer;  
+            margin-top: 5px;  
+        }  
+          
+        .show-metadata-btn:hover {  
+            background-color: #5a6268;  
+        }  
+          
+        .error-section {  
+            background-color: #f8d7da;  
+            color: #721c24;  
+            border: 1px solid #f5c6cb;  
+            border-radius: 5px;  
+            padding: 10px;  
+            margin: 10px 0;  
+        }  
+          
+        .entity-error {  
+            background-color: #f8d7da;  
+            color: #721c24;  
+            border: 1px solid #f5c6cb;  
+            border-radius: 3px;  
+            padding: 8px;  
+            margin: 5px 0;  
+        }  
+          
+        .no-value {  
+            background-color: #fff3cd;  
+            color: #856404;  
+            border: 1px solid #ffeaa7;  
+            border-radius: 3px;  
+            padding: 8px;  
+            margin: 5px 0;  
+        }  
+          
+        .timestamp {  
+            text-align: right;  
+            font-size: 12px;  
+            color: #6c757d;  
+            margin-top: 20px;  
+            padding-top: 10px;  
+            border-top: 1px solid #e9ecef;  
+        }  
+    </style>  
+</head>  
+<body>  
+    <div class="container">  
+        <h1>MDT Report</h1>  
+        <h2>First Match</h2><div class="entity-section">  
+    <div class="entity-card">  
+        <div class="entity-header" onclick="toggleEntity('first_match_entity_0')">  
+            <span>NumdosGR</span>  
+            <div>  
+                <span class="value-count">1</span>  
+                <button class="toggle-btn" type="button">Show Details</button>  
+            </div>  
+        </div>  
+        <div class="entity-content" id="first_match_entity_0">  
+      
+    <div class="main-value">  
+        <div class="formatted-content">  
+            <p class="text-line">201910010RM</p>  
+        </div>  
+    </div>  
+    <button class="show-metadata-btn" onclick="toggleMetadata('first_match_entity_0_metadata')" type="button">Show Metadata</button>  
+    <div class="metadata" id="first_match_entity_0_metadata">  
+        <div class="metadata-item"><strong>Filename:</strong> test_file.txt</div><div class="metadata-item"><strong>Created At:</strong> 2025-06-20 00:18:20</div><div class="metadata-item"><strong>Section Id:</strong> 1</div><div class="metadata-item"><strong>Page Id:</strong> 0</div>  
+    </div>  
+    </div></div></div><div class="not-found"><div class="not-found-header">Entities Not Found</div><div>• Test Entity</div></div>  
+        <div class="timestamp">Generated on: 2025-06-24 20:48:03</div>  
+    </div>  
+      
+    <script>  
+        function toggleEntity(entityId) {  
+            try {  
+                const content = document.getElementById(entityId);  
+                const header = document.querySelector('[onclick*="' + entityId + '"]');  
+                const btn = header ? header.querySelector('.toggle-btn') : null;  
+                  
+                if (content && btn) {  
+                    if (content.classList.contains('show')) {  
+                        content.classList.remove('show');  
+                        btn.textContent = 'Show Details';  
+                    } else {  
+                        content.classList.add('show');  
+                        btn.textContent = 'Hide Details';  
+                    }  
+                }  
+            } catch (error) {  
+                console.error('Error in toggleEntity:', error, 'EntityId:', entityId);  
+            }  
+        }  
+          
+        function toggleMetadata(metadataId) {  
+            try {  
+                const metadata = document.getElementById(metadataId);  
+                const btn = document.querySelector('[onclick*="' + metadataId + '"]');  
+                  
+                if (metadata && btn) {  
+                    if (metadata.classList.contains('show')) {  
+                        metadata.classList.remove('show');  
+                        btn.textContent = 'Show Metadata';  
+                    } else {  
+                        metadata.classList.add('show');  
+                        btn.textContent = 'Hide Metadata';  
+                    }  
+                }  
+            } catch (error) {  
+                console.error('Error in toggleMetadata:', error, 'MetadataId:', metadataId);  
+            }  
+        }  
+          
+        // Debug function to check if functions are loaded  
+        console.log('JavaScript functions loaded:', typeof toggleEntity, typeof toggleMetadata);  
+    </script>  
+</body>  
+</html>

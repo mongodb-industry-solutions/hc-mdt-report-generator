@@ -1,0 +1,134 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Test and coverage outputs
+.pytest_cache/
+.coverage
+htmlcov/
+.cache
+test-results/
+test_results/
+results/
+src/tests/experiments/
+*.xml
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+docs/_build/
+_build/
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+CLAUDE.md
+
+# Environment files and secrets (CRITICAL SECURITY)
+.env
+.env.*
+.env.local
+.env.production
+.env.development
+
+# Docker secrets and sensitive data (NEVER COMMIT)
+secrets/
+*.key
+*.crt
+*.pem
+*.p12
+*.pfx
+
+# EC2 and SSH keys (NEVER COMMIT)
+clb-ec2-test.pem
+*.pem
+
+# Database credentials and connection strings
+*password*
+*secret*
+*credential*
+
+# MongoDB data directory
+data/mongodb/
+data/
+
+# macOS system files
+.DS_Store
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Docker logs
+*.log
+
+# Files
+files/
+
+# Compiled extensions and libraries
+*.so
+*.dylib
+*.dll
+
+# Packages and archives
+*.gz
+*.tar
+*.zip
+*.rar
+*.7z
+
+# Compiled Cython
+*.pyx
+*.pxd
+
+# Dictionary/language files
+*.dic
+
+# Font files (usually from dependencies)
+*.woff2
+*.woff
+*.ttf
+*.eot
+
+# Data files (evaluate what you actually need)
+*.csv
+# *.json# Uncomment if you want to ignore all JSON files
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.bak
+*~
+
+# Documentation builds
+*.rst# You have 5,918 .rst files - likely Sphinx docs
+# Progress tracking files
+progress_extraction_*.json
+
+# Test output files  
+*.output.txt
+
+# Session files
+*.pkl
+session_backup.pkl
+ui/node_modules/
+
+# Root-level test files (experimental/debugging)
+test_*.py
+test_*.sh
+
+#Security Specific Files
+security_check.sh
+.venv
+env.bak/
+venv.bak/
+docs

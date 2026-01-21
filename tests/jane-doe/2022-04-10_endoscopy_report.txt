@@ -1,0 +1,46 @@
+RAPPORT DE FIBROSCOPIE ŒSO-GASTRO-DUODÉNALE
+
+Patient: Jane DOE
+Date de naissance: 15/08/1975
+Patient ID: jane-doe
+Date d'examen: 10/04/2022
+Médecin: Dr. Sophie Laurent
+
+TECHNIQUE:
+Fibroscopie sous anesthésie locale
+Endoscope: Olympus GIF-H290
+
+RÉSULTATS:
+
+ŒSOPHAGE:
+- Aspect normal
+- Pas de sténose
+- Pas d'ulcération
+- Pas de varices
+- Transition œso-gastrique normale
+
+ESTOMAC:
+- Muqueuse gastrique d'aspect normal
+- Pas d'ulcération
+- Pas de masse
+- Pas de sténose
+- Antre et fundus normaux
+
+DUODÉNUM:
+- Aspect normal
+- Pas d'ulcération
+- Pas de sténose
+
+CONCLUSION:
+Fibroscopie normale
+Pas de lésion organique
+Dyspepsie fonctionnelle confirmée
+
+RECOMMANDATIONS:
+- Régime alimentaire adapté
+- Éviter les repas copieux
+- Traitement symptomatique si nécessaire
+- Suivi clinique
+
+Dr. Sophie Laurent
+Gastro-entérologue 

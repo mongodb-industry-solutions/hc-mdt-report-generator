@@ -1,0 +1,58 @@
+{
+  "models": [
+    {
+      "id": "mistral-small-latest",
+      "name": "Mistral Small",
+      "provider": "mistral",
+      "apiKeyRequired": true,
+      "description": "Mistral Small - Good for general tasks",
+      "isDefault": true,
+      "endpointType": "api"
+    },
+    {
+      "id": "mistral-medium-latest",
+      "name": "Mistral Medium",
+      "provider": "mistral",
+      "apiKeyRequired": true,
+      "description": "Mistral Medium - Better for complex reasoning",
+      "isDefault": false,
+      "endpointType": "api"
+    },
+    {
+      "id": "mistral-large-latest",
+      "name": "Mistral Large",
+      "provider": "mistral",
+      "apiKeyRequired": true,
+      "description": "Mistral Large - Best performance for advanced tasks",
+      "isDefault": false,
+      "endpointType": "api"
+    },
+    {
+      "id": "local-mistral-7b",
+      "name": "Local Mistral 7B",
+      "provider": "mistral",
+      "apiKeyRequired": false,
+      "description": "Local Mistral 7B - Running on local hardware",
+      "isDefault": false,
+      "endpointType": "local"
+    },
+    {
+      "id": "openai-gpt-3.5-turbo",
+      "name": "OpenAI GPT-3.5 Turbo",
+      "provider": "openai",
+      "apiKeyRequired": true,
+      "description": "OpenAI GPT-3.5 - Fast and efficient",
+      "isDefault": false,
+      "endpointType": "api"
+    },
+    {
+      "id": "openai-gpt-4",
+      "name": "OpenAI GPT-4",
+      "provider": "openai",
+      "apiKeyRequired": true,
+      "description": "OpenAI GPT-4 - High performance model",
+      "isDefault": false,
+      "endpointType": "api"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+# ============================================================================
+# CLARITYGR ENVIRONMENT CONFIGURATION
+# ============================================================================
+# Copy this file to .env and configure your values
+# cp environment.template .env
+
+# ============================================================================
+# CORE APPLICATION SETTINGS
+# ============================================================================
+SECRET_KEY=your-secret-key-here
+
+# ============================================================================
+# DATABASE CONFIGURATION
+# ============================================================================
+# For Docker: mongodb://mongodb:27017
+# For local dev: mongodb://localhost:27017
+MONGODB_URI=mongodb://mongodb:27017
+MONGODB_DB=clarityGR
+
+# ============================================================================
+# LLM PROVIDER CONFIGURATION
+# ============================================================================
+# Provider: 'ollama' for local Ollama, 'mistral' for Mistral API
+LLM_PROVIDER=ollama
+
+# Mistral Mode: 'api' for cloud API, 'local' for local deployment
+MISTRAL_MODE=local
+
+# Mistral API Key (only required if LLM_PROVIDER=mistral and MISTRAL_MODE=api)
+# MISTRAL_API_KEY=your-mistral-api-key-here
+
+# ============================================================================
+# OLLAMA CONFIGURATION (for LLM_PROVIDER=ollama)
+# ============================================================================
+# Ollama Base URL
+# For Docker: http://host.docker.internal:11434
+# For local dev: http://localhost:11434
+GPT_OPEN_BASE_URL=http://host.docker.internal:11434
+
+# Model name (must be pulled first with `ollama pull <model>`)
+GPT_OPEN_MODEL=gpt-oss:20b
+
+# Performance Settings
+GPT_OPEN_TIMEOUT=3000.0
+GPT_OPEN_TEMPERATURE=0.1
+GPT_OPEN_MAX_TOKENS=7000
+
+# Ollama-specific: CPU threads (set to number of CPU cores)
+OLLAMA_NUM_THREAD=16
+
+# Ollama-specific: GPU layers (99 = full GPU, 0 = CPU only)
+# Note: Also enables GPU for EasyOCR when > 0
+OLLAMA_NUM_GPU=99
+
+# ============================================================================
+# NER PROCESSING CONFIGURATION
+# ============================================================================
+# IMPORTANT: These variables have NO prefix (not NER_)
+
+# Max entities processed per LLM call
+MAX_ENTITIES_PER_BATCH=6
+
+# Max characters sent to LLM per batch
+MAX_CONTENT_SIZE=4000
+
+# Chunk overlap in characters
+CHUNK_OVERLAPPING=200
+
+# Concurrent LLM requests (set to 1 to avoid rate limits)
+MAX_CONCURRENT_REQUESTS=1
+
+# Continue on errors (true = don't abort on single failure)
+CONTINUE_ON_BATCH_ERRORS=true
+
+# ============================================================================
+# OPTIONAL: JSON FIELD MAPPING (for varying JSON structures)
+# ============================================================================
+# Uncomment and customize if your JSON documents use different field names
+# JSON_FIELD_LIBNATCR=LIBNATCR,CR_NAT,NATUREDOCT
+# JSON_FIELD_CR_DATE=CR_DATE,DATEACTE,DATE
+# JSON_FIELD_TITLE=TITLE,CR_TITRE,OBJET
+# JSON_FIELD_TEXTE=TEXTE,CR_TEXTE,TEXTEF

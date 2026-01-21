@@ -1,0 +1,1283 @@
+{
+  "first_match": {
+    "found_entities": [
+      {
+        "entity_name": "NumdosGR",
+        "value": "201910010RM",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Sexe",
+        "value": "Masculin",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Date de naissance",
+        "value": "06/03/1965",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Site demandeur",
+        "value": "DEPARTEMENT DE MEDECINE ONCOLOGIQUE - SERVICE DE DERMATOLOGIE",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Hôpital",
+        "value": "Autre",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Localisations du cancer",
+        "value": "Cancer de la peau",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Types histologiques",
+        "value": "Mélanome",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Localisation",
+        "value": "pectorale",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Demande complément d'examen complémentaire",
+        "value": "Demande de réalisation de dosage des CPK.",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 6,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Nom",
+        "value": "ROUTIER",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 17,
+          "page_id": 1
+        }
+      },
+      {
+        "entity_name": "Traitement hors AMM",
+        "value": "Un traitement par Rituximab (schéma S0-S2-M6) pourra être proposé en fonction de la réponse thérapeutique",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 17,
+          "page_id": 1
+        }
+      },
+      {
+        "entity_name": "Thérapie innovante",
+        "value": "Non",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 14,
+          "page_id": 2
+        }
+      },
+      {
+        "entity_name": "Inclusion dans un essai thérapeutique",
+        "value": "Non",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 22,
+          "page_id": 3
+        }
+      },
+      {
+        "entity_name": "EVASAN",
+        "value": "Non",
+        "metadata": {
+          "filename": "10691_2019_20250ano.txt",
+          "created_at": "2025-06-20T00:18:20.688555",
+          "section_id": 22,
+          "page_id": 3
+        }
+      },
+      {
+        "entity_name": "Prénom",
+        "value": "Madame",
+        "metadata": {
+          "filename": "SimbadScan2014149.pdf",
+          "created_at": "2025-06-20T00:27:22.556938",
+          "section_id": 1,
+          "page_id": 0
+        }
+      },
+      {
+        "entity_name": "Adresse postale",
+        "value": "64 AVENUE GEORGES GOSNAT 94200 IVRY SUR SEINE",
+        "metadata": {
+          "filename": "SimbadScan2014149.pdf",
+          "created_at": "2025-06-20T00:27:22.556938",
+          "section_id": 1,
+          "page_id": 0
+        }
+      }
+    ],
+    "not_found_entities": [
+      {
+        "entity_name": "Nom de naissance"
+      },
+      {
+        "entity_name": "Adresse électronique"
+      }
+    ]
+  },
+  "multiple_match": {
+    "found_entities": [
+      {
+        "entity_name": "Spécialités médicales demandées",
+        "values": [
+          {
+            "value": "Comité 090 (dermatologie)",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "RCP pneumologique, RCP dermatologique, RCP TOX, RCP immunotox",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "RCP immuno-TOX, RCP dermatologique",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Anomalie moléculaire",
+        "values": [
+          {
+            "value": "muté BRAF V600E",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "TP53 - p.(Leu137Gln)\nmutation BRAF V600",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "anti-BRAF/anti-MEK",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "ENCORAFENIB, BINIMETINIB",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 37,
+              "page_id": 4
+            }
+          },
+          {
+            "value": "muté BRAF V600E",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Site métastatique",
+        "values": [
+          {
+            "value": "Poumon, Ganglion",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "Poumon, Ganglion",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Ganglion\nCerveau",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "adénopathie lomboaortique, adénopathie nécrotique, pré-cave en arrière de la tête du pancréas, hyperactivité ganglionnaire précave, masse tissulaire nécrotique",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "Ganglion",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 39,
+              "page_id": 5
+            }
+          },
+          {
+            "value": "Poumon",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Motifs de présentation",
+        "values": [
+          {
+            "value": "PEC L2 et plus (récidive/progression)",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "PEC L2 et plus (récidive/progression)",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "PEC L2 et plus (récidive/progression)",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 17,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "PEC L2 et plus (récidive/progression)",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          },
+          {
+            "value": "Syncope - Suspicion de BAVc",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "syncope en lien avec un bloc atrioventriculaire de haut degré sur l'ECG post-critique (BAV 2:1)",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 14,
+              "page_id": 1
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Chimiothérapie(s) réalisée(s)",
+        "values": [
+          {
+            "value": "Traitement adjuvant par NIVOLUMAB 240 mg J1=J14, J1 le 02/11/2019 (en alternance avec Montargis) dernière cure le 07/10/2020.\nActuellement sous traitement par encorafénib/binimétinib en 2ème ligne métastatique, C1J1 le 11/06/2024.\nPEMBROLIZUMAB du 26/09/2023 au 14/05/2024 (arrêt sur progression tumorale ainsi qu'une majoration de la toxicité buccale depuis janvier 2024).",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "Première ligne métastatique par PEMBROLIZUMAB réalisée au CHAM Montargis C1J1 le 26/09/2023 jusqu'au 14/05/2024 (la cure du 12/03/2024 n'a pas été réalisée devant la majoration de la toxicité buccale) : arrêt pour progression tumorale unique de l'adénopathie lomboaortique droite précave et devant la majoration de la toxicité buccale.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "C1J1 de Rituximab le 09/01/2025. C1J15 le 23/01/2025",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 32,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "Patient suivi pour un mélanome pectoral initialement de stade IIIA, traité par immunothérapie adjuvante entre le 02/11/2019 et 07/10/2020 compliquée d'une Pemphigoîde cicatricielle de la muqueuse buccale de grade III. Récidive du mélanome avec un nodule pulmonaire unique en juillet 2023 traité en 1ère ligne métastatique par PEMBROLIZUMAB du 26/09/2023 au 14/05/2024 (arrêt sur progression tumorale ainsi qu'une majoration de la toxicité buccale depuis janvier 2024). Actuellement sous traitement par encorafénib/binimétinib en 2ème ligne métastatique, C1J1 le 11/06/2024.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Radiothérapie réalisée",
+        "values": [
+          {
+            "value": "Radiothérapie de l'adénopathie porto-cave réalisée du 14/10/2024 au 18/10/2024.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "RCP dermatologique du 22/08/2024 : dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéale.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "Radiothérapie de l'adénopathie porto-cave à la dose de 30 Gy en 5 fractions de 6 Gy a été réalisée du 14/10/2024 au 18/10/2024. A noter que la lésion est au contact avec le duodénum sur plusieurs centimètres et est très proche du côlon, ce qui a baissé la dose et découvert partiellement le volume cible.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "Diagnostic d'une probable gastrite ? probablement induite par la radiothérapie ?",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 32,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "Radiothérapie de l'adénopathie porto-cave réalisée du 14/10/2024 au 18/10/2024.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          },
+          {
+            "value": "Cancer du sein gauche en 2024 traité par radiothérapie",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 1,
+              "page_id": 0
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Chirurgie(s) réalisée(s)",
+        "values": [
+          {
+            "value": "23/05/2019 : exérèse d'un mélanome pectoral de 3 mm de Breslow, ulcéré.\n03/09/2019 : reprise d'exérèse et ganglion sentinelle : remaniement fibro-cicatriciel et granulome de type résorptif, absence de reliquat tumoral. Ganglions sentinelles axillaire gauche : 1 N+ R-/2 N.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "Biopsie réalisée en RI le 14/08/2023 : CRH : BIOPSIE PULMONAIRE LID : localisation pulmonaire du mélanome connu (prélèvement totalement tumoral).",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Chirurgicaux : aucun.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 37,
+              "page_id": 4
+            }
+          },
+          {
+            "value": "Cicatrice d'exérèse du mélanome pectoral saine, sans signe de récidive visible ou palpable.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 39,
+              "page_id": 5
+            }
+          },
+          {
+            "value": "Cancer du sein droit en 2008 opéré par mastectomie en 2015\nCataracte sénile, sans précision (H259)",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "IMPLANTATION PACE MAKER DU 15/04/2025\n\nOpérateurs: Dr LABBE Jean Philippe, Pr LELLOUCHE Nicolas Durée procédure: 60 min , scopie : $4 \\mathrm{~min} 0 \\mathrm{~s}$. PDS total : $221 \\mathrm{cGy} . \\mathrm{cm}^{2}$. Air Kerma cumulé : 144 mGy . Double badigeon à la bétadine. Antibioprophylaxie par Cefazoline 2000 mg . Après anesthésie locale, une incision est réalisée dans le sillon delto-pectoral gauche. Réalisation de la loge du stimulateur en pré-pectoral gauche. Fermeture par un surjet intradermique résorbable. Stimulateur:\n\n- ASSURITY MRI DR ST JUDE PM2272 (St Jude) N 6147685.\n\nSonde de stimulation:\n\n- SOLIA S 53cm (Biotronik) N 8001916580.\n- SOLIA S 60cm (Biotronik) N 8001949991.\n\nIMPLANTATION DE L'ELECTRODE ATRIALE DROITE (AURICULE). Une électrode bipolaire de marque Biotronik (SOLIA S 53cm - 8001916580) a été implantée le 15/04/2025 par un abord céphalique gauche au niveau de l'auricule droit. Le seuil de stimulation est de 0,6 Volts pour $0,4 \\mathrm{~ms}$. L'impédance de stimulation est de 525 Ohms. La détection est de $1,7 \\mathrm{mV}$.\n\nIMPLANTATION DE L'ELECTRODE VENTRICULAIRE DROITE (SEPTUM MID). Une électrode de marque Biotronik (SOLIA S 60cm - 8001949991) a été implantée le 15/04/2025 par un abord céphalique gauche au niveau du ventricule droit (septum mid). Le seuil de stimulation est de 0,5 Volts pour $0,5 \\mathrm{~ms}$. L'impédance de stimulation est de 689 Ohms. La détection bipolaire est de $6,7 \\mathrm{mV}$.\n\nIMPLANTATION DU STIMULATEUR CARDIAQUE. UN STIMULATEUR CARDIAQUE DE MARQUE ST JUDE (ASSURITY MRI DR PM2272 5147685) A ETE IMPLANTE LE 15/04/2025 DANS UNE LOGE PRE-PECTORALE GAUCHE.",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 12,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "hospitalisée pour implantation d'un stimulateur cardiaque double chambre pour bloc atrioventriculaire sur coeur sain\nGeste réalisé le 15/04/2025 : implantation d'un boîtier de marque Saint-Jude.\nImplantation d'un pace maker double chambre de marque ABBOTT.",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 14,
+              "page_id": 1
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Antécédents personnels notables",
+        "values": [
+          {
+            "value": "Patient suivi pour un mélanome pectoral initialement de stade IIIA, muté BRAF V600E, traité par immunothérapie adjuvante entre le 02/11/2019 et 07/10/2020 compliquée d'une Pemphigoïde cicatricielle de la muqueuse buccale de grade III.\nRécidive du mélanome avec un nodule pulmonaire unique en juillet 2023.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "Dysthyroîdie supplémentée par LEVOTHYROX depuis mai 2020. Pemphigoîde cicatricielle atteignant la muqueuse buccale et le front suivie initialement au KB. IFD le 18/02/2021 : dépôt linéaire et discontinu de IgG et situé en bordure de décollement. Histologie non spécifique dans la bouche (tissu de granulation) et atteinte spécifique sur la peau du front avec décollement sous épidermique avec un infiltrat à prédominance lymphocytaire. Pas d'atteinte de muqueuse ophtalmique, ni ORL autre que la bouche, pas de douleur anorectale. Echec du traitement initial par dermocorticoîdes, puis échec de traitement par Doxycycline, puis sous Disulone depuis le 16/04/2021. Consultation de suivi avec le Dr GOTTLIEB le 28/04/2022 : il existe une contre-indication assez formelle à la reprise du GLIPTIN. Prescription d'un test au Synacthène puis arrêt si possible de l'hydrocortisone. EMG de principe. Baisse progressive des traitements en commençant par la Salazopyrine. Résultat biologique du 19/07/2022 : glycémie à jeun à 1,23 g/l, HbA1c 5,9 % (chez un patient diabétique), triglycérides 5,46 g/l, cholestérol total 1,89 g/l, HDL 0,33 g/l, LDL 0,72 g/l, TSH 1,45. Il est en rémission complète avec arrêt du CORTANCYL depuis avril 2022 et arrêt de la DOXYCYCLINE. Arrêt également de l'hydrocortisone après réalisation du test au Synacthène. A noter que la Disulone a été arrêtée par le patient depuis le 26/08/2022. EMG le 07/06/2022 : neuropathie à prédominance sensitive distale des membres inférieurs, modérée, n'expliquant pas la faiblesse proximale d'allure musculaire et probablement secondaire à hypothyroîdie et la corticothérapie, à suivre. Demande de réalisation de dosage des CPK. Consultation Dr GOTTLIEB le 03/10/2022 : il existe une contre-indication assez formelle à la reprise d'une GLIPTINE. Rémission partielle voire complète de la pemphigoîde bulleuse des muqueuses (les 2 dernières bulles séro-hématiques qui ont guéri spontanément en 7 jours peuvent être liées à de la fragilité gingivale). Poursuivre une surveillance seule. Le patient est également suivi en endocrinologie pour son hypothyroîdie sous LEVOTHYROX. Sur le plan du diabète, arrêt du DIAMICRON et poursuite FORXIGA. Consultation Dr GOTTLIEB le 20/03/2023 : il garde une fragilité de la muqueuse buccale sans récidive de lésion bulleuse. Il identifie les nitrites comme aggravant potentiel (possible réaction de contact surajoutée ?). Sur la peau, prurit intermittent contrôlé par le patient. Pour rappel, contre-indication définitive à la reprise de GLIPTINE pour le diabète.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 6,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "#$$1GRECIDIVE EN PULMONAIRE :#$$0G - Scanner C-TAP du 20/06/2023 : présence d'un nodule lobaire inférieur droit de 13 mm, pas d'autre anomalie du parenchyme pulmonaire.\n#$- Relecture à GR : examen comparé au scanner du 02/05/2022 : apparition d'un nodule solide de 11 mm du segment apical du lobe inférieur droit, mesurant 11 mm (image 231, série 4), et n'était pas visible sur le Pet-scanner du 21/11/2022, d'allure suspect. Pas d'autre lésion suspecte.\n#$- TEP scanner le 07/07/2023 : en comparaison avec la TEP du 21/11/2022 : apparition d'un nodule pulmonaire droit de 12 mm se projetant sur l'apical du lobe inférieur droit moyennement hypermétabolique SUVmax 6.3. Absence d'apparition de foyer suspect sur le reste du champ corporel exploré.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "il a des antécédents d'ACFA début mai 2018 (actuellement en rythme Sinusal) pour laquelle il a été mis sous Eliquis et sotalol. Arrêt de l'Eliquis après un mois de traitement et poursuite du sotalol. Dr ZAHNAN a suspendu le sotalol et l'a remplacé par bisoprolol devant le risque majoré d'une prolongation de l'onde QT.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 17,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "#$- Scanner TAP le 12/08/2024 : ganglion de 80 mm de grand axe, localisée entre la veine cave inférieure et le tronc porte.\n#$- Scanner cérébral d'août 2024 : normal.\n#$- Relecture du scanner du 12/08/2024 avec le TEP scanner du 04/04/2024 : majoration de la lésion ganglionnaire rétropéritonéale, qui mesure ce jour 62 mm de plus grand axe, image 365, série deux), contre 48 mm précédemment (série huit, image 564).\n#$- Progression sur les critères de RECIST 1.1 : +29 %\n#$- Bilan biologique du 13/09/2024 : bilirubine totale normale, GGT 88 (légèrement élevée, 1.4xN, limite supérieure normale à 61, grade 0), AP normale, ASAT 77 (légèrement élevée, 1,9xN, grade 0), ALAT 167 (élevée, 4xN, grade II).\n#$- Echographie abdomino-pelvienne le 17/09/2024 : stéatose hépatique hétérogène, sans lésion nodulairee identifiable ce jour. Absence de dilatation des voies biliaires intrahépatiques. Absence de lithiase intravésiculaire et intrarénale. Masse en regard de la tête du pancréas de 72 mm de grand axe.\n#$- Bilan biologique le 16/09/2024 : ASAT 114 (élevé, grade I, 2.78xN), ALAT 219 (élevé, grade III, 5.34xN), GGT 106 (légèrement élevé, grade 0), bilirubine totale normale, LDH 322 (élevé, lié à la maladie), CPK normaux, sérologies virales comprenant hépatite A, hépatite B, hépatite C, VIH et bilan auto-immun comprenant ANA, anticorps anti ADN natif, anticorps anti antigènes nucléaires solubles, anticorps anti réticulum endoplasmique, anticorps antimitochondries, anticorps anti SLA, anticorps antimuscle lisse sont négatifs. PCR hépatite E est négative.\n#$- Bilan biologique le 24/09/2024 : ASAT 54 (légèrement élevée, grade 0 vs 114 le 16/09/2024), ALAT 122 (élevée, 2.97xN, grade 0/I, vs 219 le 16/09/2024), AP normale, GGT 122 (légèrement élevé, sans particularité), bilirubine totale normale.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "Validation de la reprise du traitement par thérapie ciblée à un palier -1 (03/10/2024).\nConsultation de diabétologie le 07/10/2024 : dégradation brutale de l'équilibre glycémique, sans cétose, dans un contexte de récidive néoplasique avec apparition d'une adénopathie lomboaortique du mélanome. Introduction d'une insulinothérapie basale, poursuite du FORXIGA qui sera arrêté en cas d'apparition d'une insuffisance rénale aiguë, introduction du Galvus, prescription d'un freestyle libre 2.\nle patient a eu une intoxication alimentaire le lundi 14/10/2024 qui s'est manifestée avec de la fièvre et 2 épisodes de vomissements qui ont duré une journée.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "Depuis décembre 2024, présence d'une vision floue pour laquelle il a consulté un ophtalmologue le 20/11/2025 : fin d'une crise d'uvéite antérieure de l'œil gauche. Synéchies irido-cristalliniennes, traitement par Dexocol, atropine collyre, Mydriaticum collyre. Pas de contre-indication sur le plan ophtalmologique à la prise du rituximab car cause infectieuse non retenue pour cette uvéite qui est déjà à sa fin.\nHDJ à l'hôpital Henri Mondor le 23/01/2025 : érythème gingival diffus avec collet fibrineux. Présence d'érosions à la partie inférieure générale. C1J1 de Rituximab le 09/01/2025. C1J15 le 23/01/2025 avec décision de réintroduire la Disulone comme traitement de fond à 25 mg/jour avec bains de bouche composé et contrôle biologique rapproché. À revoir dans 3 mois en consultation ou dans l'intervalle si besoin.\nNette amélioration des lésions de pemphigoïde bulleuse cicatricielle au niveau buccale depuis début novembre 2024. Pas d'apparition de lésion par ailleurs.\nIl s'est présenté aux urgences le 25/01/2025 pour des épigastralgies intenses qui dataient depuis deux semaines. Réalisation d'un scanner abdomino-pelvien qui a montré une diverticulite sigmoïdienne. Prescription d'un traitement par Augmentin pendant 7 jours avec un traitement antalgique par paracétamol et Acupan. Il est rentré à domicile le même jour avec début du traitement par antibiothérapie qui n'a pas amélioré la symptomatologie malgré une semaine de prise. Il a revu son médecin traitant le 30/01/2025 qui lui a prescrit du Météospasmyl et du Spasfon qui n'ont pas amélioré également ses symptômes. Il est retourné aux urgences le 04/02/2025. Réalisation d'une échographie abdominale qui n'a pas montré d'anomalie hormis un foie de surcharge, absence de lithiase vésiculaire et absence de dilatation des voies biliaires intra ou extrahépatiques. Diagnostic d'une probable gastrite ? probablement induite par la radiothérapie ? Il a eu une prescription de pantoprazole 40 mg 1 cp matin et soir pendant 7 jours puis 1 cp/jour qui a complètement amélioré la symptomatologie (quasi disparition).",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 32,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "Névrite vestibulaire gauche (l'IRM ne retrouvait pas de lésion des conduits auditifs internes, ni de l'angle pontocérébelleux gauche)\nDiabète type 2\nSAOS\nAC/FA\nDiverticules sigmoïdiens et coliques\nDysthyroïdie immuno-médiée supplémentée par LEVOTHYROX depuis mai 2020. Suivie par Dr KOUSSA.\nPemphigoïde cicatricielle immuno-médiée atteignant la muqueuse buccale et le front.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 37,
+              "page_id": 4
+            }
+          },
+          {
+            "value": "douleur chronique à ce niveau qui date depuis plusieurs années et qui survient en intermittence traitée par des anti-inflammatoires.\nlésion érythémateuse pectorale droite qui a été biopsiée le 31/01/2022 et qui s'est avérée une hyperplasie lymphoïde bénigne.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 39,
+              "page_id": 5
+            }
+          },
+          {
+            "value": "Patient suivi pour un mélanome pectoral initialement de stade IIIA, muté BRAF V600E, compliquée d'une Pemphigoîde cicatricielle de la muqueuse buccale de grade III. Récidive du mélanome avec un nodule pulmonaire unique en juillet 2023. Le patient souhaite faire une petite pause thérapeutique de la thérapie ciblée. Nous validons donc l'arrêt du traitement pendant 10 jours puis reprise après les 10 jours de pause. Le patient présente une asthénie importante reliée au traitement qui se manifeste plutôt par une difficulté à la marche qui date depuis plusieurs mois.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          },
+          {
+            "value": "Cancer du sein droit en 2008\nCancer du sein gauche en 2024\nDiabète de type 2 non insulino-dépendant\nAsthme\nAllergie: Pollens",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "Pas de douleur thoracique, palpitations, lipothymies ou syncope. Dyspnée NYHA 4. Absence de signes de bas débit. Absence de signes d'insuffisance cardiaque droite ou gauche. L'auscultation pulmonaire est claire. Les bruits du cœur sont réguliers sans souffle. Les pouls sont perçus aux 4 membres. L'abdomen est souple indolore dépressible.",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 7,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "Patiente de 72 ans hospitalisée pour syncope en lien avec un bloc atrioventriculaire de haut degré sur l'ECG post-critique (BAV 2:1)",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 14,
+              "page_id": 1
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Spécialités demandées",
+        "values": [
+          {
+            "value": "- endocrinologie\n- stomatologie",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 6,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "Radiologie interventionnelle",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Oncologie médicale",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 17,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "radiothérapeutes",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "diabétologie, radiothérapie",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "gastro-entérologie, ophtalmologie, cardiologie",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 37,
+              "page_id": 4
+            }
+          },
+          {
+            "value": "Cardiologie",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "rythmologie, cardiologie",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 14,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "BCT ORTHOPTIE, BCT CS OPHTALMOLOGIE",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 17,
+              "page_id": 2
+            }
+          }
+        ]
+      },
+      {
+        "entity_name": "Question posée à la RCP",
+        "values": [
+          {
+            "value": "on propose d'effectuer une biopsie pulmonaire en radiologie interventionnelle et de rediscuter de la stratégie thérapeutique avec le résultat anatomo pathologique.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéale.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "will be empty.\n\nHere is the extraction result:\n\n```xml\n<ENTITY_1_OUTPUT>",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 7,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "will be empty.\n\n```xml\n<ENTITY_1_OUTPUT>",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 10,
+              "page_id": 1
+            }
+          }
+        ]
+      }
+    ],
+    "not_found_entities": [
+      {
+        "entity_name": "Spécialités médicales demandées"
+      },
+      {
+        "entity_name": "Anomalie moléculaire"
+      },
+      {
+        "entity_name": "Site métastatique"
+      },
+      {
+        "entity_name": "Motifs de présentation"
+      },
+      {
+        "entity_name": "Spécialités demandées"
+      },
+      {
+        "entity_name": "Chimiothérapie(s) réalisée(s)"
+      },
+      {
+        "entity_name": "Radiothérapie réalisée"
+      },
+      {
+        "entity_name": "Chirurgie(s) réalisée(s)"
+      },
+      {
+        "entity_name": "Antécédents personnels notables"
+      },
+      {
+        "entity_name": "Antécédents familiaux"
+      },
+      {
+        "entity_name": "Question posée à la RCP"
+      }
+    ]
+  },
+  "aggregate_all_matches": {
+    "found_entities": [
+      {
+        "entity_name": "Commentaire tumeur primitive",
+        "values": [
+          {
+            "value": "23/05/2019 : exérèse d'un mélanome pectoral de 3 mm de Breslow, ulcéré.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "#$inférieur droit de 13 mm, pas d'autre anomalie du parenchyme #$pulmonaire.\n#$apparition d'un nodule solide de 11 mm du segment apical du lobe #$inférieur droit, mesurant 11 mm (image 231, série 4), et n'était pas #$visible sur le Pet-scanner du 21/11/2022, d'allure suspect.\n#$apparition d'un nodule pulmonaire droit de 12 mm se projetant sur #$l'apical du lobe inférieur droit moyennement hypermétabolique SUVmax #$6.3.\n#$LID : localisation pulmonaire du mélanome connu (prélèvement #$totalement #$tumoral).",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Récidive depuis janvier 2024 soit après 3 mois du début du traitement par immunothérapie des lésions de pemphigoïde bulleuse cicatricielle de la muqueuse buccale qui étaient très douloureuses. Nette majoration de sa pemphigoïde bulleuse cicatricielle buccale depuis le 27/05/2024 avec apparition de multiples lésions endobuccales douloureuses, qui sont devenues très difficiles à gérer et qu'ils l'ont empêché de s'alimenter normalement. Validation avec le Dr ROUTIER de la suspension des séances d'immunothérapie devant cette toxicité de grade III et la progression de sa maladie sous immunothérapie. Activité de la maladie avec érosions importantes des collets dentaires et présence de bulles.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 17,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Scanner TAP le 12/08/2024 : ganglion de 80 mm de grand axe, localisée entre la veine cave inférieure et le tronc porte. Scanner cérébral d'août 2024 : normal. Relecture du scanner du 12/08/2024 avec le TEP scanner du 04/04/2024 : majoration de la lésion ganglionnaire rétropéritonéale, qui mesure ce jour 62 mm de plus grand axe, image 365, série deux), contre 48 mm précédemment (série huit, image 564). Progression sur les critères de RECIST 1.1 : +29 %. RCP dermatologique du 22/08/2024 : dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéale. Echographie abdomino-pelvienne le 17/09/2024 : Masse en regard de la tête du pancréas de 72 mm de grand axe.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "récidive néoplasique avec apparition d'une adénopathie lomboaortique du mélanome",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "absence de lésion suspecte à l'étage thoracique. diminution significative de la taille de la masse rétropancréatique (60 mm contre 80 mm).",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 32,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "poursuite de la bonne réponse métabolique partielle de la masse ganglionnaire nécrotique pré-cave située au-dessus du hile rénal droit en arrière de la tête du pancréas et refoulant le segment D2 duodénal et SUVmax 4,2 ce jour versus 6,2 le 12/11/2024 versus 22,7 le 4/4/2024 et mesurant respectivement 48 mm versus 58 mm versus 50 mm dans le plan transverse.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 39,
+              "page_id": 5
+            }
+          },
+          {
+            "value": "Patient suivi pour un mélanome pectoral initialement de stade IIIA, #$muté BRAF V600E",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          },
+          {
+            "value": "Cancer du sein droit en 2008 opéré par mastectomie en 2015 Cancer du sein gauche en 2024 traité par radiothérapie et Tamoxifène",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 1,
+              "page_id": 0
+            }
+          }
+        ],
+        "aggregated_value": "23/05/2019 : exérèse d'un mélanome pectoral de 3 mm de Breslow, ulcéré; nodule pulmonaire inférieur droit de 13 mm, pas d'autre anomalie du parenchyme pulmonaire; apparition d'un nodule solide de 11 mm du segment apical du lobe inférieur droit, mesurant 11 mm, et n'était pas visible sur le Pet-scanner du 21/11/2022, d'allure suspecte; apparition d'un nodule pulmonaire droit de 12 mm se projetant sur l'apical du lobe inférieur droit moyennement hypermétabolique SUVmax 6.3; localisation pulmonaire du mélanome connu (prélèvement totalement tumoral); récidive depuis janvier 2024 soit après 3 mois du début du traitement par immunothérapie des lésions de pemphigoïde bulleuse cicatricielle de la muqueuse buccale qui étaient très douloureuses; nette majoration de sa pemphigoïde bulleuse cicatricielle buccale depuis le 27/05/2024 avec apparition de multiples lésions endobuccales douloureuses, qui sont devenues très difficiles à gérer et qu'elles l'ont empêché de s'alimenter normalement; validation avec le Dr ROUTIER de la suspension des séances d'immunothérapie devant cette toxicité de grade III et la progression de sa maladie sous immunothérapie; activité de la maladie avec érosions importantes des collets dentaires et présence de bulles; scanner TAP le 12/08/2024 : ganglion de 80 mm de grand axe, localisée entre la veine cave inférieure et le tronc porte; scanner cérébral d'août 2024 : normal; relecture du scanner du 12/08/2024 avec le TEP scanner du 04/04/2024 : majoration de la lésion ganglionnaire rétropéritonéale, qui mesure ce jour 62 mm de plus grand axe, contre 48 mm précédemment; progression sur les critères de RECIST 1.1 : +29 %; RCP dermatologique du 22/08/2024 : dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéal; échographie abdomino-pelvienne le 17/09/2024 : Masse en regard de la tête du pancréas de 72 mm de grand axe; récidive néoplasique avec apparition d'une adénopathie lomboaortique du mélanome; absence de lésion suspecte à l'étage thoracique; diminution significative de la taille de la masse rétropancréatique (60 mm contre 80 mm); poursuite de la bonne réponse métabolique partielle de la masse ganglionnaire nécrotique pré-cave située au-dessus du hile rénal droit en arrière de la tête du pancréas et refoulant le segment D2 duodénal et SUVmax 4,2 ce jour versus 6,2 le 12/11/2024 versus 22,7 le 4/4/2024 et mesurant respectivement 48 mm versus 58 mm versus 50 mm dans le plan transverse; patient suivi pour un mélanome pectoral initialement de stade IIIA, muté BRAF V600E; cancer du sein droit en 2008 opéré par mastectomie en 2015; cancer du sein gauche en 2024 traité par radiothérapie et Tamoxifène."
+      },
+      {
+        "entity_name": "Métastatique",
+        "values": [
+          {
+            "value": "Oui",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "Oui",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Oui",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 17,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Oui",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "Non",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 39,
+              "page_id": 5
+            }
+          },
+          {
+            "value": "Oui",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          }
+        ],
+        "aggregated_value": "Oui"
+      },
+      {
+        "entity_name": "Date de présentation",
+        "values": [
+          {
+            "value": "11/04/2025",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "18/02/2021",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 6,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "07/02/2025",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 37,
+              "page_id": 4
+            }
+          },
+          {
+            "value": "13/04/2025",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 1,
+              "page_id": 0
+            }
+          }
+        ],
+        "aggregated_value": "18/02/2021"
+      },
+      {
+        "entity_name": "Diagnostiqué le",
+        "values": [
+          {
+            "value": "23/05/2019",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          }
+        ],
+        "aggregated_value": "` tags.\n\nGiven the input:\n\n```xml\n<ENTITY>\n- Name: Diagnostiqué le\n- Definition: Date à laquelle le diagnostic a été établi\n</ENTITY>\n\n<VALUES>\n{'value': '23/05/2019', 'metadata': {'filename': '10691_2019_20250ano.txt', 'created_at': '2025-06-20T00:18:20.688555', 'section_id': 1, 'page_id': 0}}\n</VALUES>\n```\n\n### Steps to Aggregate the Values:\n\n1. **Extract the Date**:\n   - The value `'23/05/2019'` is the only date provided.\n\n2. **Identify the Oldest Date**:\n   - Since there is only one date, it is trivially the oldest date.\n\n3. **Output the Result**:\n   - The oldest date is `'23/05/2019'`.\n\n### Output:\n\n```xml\n<OUTPUT>23/05/2019"
+      },
+      {
+        "entity_name": "Type histologique",
+        "values": [
+          {
+            "value": "mélanome",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "localisation pulmonaire du mélanome connu",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "mélanome",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          }
+        ],
+        "aggregated_value": "localisation pulmonaire du mélanome connu"
+      },
+      {
+        "entity_name": "Métastases à distance",
+        "values": [
+          {
+            "value": "nodule pulmonaire unique",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "présence d'un nodule lobaire inférieur droit de 13 mm, apparition d'un nodule solide de 11 mm du segment apical du lobe inférieur droit, apparition d'un nodule pulmonaire droit de 12 mm se projetant sur l'apical du lobe inférieur droit, progression tumorale unique de l'adénopathie lomboaortique droite précave",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Deuxième ligne métastatique par thérapie ciblée par encorafénib et binimétinib",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 17,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "#$- Scanner TAP le 12/08/2024 : ganglion de 80 mm de grand axe, #$localisée entre la veine cave inférieure et le tronc porte. #$- Scanner cérébral d'août 2024 : normal. #$- Relecture du scanner du 12/08/2024 avec le TEP scanner du #$04/04/2024 #$: majoration de la lésion ganglionnaire rétropéritonéale, qui mesure #$ce jour 62 mm de plus grand axe, image 365, série deux), contre 48 mm #$précédemment (série huit, image 564).#$Progression sur les critères de RECIST 1.1 : +29 %",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "adénopathie lomboaortique du mélanome",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "absence d'argument pour des lésions secondaires",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 39,
+              "page_id": 5
+            }
+          },
+          {
+            "value": "nodule pulmonaire unique",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          }
+        ],
+        "aggregated_value": "présence d'un nodule lobaire inférieur droit de 13 mm, apparition d'un nodule solide de 11 mm du segment apical du lobe inférieur droit, apparition d'un nodule pulmonaire droit de 12 mm se projetant sur l'apical du lobe inférieur droit, progression tumorale unique de l'adénopathie lomboaortique droite précave, ganglion de 80 mm de grand axe localisée entre la veine cave inférieure et le tronc porte, majoration de la lésion ganglionnaire rétropéritonéale, qui mesure ce jour 62 mm de plus grand axe, contre 48 mm précédemment, adénopathie lomboaortique du mélanome"
+      },
+      {
+        "entity_name": "Date de diagnostic",
+        "values": [
+          {
+            "value": "23/05/2019",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 1,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "2008",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 1,
+              "page_id": 0
+            }
+          }
+        ],
+        "aggregated_value": "23/05/2019"
+      },
+      {
+        "entity_name": "Proposition de la RCP",
+        "values": [
+          {
+            "value": "Consultation de suivi avec le Dr GOTTLIEB le 28/04/2022 : il existe une contre-indication assez formelle à la reprise du GLIPTIN. Prescription d'un test au Synacthène puis arrêt si possible de l'hydrocortisone. EMG de principe. Baisse progressive des traitements en commençant par la Salazopyrine. Consultation Dr GOTTLIEB le 03/10/2022 : il existe une contre-indication assez formelle à la reprise d'une GLIPTINE. Rémission partielle voire complète de la pemphigoïde bulleuse des muqueuses (les 2 dernières bulles séro-hématiques qui ont guéri spontanément en 7 jours peuvent être liées à de la fragilité gingivale). Poursuivre une surveillance seule. Consultation Dr GOTTLIEB le 20/03/2023 : il garde une fragilité de la muqueuse buccale sans récidive de lésion bulleuse. Il identifie les nitrites comme aggravant potentiel (possible réaction de contact surajoutée ?). Sur la peau, prurit intermittent contrôlé par le patient. Pour rappel, contre-indication définitive à la reprise de GLIPTINE pour le diabète.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 6,
+              "page_id": 0
+            }
+          },
+          {
+            "value": "RCP pneumologique du 13/07/2023 : on propose d'effectuer une biopsie pulmonaire en radiologie interventionnelle et de rediscuter de la stratégie thérapeutique avec le résultat anatomo pathologique.\nRCP dermatologique du 29/08/2023 : on propose de reprendre un traitement par immunothérapie anti PD1 en monothérapie par pembrolizumab 200 mg / 3 sem pour les 3 premiers mois puis possible si bonne tolérance passage à toutes les 6 semaines, en première ligne métastatique. Cela, sous réserve de l'avis de la RCP immunotox afin de discuter des antécédents de toxicités cutanée et neurologique.\nRCP TOX le 30/08/2023 : toxicité neurologique non imputable. Pas de contre-indication à la reprise de l'immunothérapie.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 8,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "Un traitement par Rituximab (schéma S0-S2-M6) pourra être proposé en fonction de la réponse thérapeutique. Par ailleurs, arrêt de Gliptine. Information envoyée au diabétologue pour l'arrêt et adaptation thérapeutique. Mise à jour vaccinale à faire donc pneumocoque. Prescription du test de Synacthène pour arrêt de l'hydrocortisone. Après discussion avec Pr. ORO, décision de lui rajouter de la doxycycline 100 mg par jour et si pas d'amélioration dans 2 mois, indication au Rituximab vu l'absence de contre-indication.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 17,
+              "page_id": 1
+            }
+          },
+          {
+            "value": "dossier à adresser à nos collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéale.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 14,
+              "page_id": 2
+            }
+          },
+          {
+            "value": "RCP immuno-TOX le 24/10/2024 : validation de la mise en place d'un traitement par RITUXIMAB devant la présence de la thérapie ciblée par anti-BRAF/anti-MEK.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 22,
+              "page_id": 3
+            }
+          },
+          {
+            "value": "Actuellement sous traitement par encorafénib/binimétinib en 2ème ligne métastatique, C1J1 le 11/06/2024. Nous validons donc l'arrêt du traitement pendant 10 jours puis reprise après les 10 jours de pause.",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 41,
+              "page_id": 6
+            }
+          },
+          {
+            "value": "Sur le plan thérapeutique: arrêt du cardensiel et du furosemide.\nRetour à domicile le 16/04/25.\nConsultation de rythmologie pour contrôle du boitier dans 6 mois avec le Pr Lellouche.\nPoursuite du suivi avec le cardiologue traitant.",
+            "metadata": {
+              "filename": "SimbadScan2014149.pdf",
+              "created_at": "2025-06-20T00:27:22.556938",
+              "section_id": 14,
+              "page_id": 1
+            }
+          }
+        ],
+        "aggregated_value": "Les propositions et recommandations de la Réunion de Concertation Pluridisciplinaire (RCP) sont les suivantes :\n\n1. **Consultations et Suivi Médical :**\n   - Consultation de suivi avec le Dr GOTTLIEB le 28/04/2022 : contre-indication à la reprise des GLIPTINES. Prescription d'un test au Synacthène et arrêt possible de l'hydrocortisone. EMG de principe. Baisse progressive des traitements en commençant par la Salazopyrine.\n   - Consultation avec le Dr GOTTLIEB le 03/10/2022 : contre-indication à la reprise des GLIPTINES. Rémission partielle ou complète de la pemphigoïde bulleuse des muqueuses. Surveillance seule.\n   - Consultation avec le Dr GOTTLIEB le 20/03/2023 : fragilité de la muqueuse buccale sans récidive de lésion bulleuse. Identification des nitrites comme aggravant potentiel. Prurit intermittent contrôlé par le patient. Contre-indication définitive à la reprise des GLIPTINES pour le diabète.\n\n2. **Propositions de la RCP Pneumologique :**\n   - RCP pneumologique du 13/07/2023 : proposition d'effectuer une biopsie pulmonaire en radiologie interventionnelle et de rediscuter de la stratégie thérapeutique avec le résultat anatomo-pathologique.\n\n3. **Propositions de la RCP Dermatologique :**\n   - RCP dermatologique du 29/08/2023 : proposition de reprendre un traitement par immunothérapie anti-PD1 en monothérapie par pembrolizumab 200 mg toutes les 3 semaines pour les 3 premiers mois, puis passage à toutes les 6 semaines si bonne tolérance, en première ligne métastatique. Cela, sous réserve de l'avis de la RCP immunotox pour discuter des antécédents de toxicités cutanée et neurologique.\n\n4. **Propositions de la RCP TOX :**\n   - RCP TOX le 30/08/2023 : toxicité neurologique non imputable. Pas de contre-indication à la reprise de l'immunothérapie.\n\n5. **Propositions de la RCP Immuno-TOX :**\n   - RCP immuno-TOX le 24/10/2024 : validation de la mise en place d'un traitement par RITUXIMAB devant la présence de la thérapie ciblée par anti-BRAF/anti-MEK.\n\n6. **Traitements et Adaptations Thérapeutiques :**\n   - Un traitement par Rituximab (schéma S0-S2-M6) pourra être proposé en fonction de la réponse thérapeutique. Arrêt des GLIPTINES. Information envoyée au diabétologue pour l'arrêt et adaptation thérapeutique. Mise à jour vaccinale à faire (pneumocoque). Prescription du test de Synacthène pour arrêt de l'hydrocortisone. Ajout de doxycycline 100 mg par jour et, si pas d'amélioration dans 2 mois, indication au Rituximab vu l'absence de contre-indication.\n   - Arrêt du cardensiel et du furosemide. Retour à domicile le 16/04/25. Consultation de rythmologie pour contrôle du boitier dans 6 mois avec le Pr Lellouche. Poursuite du suivi avec le cardiologue traitant.\n\n7. **Traitements en Cours :**\n   - Actuellement sous traitement par encorafénib/binimétinib en 2ème ligne métastatique, C1J1 le 11/06/2024. Validation de l'arrêt du traitement pendant 10 jours puis reprise après les 10 jours de pause.\n\n8. **Propositions de Radiothérapie :**\n   - Dossier à adresser aux collègues radiothérapeutes pour évaluer une éventuelle radiothérapie au niveau du ganglion rétropéritonéal."
+      },
+      {
+        "entity_name": "État général (OMS)",
+        "values": [
+          {
+            "value": "0",
+            "metadata": {
+              "filename": "10691_2019_20250ano.txt",
+              "created_at": "2025-06-20T00:18:20.688555",
+              "section_id": 39,
+              "page_id": 5
+            }
+          }
+        ],
+        "aggregated_value": "{'value': '0', 'date': '2025-06-20'}"
+      }
+    ],
+    "not_found_entities": [
+      {
+        "entity_name": "Commentaire tumeur primitive"
+      },
+      {
+        "entity_name": "Métastatique"
+      },
+      {
+        "entity_name": "CIM-O-3"
+      },
+      {
+        "entity_name": "Date de présentation"
+      },
+      {
+        "entity_name": "Diagnostiqué le"
+      },
+      {
+        "entity_name": "Type histologique"
+      },
+      {
+        "entity_name": "Métastases à distance"
+      },
+      {
+        "entity_name": "Date de diagnostic"
+      },
+      {
+        "entity_name": "État général (OMS)"
+      },
+      {
+        "entity_name": "Score G8"
+      },
+      {
+        "entity_name": "Proposition de la RCP"
+      }
+    ]
+  }
+}
