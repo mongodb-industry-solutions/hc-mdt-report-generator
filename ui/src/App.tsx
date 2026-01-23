@@ -216,7 +216,7 @@ function AppContent() {
     { id: 'documents', label: t.navigation.documents, icon: FileText },
     { id: 'reports', label: t.navigation.reports, icon: BarChart3 },
     { id: 'assistant', label: t.navigation.assistant, icon: MessageCircle, preview: true },
-    { id: 'observability', label: 'Observabilité', icon: Eye },
+    { id: 'observability', label: t.navigation.observability, icon: Eye },
   ];
 
   return (

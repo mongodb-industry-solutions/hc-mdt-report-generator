@@ -16,10 +16,10 @@ interface I18nProviderProps {
 }
 
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
-  // Initialize language from localStorage or default to French
+  // Initialize language from localStorage or default to English
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('medical-app-language');
-    return (saved as Language) || 'fr';
+    return (saved as Language) || 'en';
   });
 
   // Update localStorage when language changes

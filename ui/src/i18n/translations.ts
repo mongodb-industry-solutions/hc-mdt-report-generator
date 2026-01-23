@@ -5,6 +5,7 @@ export interface Translations {
     reports: string;
     settings: string;
     assistant: string;
+    observability: string;
   };
   
   // Header and branding
@@ -394,6 +395,44 @@ export interface Translations {
       defaultResponses: string[];
     };
   };
+
+  // Observability
+  observability: {
+    title: string;
+    refresh: string;
+    filters: {
+      startTime: string;
+      endTime: string;
+      llm: string;
+      docsHash: string;
+      all: string;
+    };
+    table: {
+      timeUtc: string;
+      patientId: string;
+      llm: string;
+      foundEntities: string;
+      elapsed: string;
+      docsHash: string;
+      entitiesPerBatch: string;
+      aggBatch: string;
+      maxSize: string;
+      accuracy: string;
+      evaluate: string;
+      loading: string;
+      noData: string;
+    };
+    evaluation: {
+      view: string;
+      evaluate: string;
+      uploadGT: string;
+      viewResults: string;
+      runEvaluationExisting: string;
+      uploadGroundTruthEvaluate: string;
+      runningTitle: string;
+      runningDescription: string;
+    };
+  };
 }
 
 export const translations: Record<'en' | 'fr', Translations> = {
@@ -403,6 +442,7 @@ export const translations: Record<'en' | 'fr', Translations> = {
       reports: 'Reports',
       settings: 'Settings',
       assistant: 'Assistant',
+      observability: 'Observability',
     },
     header: {
       institution: 'Institut Gustave Roussy',
@@ -719,6 +759,42 @@ export const translations: Record<'en' | 'fr', Translations> = {
           ],
       },
     },
+    observability: {
+      title: 'Observability',
+      refresh: 'Refresh',
+      filters: {
+        startTime: 'Start (UTC)',
+        endTime: 'End (UTC)',
+        llm: 'LLM',
+        docsHash: 'Docs hash',
+        all: 'All',
+      },
+      table: {
+        timeUtc: 'Time (UTC)',
+        patientId: 'Patient ID',
+        llm: 'LLM',
+        foundEntities: 'Found Entities',
+        elapsed: 'Elapsed',
+        docsHash: 'Docs Hash',
+        entitiesPerBatch: 'Ent/b',
+        aggBatch: 'Agg/b',
+        maxSize: 'MaxSz',
+        accuracy: 'Acc',
+        evaluate: 'Evaluate',
+        loading: 'Loading…',
+        noData: 'No data',
+      },
+      evaluation: {
+        view: 'View',
+        evaluate: 'Evaluate',
+        uploadGT: 'Upload GT',
+        viewResults: 'View evaluation results',
+        runEvaluationExisting: 'Run evaluation with existing GT',
+        uploadGroundTruthEvaluate: 'Upload ground truth and evaluate',
+        runningTitle: 'Running Evaluation...',
+        runningDescription: 'Comparing entities and calculating scores...',
+      },
+    },
     disclaimer: {
       modalShort: {
         headline: 'PROOF OF CONCEPT — NOT FOR CLINICAL USE',
@@ -794,6 +870,7 @@ export const translations: Record<'en' | 'fr', Translations> = {
       reports: 'Rapports',
       settings: 'Paramètres',
       assistant: 'Assistant',
+      observability: 'Observabilité',
     },
     header: {
       institution: 'Institut Gustave Roussy',
@@ -1108,6 +1185,42 @@ export const translations: Record<'en' | 'fr', Translations> = {
             'Votre requête "{query}" est très intéressante. Dans la version complète, je pourrai analyser les données cliniques anonymisées et vous fournir des insights précis basés sur des patterns agrégés.',
             'Excellente question ! "{query}" - C\'est exactement le type d\'analyse que je pourrai effectuer une fois connecté à la base de données cliniques anonymisées. L\'assistant intelligent sera bientôt pleinement opérationnel !'
           ],
+      },
+    },
+    observability: {
+      title: 'Observabilité',
+      refresh: 'Actualiser',
+      filters: {
+        startTime: 'Début (UTC)',
+        endTime: 'Fin (UTC)',
+        llm: 'LLM',
+        docsHash: 'Hash docs',
+        all: 'Tous',
+      },
+      table: {
+        timeUtc: 'Heure (UTC)',
+        patientId: 'ID Patient',
+        llm: 'LLM',
+        foundEntities: 'Entités trouvées',
+        elapsed: 'Durée',
+        docsHash: 'Hash docs',
+        entitiesPerBatch: 'Ent/lot',
+        aggBatch: 'Agrég/lot',
+        maxSize: 'Taille max',
+        accuracy: 'Précision',
+        evaluate: 'Évaluer',
+        loading: 'Chargement…',
+        noData: 'Aucune donnée',
+      },
+      evaluation: {
+        view: 'Voir',
+        evaluate: 'Évaluer',
+        uploadGT: 'Téléverser GT',
+        viewResults: 'Voir les résultats d\'évaluation',
+        runEvaluationExisting: 'Lancer l\'évaluation avec GT existant',
+        uploadGroundTruthEvaluate: 'Téléverser la vérité terrain et évaluer',
+        runningTitle: 'Évaluation en cours...',
+        runningDescription: 'Comparaison des entités et calcul des scores...',
       },
     },
     disclaimer: {

@@ -209,7 +209,11 @@ class ReportService:
         provider = os.environ.get("LLM_PROVIDER", "mistral").lower()
         mode = get_current_mode()
         
-        if provider == "openai" or provider == "gpt_open":
+        if provider == "ollama":
+            # Ollama doesn't require API keys - skip all checks
+            logger.info("🔑 Using Ollama - no API key required")
+            return
+        elif provider == "openai" or provider == "gpt_open":
             # Only require OpenAI API key when targeting OpenAI endpoints
             base_url = settings.gpt_open_base_url.lower() if getattr(settings, 'gpt_open_base_url', None) else ""
             is_openai_endpoint = base_url.startswith("https://api.openai.com")
@@ -221,7 +225,7 @@ class ReportService:
             else:
                 logger.info("🔑 Skipping OpenAI API key requirement (non-OpenAI GPT-Open endpoint)")
         elif mode == "api":
-            # Check for Mistral API key
+            # Check for Mistral API key (only if provider is mistral)
             api_key = settings.mistral_api_key or os.environ.get("MISTRAL_API_KEY", "")
             if not api_key:
                 logger.critical("❌ CRITICAL: No LLM API key found - report generation cannot continue")

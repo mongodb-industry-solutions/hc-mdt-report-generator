@@ -5,6 +5,7 @@ import GTUploadDialog from './GTUploadDialog';
 import GTVerifyDialog from './GTVerifyDialog';
 import EvaluationResultsDialog from './EvaluationResultsDialog';
 import { GroundTruthEntity } from '../types';
+import { useI18n } from '../i18n/context';
 
 type GenerationItem = {
   uuid: string;
@@ -46,6 +47,7 @@ function formatElapsed(seconds: number) {
 }
 
 export default function Observability() {
+  const { t } = useI18n();
   const [items, setItems] = useState<GenerationItem[]>([]);
   const [llms, setLlms] = useState<string[]>([]);
   const [hashes, setHashes] = useState<string[]>([]);
@@ -205,19 +207,19 @@ export default function Observability() {
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Observabilité / Observability</h2>
+        <h2 className="text-lg font-semibold">{t.observability.title}</h2>
         <button
           onClick={fetchData}
           className="inline-flex items-center px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
         >
-          <RefreshCw className="w-4 h-4 mr-2" /> Refresh
+          <RefreshCw className="w-4 h-4 mr-2" /> {t.observability.refresh}
         </button>
       </div>
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
         <div className="space-y-1">
-          <label className="text-xs text-gray-500">Start (UTC)</label>
+          <label className="text-xs text-gray-500">{t.observability.filters.startTime}</label>
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-gray-500" />
             <input
@@ -233,7 +235,7 @@ export default function Observability() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs text-gray-500">End (UTC)</label>
+          <label className="text-xs text-gray-500">{t.observability.filters.endTime}</label>
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-gray-500" />
             <input
@@ -249,7 +251,7 @@ export default function Observability() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs text-gray-500">LLM</label>
+          <label className="text-xs text-gray-500">{t.observability.filters.llm}</label>
           <div className="flex items-center gap-2">
             <Cpu className="w-4 h-4 text-gray-500" />
             <select
@@ -257,7 +259,7 @@ export default function Observability() {
               value={selectedLLM}
               onChange={(e) => setSelectedLLM(e.target.value)}
             >
-              <option value="">All</option>
+              <option value="">{t.observability.filters.all}</option>
               {distinctLLMs.map((m) => (
                 <option key={m} value={m}>{m}</option>
               ))}
@@ -266,7 +268,7 @@ export default function Observability() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs text-gray-500">Docs hash</label>
+          <label className="text-xs text-gray-500">{t.observability.filters.docsHash}</label>
           <div className="flex items-center gap-2">
             <Hash className="w-4 h-4 text-gray-500" />
             <select
@@ -288,27 +290,27 @@ export default function Observability() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time (UTC)</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patient ID</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">LLM</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Found Entities</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Elapsed</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Docs Hash</th>
-              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Ent/b</th>
-              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Agg/b</th>
-              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">MaxSz</th>
-              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Acc</th>
-              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Evaluate</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.timeUtc}</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.patientId}</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.llm}</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.foundEntities}</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.elapsed}</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.docsHash}</th>
+              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.entitiesPerBatch}</th>
+              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.aggBatch}</th>
+              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.maxSize}</th>
+              <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t.observability.table.accuracy}</th>
+              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">{t.observability.table.evaluate}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
             {loading ? (
               <tr>
-                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">Loading…</td>
+                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">{t.observability.table.loading}</td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">No data</td>
+                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">{t.observability.table.noData}</td>
               </tr>
             ) : (
               items.map((g) => (
@@ -335,18 +337,18 @@ export default function Observability() {
                       }`}
                       title={
                         g.evaluation_status === 'COMPLETED'
-                          ? 'View evaluation results'
+                          ? t.observability.evaluation.viewResults
                           : g.gt_status === 'COMPLETED'
-                          ? 'Run evaluation with existing GT'
-                          : 'Upload ground truth and evaluate'
+                          ? t.observability.evaluation.runEvaluationExisting
+                          : t.observability.evaluation.uploadGroundTruthEvaluate
                       }
                     >
                       <BarChart3 className="w-3 h-3 mr-1" />
                       {g.evaluation_status === 'COMPLETED'
-                        ? 'View'
+                        ? t.observability.evaluation.view
                         : g.gt_status === 'COMPLETED'
-                        ? 'Evaluate'
-                        : 'Upload GT'}
+                        ? t.observability.evaluation.evaluate
+                        : t.observability.evaluation.uploadGT}
                     </button>
                   </td>
                 </tr>
@@ -396,8 +398,8 @@ export default function Observability() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 text-white">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Running Evaluation...</h3>
-            <p className="text-lg">Comparing entities and calculating scores...</p>
+            <h3 className="text-xl font-semibold mb-2">{t.observability.evaluation.runningTitle}</h3>
+            <p className="text-lg">{t.observability.evaluation.runningDescription}</p>
           </div>
         </div>
       )}
