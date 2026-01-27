@@ -4,7 +4,6 @@ export interface Translations {
     documents: string;
     reports: string;
     settings: string;
-    assistant: string;
     observability: string;
   };
   
@@ -321,81 +320,6 @@ export interface Translations {
         };
   };
 
-  // Assistant
-  assistant: {
-    title: string;
-    subtitle: string;
-    globalContext: string;
-    knowledgeBase: string;
-    allPatients: string;
-    preview: string;
-    previewBadge: string;
-    thinking: string;
-    chat: {
-      placeholder: string;
-      helpText: string;
-      welcome: {
-        title: string;
-        description: string;
-        previewNotice: string;
-      };
-      suggestedQueries: {
-        title: string;
-        subtitle: string;
-        footerText: string;
-        queries: {
-          findSimilarTitle: string;
-          findSimilarDesc: string;
-          findSimilarQuery: string;
-          compareTitle: string;
-          compareDesc: string;
-          compareQuery: string;
-          outcomeTitle: string;
-          outcomeDesc: string;
-          outcomeQuery: string;
-          molecularTitle: string;
-          molecularDesc: string;
-          molecularQuery: string;
-          cohortTitle: string;
-          cohortDesc: string;
-          cohortQuery: string;
-          comorbidityTitle: string;
-          comorbidityDesc: string;
-          comorbidityQuery: string;
-        };
-      };
-    };
-    conversations: {
-      new: string;
-      newConversation: string;
-      defaultTitle: string;
-      empty: {
-        title: string;
-        subtitle: string;
-      };
-      delete: string;
-      deleteTooltip: string;
-      deleteAll: string;
-      deleteAllConfirm: string;
-      messageCount: string;
-      messageCountPlural: string;
-      today: string;
-      yesterday: string;
-    };
-    messages: {
-      copy: string;
-      processingTime: string;
-      results: string;
-      error: string;
-    };
-    responses: {
-      patientQuery: string;
-      treatmentQuery: string;
-      molecularQuery: string;
-      defaultResponses: string[];
-    };
-  };
-
   // Observability
   observability: {
     title: string;
@@ -441,7 +365,6 @@ export const translations: Record<'en' | 'fr', Translations> = {
       documents: 'Documents',
       reports: 'Reports',
       settings: 'Settings',
-      assistant: 'Assistant',
       observability: 'Observability',
     },
     header: {
@@ -682,83 +605,6 @@ export const translations: Record<'en' | 'fr', Translations> = {
       hours: 'hours',
       days: 'days',
     },
-    assistant: {
-      title: 'Intelligent Assistant',
-      subtitle: 'Analyze your patient data',
-      globalContext: 'Global analysis',
-      knowledgeBase: 'Knowledge base',
-      allPatients: 'All patients',
-      preview: 'Preview',
-      previewBadge: 'PREVIEW',
-      thinking: 'Assistant is thinking...',
-      chat: {
-        placeholder: 'Ask a question about your patients or request an analysis...',
-        helpText: 'Press Enter to send, Shift+Enter for new line',
-        welcome: {
-          title: 'Hello! I am your intelligent assistant',
-          description: 'I can help you analyze your patient data, identify clinical patterns, compare treatments and much more.',
-          previewNotice: '🚧 Preview mode - Full functionality coming soon',
-        },
-        suggestedQueries: {
-          title: '💡 Query Suggestions',
-          subtitle: 'Explore your patient data with these intelligent analyses',
-          footerText: 'Or ask your own question about patients, treatments, or clinical outcomes',
-          queries: {
-            findSimilarTitle: 'Find similar cases',
-            findSimilarDesc: 'Analyze anonymized cases with similar clinical profiles',
-            findSimilarQuery: 'Analyze anonymized cases with BRCA mutations and breast cancer history',
-            compareTitle: 'Compare treatments',
-            compareDesc: 'Analyze effectiveness of different therapeutic protocols',
-            compareQuery: 'Compare outcomes between immunotherapy and chemotherapy for lung cancers',
-            outcomeTitle: 'Analyze outcomes',
-            outcomeDesc: 'Evaluate survival rates and therapeutic responses',
-            outcomeQuery: 'What are the anonymized response rates for cases treated with NIVOLUMAB?',
-            molecularTitle: 'Molecular profiles',
-            molecularDesc: 'Identify patterns in biomarkers and mutations',
-            molecularQuery: 'Analyze TP53 mutations and their correlation with therapeutic resistance',
-            cohortTitle: 'Cohort analysis',
-            cohortDesc: 'Analyze anonymized cohorts according to specific criteria',
-            cohortQuery: 'Analyze anonymized cases over 65 with WHO score > 2',
-            comorbidityTitle: 'Comorbidities',
-            comorbidityDesc: 'Analyze the impact of comorbidities on treatments',
-            comorbidityQuery: 'How do cardiac pathologies affect therapeutic choice?',
-          },
-        },
-      },
-      conversations: {
-        new: 'New',
-        newConversation: 'New conversation',
-        defaultTitle: 'New conversation',
-        empty: {
-          title: 'No saved conversations',
-          subtitle: 'Start your first analysis',
-        },
-        delete: 'Delete',
-        deleteTooltip: 'Delete conversation',
-        deleteAll: 'Delete all',
-        deleteAllConfirm: 'Are you sure you want to delete all conversations?',
-        messageCount: 'message',
-        messageCountPlural: 'messages',
-        today: 'Today',
-        yesterday: 'Yesterday',
-      },
-      messages: {
-        copy: 'Copy message',
-        processingTime: 'Processed in',
-        results: 'results',
-        error: 'Sorry, an error occurred. Please try again.',
-      },
-      responses: {
-        patientQuery: 'I have analyzed your request concerning anonymized clinical data. In preview mode, I simulate the analysis of your question: "{query}". \n\nIn the full version, I will be able to:\n• Analyze anonymized clinical database\n• Identify clinical patterns\n• Provide detailed statistics\n• Compare anonymized cohorts\n\nThis functionality will be available soon!',
-        treatmentQuery: 'Excellent question about treatments! "{query}"\n\nIn preview mode, I cannot access real data, but here\'s what I will be able to do:\n• Analyze therapeutic protocol effectiveness\n• Compare response rates\n• Identify therapeutic resistances\n• Suggest alternatives based on your experience\n\nStay tuned for the full version of the assistant!',
-                  molecularQuery: 'Your question about molecular aspects is very relevant: "{query}"\n\nIn the final version, the assistant will be able to:\n• Analyze anonymized genetic profiles\n• Correlate mutations and therapeutic responses\n• Identify predictive biomarkers\n• Propose targeted therapies\n\nThis comprehensive analysis will be available soon!',
-                  defaultResponses: [
-            'I have received your question: "{query}". In preview mode, I cannot yet analyze real data, but this functionality will soon be available to explore anonymized clinical database.',
-            'Your query "{query}" is very interesting. In the full version, I will be able to analyze anonymized clinical data and provide precise insights based on aggregated patterns.',
-            'Excellent question! "{query}" - This is exactly the type of analysis I will be able to perform once connected to the anonymized clinical database. The intelligent assistant will soon be fully operational!'
-          ],
-      },
-    },
     observability: {
       title: 'Observability',
       refresh: 'Refresh',
@@ -869,7 +715,6 @@ export const translations: Record<'en' | 'fr', Translations> = {
       documents: 'Documents',
       reports: 'Rapports',
       settings: 'Paramètres',
-      assistant: 'Assistant',
       observability: 'Observabilité',
     },
     header: {
@@ -1109,83 +954,6 @@ export const translations: Record<'en' | 'fr', Translations> = {
       minutes: 'minutes',
       hours: 'heures',
       days: 'jours',
-    },
-    assistant: {
-      title: 'Assistant Intelligent',
-      subtitle: 'Analysez vos données patients',
-      globalContext: 'Analyse globale',
-      knowledgeBase: 'Base de connaissances',
-      allPatients: 'Tous les patients',
-      preview: 'Aperçu',
-      previewBadge: 'APERÇU',
-      thinking: 'Assistant réfléchit...',
-      chat: {
-        placeholder: 'Posez une question sur vos patients ou demandez une analyse...',
-        helpText: 'Appuyez sur Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne',
-        welcome: {
-          title: 'Bonjour ! Je suis votre assistant intelligent',
-          description: 'Je peux vous aider à analyser vos données patients, identifier des patterns cliniques, comparer des traitements et bien plus encore.',
-          previewNotice: '🚧 Mode aperçu - Fonctionnalité complète bientôt disponible',
-        },
-        suggestedQueries: {
-          title: '💡 Suggestions de requêtes',
-          subtitle: 'Explorez vos données patients avec ces analyses intelligentes',
-          footerText: 'Ou posez votre propre question sur les patients, traitements, ou résultats cliniques',
-          queries: {
-            findSimilarTitle: 'Trouver des cas similaires',
-            findSimilarDesc: 'Analyser des cas anonymisés avec des profils cliniques similaires',
-            findSimilarQuery: 'Analysez des cas anonymisés avec des mutations BRCA et un historique de cancer du sein',
-            compareTitle: 'Comparer les traitements',
-            compareDesc: 'Analyser l\'efficacité de différents protocoles thérapeutiques',
-            compareQuery: 'Comparez les résultats entre immunothérapie et chimiothérapie pour les cancers du poumon',
-            outcomeTitle: 'Analyser les résultats',
-            outcomeDesc: 'Évaluer les taux de survie et réponses thérapeutiques',
-            outcomeQuery: 'Quels sont les taux de réponse anonymisés pour les cas traités par NIVOLUMAB?',
-            molecularTitle: 'Profils moléculaires',
-            molecularDesc: 'Identifier des patterns dans les biomarqueurs et mutations',
-            molecularQuery: 'Analysez les mutations TP53 et leur corrélation avec la résistance thérapeutique',
-            cohortTitle: 'Analyse de cohorte',
-            cohortDesc: 'Analyser des cohortes anonymisées selon des critères spécifiques',
-            cohortQuery: 'Analysez les cas anonymisés de plus de 65 ans avec un score OMS > 2',
-            comorbidityTitle: 'Comorbidités',
-            comorbidityDesc: 'Analyser l\'impact des comorbidités sur les traitements',
-            comorbidityQuery: 'Comment les pathologies cardiaques affectent-elles le choix thérapeutique?',
-          },
-        },
-      },
-      conversations: {
-        new: 'Nouvelle',
-        newConversation: 'Nouvelle conversation',
-        defaultTitle: 'Nouvelle conversation',
-        empty: {
-          title: 'Aucune conversation sauvegardée',
-          subtitle: 'Démarrez votre première analyse',
-        },
-        delete: 'Supprimer',
-        deleteTooltip: 'Supprimer la conversation',
-        deleteAll: 'Tout supprimer',
-        deleteAllConfirm: 'Êtes-vous sûr de vouloir supprimer toutes les conversations ?',
-        messageCount: 'message',
-        messageCountPlural: 'messages',
-        today: 'Aujourd\'hui',
-        yesterday: 'Hier',
-      },
-      messages: {
-        copy: 'Copier le message',
-        processingTime: 'Traité en',
-        results: 'résultats',
-        error: 'Désolé, une erreur s\'est produite. Veuillez réessayer.',
-      },
-      responses: {
-        patientQuery: 'J\'ai analysé votre demande concernant les données cliniques anonymisées. En mode aperçu, je simule l\'analyse de votre question : "{query}". \n\nDans la version complète, je pourrai :\n• Analyser la base de données cliniques anonymisées\n• Identifier des patterns cliniques\n• Fournir des statistiques détaillées\n• Comparer des cohortes anonymisées\n\nCette fonctionnalité sera bientôt disponible !',
-        treatmentQuery: 'Excellente question sur les traitements ! "{query}"\n\nEn mode preview, je ne peux pas accéder aux données réelles, mais voici ce que je pourrai faire :\n• Analyser l\'efficacité des protocoles thérapeutiques\n• Comparer les taux de réponse\n• Identifier les résistances thérapeutiques\n• Suggérer des alternatives basées sur votre expérience\n\nRestez connecté pour la version complète de l\'assistant !',
-                  molecularQuery: 'Votre question sur les aspects moléculaires est très pertinente : "{query}"\n\nDans la version finale, l\'assistant pourra :\n• Analyser les profils génétiques anonymisés\n• Corréler mutations et réponses thérapeutiques\n• Identifier des biomarqueurs prédictifs\n• Proposer des thérapies ciblées\n\nCette analyse approfondie sera bientôt disponible !',
-                  defaultResponses: [
-            'J\'ai bien reçu votre question : "{query}". En mode aperçu, je ne peux pas encore analyser les données réelles, mais cette fonctionnalité sera bientôt disponible pour explorer la base de données cliniques anonymisées.',
-            'Votre requête "{query}" est très intéressante. Dans la version complète, je pourrai analyser les données cliniques anonymisées et vous fournir des insights précis basés sur des patterns agrégés.',
-            'Excellente question ! "{query}" - C\'est exactement le type d\'analyse que je pourrai effectuer une fois connecté à la base de données cliniques anonymisées. L\'assistant intelligent sera bientôt pleinement opérationnel !'
-          ],
-      },
     },
     observability: {
       title: 'Observabilité',

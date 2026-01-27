@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, User, BarChart3, Settings, X, MessageCircle, Bot, Database, Eye, Users } from 'lucide-react';
+import { FileText, User, BarChart3, Settings, X, Eye, Users } from 'lucide-react';
 import PatientSelector from './components/PatientSelector';
 import DocumentsList from './components/DocumentsList';
 import ReportsList from './components/ReportsList';
@@ -7,7 +7,6 @@ import ReportViewer from './components/ReportViewer';
 import SettingsPanel from './components/SettingsPanel';
 import Observability from './components/Observability';
 import LanguageSwitcher from './components/LanguageSwitcher';
-import IntelligentAssistant from './components/IntelligentAssistant';
 import PatientsDialog from './components/PatientsDialog';
 import DisclaimerModal from './components/DisclaimerModal';
 import { I18nProvider, useI18n } from './i18n/context';
@@ -16,7 +15,7 @@ import { PatientDocument, Report, ReportGenerationProgress } from './types';
 
 function AppContent() {
   const { t } = useI18n();
-  const [currentView, setCurrentView] = useState<'documents' | 'reports' | 'assistant' | 'observability'>('documents');
+  const [currentView, setCurrentView] = useState<'documents' | 'reports' | 'observability'>('documents');
   const [showPatientsDialog, setShowPatientsDialog] = useState<boolean>(false);
   // Start with empty patient ID - will be extracted from uploaded documents
   // UUID-first architecture: upload first, patient ID is extracted during processing
@@ -215,7 +214,6 @@ function AppContent() {
   const navigation = [
     { id: 'documents', label: t.navigation.documents, icon: FileText },
     { id: 'reports', label: t.navigation.reports, icon: BarChart3 },
-    { id: 'assistant', label: t.navigation.assistant, icon: MessageCircle, preview: true },
     { id: 'observability', label: t.navigation.observability, icon: Eye },
   ];
 
@@ -263,39 +261,13 @@ function AppContent() {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  {/* Smart Header Collapse - Dynamic content based on view */}
-                  <div className="header-transition">
-                    {currentView === 'assistant' ? (
-                      /* Assistant Mode - Global Context */
-                      <div className="header-context-indicator">
-                        <div className="flex items-center space-x-2">
-                          <Bot className="w-5 h-5 text-medical-600" />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-medical-700">
-                              Assistant Intelligent
-                            </span>
-                            <span className="text-xs text-medical-600">
-                              Analyse globale • Base de connaissances
-                            </span>
-                          </div>
-                        </div>
-                        <div className="hidden sm:flex items-center space-x-2 pl-3 border-l border-medical-200">
-                          <Database className="w-4 h-4 text-medical-500" />
-                          <span className="text-xs text-medical-600 font-medium">
-                            {t.assistant.allPatients}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      /* Patient Mode - Patient-specific context */
-                      <div className="header-patient-mode">
-                        <PatientSelector
-                          patientId={patientId}
-                          onPatientIdChange={setPatientId}
-                          onOpenPatients={() => setShowPatientsDialog(true)}
-                        />
-                      </div>
-                    )}
+                  {/* Patient Mode - Patient-specific context */}
+                  <div className="header-patient-mode">
+                    <PatientSelector
+                      patientId={patientId}
+                      onPatientIdChange={setPatientId}
+                      onOpenPatients={() => setShowPatientsDialog(true)}
+                    />
                   </div>
                   
                   <LanguageSwitcher />
@@ -317,7 +289,7 @@ function AppContent() {
                     return (
                       <button
                         key={item.id}
-                        onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'assistant' | 'observability')}
+                        onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
                         className={`
                           flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors
                           ${currentView === item.id
@@ -328,11 +300,6 @@ function AppContent() {
                       >
                         <Icon className="w-4 h-4" />
                         <span>{item.label}</span>
-                        {item.preview && (
-                          <span className="preview-badge ml-2">
-                            {t.assistant.previewBadge}
-                          </span>
-                        )}
                       </button>
                     );
                   })}
@@ -360,14 +327,10 @@ function AppContent() {
               </div>
             )}
 
-            {currentView === 'assistant' ? (
-              /* Assistant full-width layout */
-              <IntelligentAssistant />
-            ) : (
-              /* Standard documents/reports layout */
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Main Content */}
-                <div className="flex-1">
+            {/* Standard documents/reports layout */}
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Main Content */}
+              <div className="flex-1">
                   {/* Content */}
                   {isLoading ? (
                     <div className="card">
@@ -422,8 +385,7 @@ function AppContent() {
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
 
           {/* Settings Modal */}
           {showSettings && (

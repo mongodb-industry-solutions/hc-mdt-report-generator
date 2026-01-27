@@ -57,47 +57,6 @@
     @apply status-badge bg-red-100 text-red-800;
   }
   
-  /* Chat Components */
-  .chat-message-user {
-    @apply bg-medical-600 text-white rounded-lg px-4 py-3 max-w-xs ml-auto;
-  }
-  
-  .chat-message-assistant {
-    @apply bg-white border border-gray-200 text-gray-900 rounded-lg px-4 py-3 max-w-md;
-  }
-  
-  .chat-input {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-500 focus:border-transparent resize-none;
-  }
-  
-  .chat-suggestion {
-    @apply bg-medical-50 border border-medical-200 hover:bg-medical-100 text-medical-700 rounded-lg p-3 transition-colors cursor-pointer;
-  }
-  
-  .preview-badge {
-    @apply bg-amber-100 text-amber-800 border border-amber-200 text-xs px-2 py-0.5 rounded-full font-medium;
-  }
-  
-  .conversation-item {
-    @apply p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors border-l-4 border-transparent;
-  }
-  
-  .conversation-item-active {
-    @apply conversation-item bg-medical-50 border-l-medical-600;
-  }
-  
-  .chat-container {
-    @apply flex flex-col h-full;
-  }
-  
-  .chat-messages {
-    @apply flex-1 overflow-y-auto space-y-4 p-4;
-  }
-  
-  .chat-input-container {
-    @apply border-t border-gray-200 p-4 bg-white;
-  }
-  
   /* Smart Header Collapse */
   .header-context-indicator {
     @apply flex items-center space-x-3 px-4 py-2 bg-medical-50 border border-medical-200 rounded-lg transition-all duration-300 ease-in-out;
