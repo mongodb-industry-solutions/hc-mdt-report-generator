@@ -119,7 +119,7 @@ export default function GTUploadDialog({
       case 'FAILED':
         return <AlertCircle className="w-5 h-5 text-red-500" />;
       default:
-        return <Loader2 className="w-5 h-5 text-medical-600 animate-spin" />;
+        return <Loader2 className="w-5 h-5 text-navy-700 animate-spin" />;
     }
   };
 
@@ -150,7 +150,7 @@ export default function GTUploadDialog({
             className={`
               border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
               transition-colors duration-200
-              ${file ? 'border-medical-500 bg-medical-50' : 'border-gray-300 hover:border-medical-400 hover:bg-gray-50'}
+              ${file ? 'border-navy-500 bg-navy-50' : 'border-gray-300 hover:border-navy-400 hover:bg-gray-50'}
               ${isUploading ? 'pointer-events-none opacity-60' : ''}
             `}
           >
@@ -164,7 +164,7 @@ export default function GTUploadDialog({
             />
             {file ? (
               <div className="flex flex-col items-center">
-                <FileText className="w-12 h-12 text-medical-600 mb-3" />
+                <FileText className="w-12 h-12 text-navy-700 mb-3" />
                 <p className="text-sm font-medium text-gray-900">{file.name}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   {(file.size / 1024 / 1024).toFixed(2)} MB
@@ -197,7 +197,7 @@ export default function GTUploadDialog({
                   checked={ocrEngine === 'easyocr'}
                   onChange={() => setOcrEngine('easyocr')}
                   disabled={isUploading}
-                  className="w-4 h-4 text-medical-600 focus:ring-medical-500"
+                  className="w-4 h-4 text-navy-700 focus:ring-navy-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">
                   EasyOCR
@@ -212,7 +212,7 @@ export default function GTUploadDialog({
                   checked={ocrEngine === 'mistral'}
                   onChange={() => setOcrEngine('mistral')}
                   disabled={isUploading}
-                  className="w-4 h-4 text-medical-600 focus:ring-medical-500"
+                  className="w-4 h-4 text-navy-700 focus:ring-navy-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">
                   Mistral OCR
@@ -234,7 +234,7 @@ export default function GTUploadDialog({
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    progress.status === 'FAILED' ? 'bg-red-500' : 'bg-medical-600'
+                    progress.status === 'FAILED' ? 'bg-red-500' : 'bg-navy-700'
                   }`}
                   style={{ width: `${progress.progress}%` }}
                 />
@@ -267,7 +267,7 @@ export default function GTUploadDialog({
           <button
             onClick={handleUpload}
             disabled={!file || isUploading || progress?.status === 'COMPLETED'}
-            className="px-4 py-2 text-sm font-medium text-white bg-medical-600 rounded-lg hover:bg-medical-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-4 py-2 text-sm font-medium text-white bg-navy-700 rounded-lg hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isUploading ? (
               <>

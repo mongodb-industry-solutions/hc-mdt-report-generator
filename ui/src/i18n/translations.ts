@@ -368,12 +368,12 @@ export const translations: Record<'en' | 'fr', Translations> = {
       observability: 'Observability',
     },
     header: {
-      institution: 'Institut Gustave Roussy',
+      institution: 'MongoDB Healthcare',
       title: 'AI Medical Document Processing',
       subtitle: 'MDT Report Generation',
       patient: 'Patient',
       generatedOn: 'Generated on',
-      warningBanner: '⚠️ PROOF OF CONCEPT - NOT FOR CLINICAL USE ⚠️',
+      warningBanner: '',
     },
     patient: {
       selector: {
@@ -718,12 +718,12 @@ export const translations: Record<'en' | 'fr', Translations> = {
       observability: 'Observabilité',
     },
     header: {
-      institution: 'Institut Gustave Roussy',
+      institution: 'MongoDB Healthcare',
       title: 'Traitement IA de Documents Médicaux',
       subtitle: 'Génération de Rapports RCP',
       patient: 'Patient',
       generatedOn: 'Généré le',
-      warningBanner: '⚠️ PREUVE DE CONCEPT - PAS D\'USAGE CLINIQUE ⚠️',
+      warningBanner: '',
     },
     patient: {
       selector: {

@@ -165,7 +165,7 @@ export default function SourceViewerModal({
     if (isLoading) {
       return (
         <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <Loader className="h-8 w-8 animate-spin text-medical-600" />
+          <Loader className="h-8 w-8 animate-spin text-navy-700" />
           <p className="text-gray-600">Loading document...</p>
         </div>
       );
@@ -181,7 +181,7 @@ export default function SourceViewerModal({
           </div>
           <button
             onClick={loadDocument}
-            className="px-4 py-2 bg-medical-600 text-white rounded-md hover:bg-medical-700 transition-colors"
+            className="px-4 py-2 bg-navy-700 text-white rounded-md hover:bg-navy-800 transition-colors"
           >
             Retry
           </button>
@@ -253,7 +253,7 @@ export default function SourceViewerModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <Icon className="h-5 w-5 text-medical-600" />
+            <Icon className="h-5 w-5 text-navy-700" />
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
                 Source Document Viewer

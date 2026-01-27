@@ -262,7 +262,7 @@ export default function ReportsList({
       {isGenerating && generationProgress && (
         <div className="card">
           <div className="flex items-center space-x-3 mb-4">
-            <Loader className="w-5 h-5 text-medical-600 animate-spin" />
+            <Loader className="w-5 h-5 text-navy-700 animate-spin" />
             <h3 className="text-lg font-medium text-gray-900">{t.reports.generation.title}</h3>
           </div>
           
@@ -274,7 +274,7 @@ export default function ReportsList({
             
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-medical-600 h-2 rounded-full transition-all duration-300"
+                className="bg-navy-700 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(generationProgress.progress || 0, 100)}%` }}
               />
             </div>

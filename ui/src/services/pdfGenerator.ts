@@ -105,7 +105,7 @@ class MedicalPDFGenerator {
       this.doc.setProperties({
         title: 'Rapport MDT',
         subject: 'Rapport de Réunion de Concertation Pluridisciplinaire',
-        author: 'Institut Gustave Roussy',
+        author: 'MongoDB Healthcare',
         creator: 'Système MDT'
       });
     } catch (error) {
@@ -312,7 +312,7 @@ class MedicalPDFGenerator {
     this.doc.setTextColor('#ffffff');
     this.doc.setFontSize(11);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text('Institut Gustave Roussy', 45, 18);
+    this.doc.text('MongoDB Healthcare', 45, 18);
     
     // Main title - positioned below institution name
     this.doc.setTextColor('#ffffff');

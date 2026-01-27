@@ -408,7 +408,7 @@ export default function FileUpload({ patientId, onDocumentUploaded, onDocumentSt
         className={`
           border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
           ${isDragActive 
-            ? 'border-medical-400 bg-medical-50' 
+            ? 'border-navy-400 bg-navy-50' 
             : 'border-gray-300 hover:border-gray-400 bg-gray-50 hover:bg-gray-100'
           }
         `}
@@ -464,7 +464,7 @@ export default function FileUpload({ patientId, onDocumentUploaded, onDocumentSt
                 {upload.status === 'uploading' && (
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-medical-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-navy-700 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${upload.progress}%` }}
                     />
                   </div>

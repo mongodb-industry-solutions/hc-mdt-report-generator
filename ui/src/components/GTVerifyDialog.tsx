@@ -171,7 +171,7 @@ export default function GTVerifyDialog({
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
                           placeholder="Enter value..."
-                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-500 focus:border-medical-500"
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleSaveEdit(index);
@@ -207,7 +207,7 @@ export default function GTVerifyDialog({
                   {editingIndex !== index && (
                     <button
                       onClick={() => handleEdit(index)}
-                      className="p-2 text-gray-400 hover:text-medical-600 hover:bg-medical-50 rounded-lg"
+                      className="p-2 text-gray-400 hover:text-navy-700 hover:bg-navy-50 rounded-lg"
                       title="Edit"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -259,7 +259,7 @@ export default function GTVerifyDialog({
             <button
               onClick={handleRunEvaluation}
               disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-white bg-medical-600 rounded-lg hover:bg-medical-700 disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium text-white bg-navy-700 rounded-lg hover:bg-navy-800 disabled:opacity-50 flex items-center gap-2"
             >
               Run Evaluation →
             </button>

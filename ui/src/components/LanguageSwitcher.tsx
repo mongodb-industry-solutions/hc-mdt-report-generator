@@ -33,7 +33,7 @@ const LanguageSwitcher: React.FC = () => {
           flex items-center space-x-2 px-3 py-2 
           text-gray-600 hover:text-gray-900 hover:bg-gray-100 
           rounded-lg transition-all duration-200 
-          focus:outline-none focus:ring-2 focus:ring-medical-500 focus:ring-offset-2
+          focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2
           border border-transparent hover:border-gray-200
         "
         aria-label={t.settings.language.title}
@@ -75,7 +75,7 @@ const LanguageSwitcher: React.FC = () => {
                   w-full flex items-center space-x-3 px-4 py-3 text-left
                   transition-colors duration-150
                   ${language === lang.code
-                    ? 'bg-medical-50 text-medical-700 border-r-2 border-medical-500'
+                    ? 'bg-navy-50 text-navy-700 border-r-2 border-navy-500'
                     : 'text-gray-700 hover:bg-gray-50'
                   }
                   focus:outline-none focus:bg-gray-50
@@ -92,7 +92,7 @@ const LanguageSwitcher: React.FC = () => {
                   </div>
                 </div>
                 {language === lang.code && (
-                  <div className="w-2 h-2 bg-medical-500 rounded-full" />
+                  <div className="w-2 h-2 bg-navy-500 rounded-full" />
                 )}
               </button>
             ))}

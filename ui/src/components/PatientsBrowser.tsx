@@ -60,7 +60,7 @@ export default function PatientsBrowser({ onSelect }: PatientsBrowserProps) {
               className="flex items-center space-x-2 px-3 py-2 border border-gray-200 rounded-md bg-white hover:bg-gray-50 text-left"
               onClick={() => onSelect(pid)}
             >
-              <div className="w-6 h-6 bg-medical-100 text-medical-700 rounded flex items-center justify-center">
+              <div className="w-6 h-6 bg-navy-100 text-navy-700 rounded flex items-center justify-center">
                 <User className="w-4 h-4" />
               </div>
               <div className="text-sm font-medium text-gray-800">{pid}</div>
