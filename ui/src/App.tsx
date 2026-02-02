@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, User, BarChart3, Settings, X, Eye, Users } from 'lucide-react';
 import PatientSelector from './components/PatientSelector';
+import PatientSelectionView from './components/PatientSelectionView';
 import DocumentsList from './components/DocumentsList';
 import ReportsList from './components/ReportsList';
 import ReportViewer from './components/ReportViewer';
@@ -264,14 +265,31 @@ function AppContent() {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  {/* Patient Mode - Patient-specific context */}
-                  <div className="header-patient-mode">
-                    <PatientSelector
-                      patientId={patientId}
-                      onPatientIdChange={setPatientId}
-                      onOpenPatients={() => setShowPatientsDialog(true)}
-                    />
-                  </div>
+                  {/* Patient Mode - Only show when patient is selected */}
+                  {patientId && (
+                    <div className="header-patient-mode">
+                      <PatientSelector
+                        patientId={patientId}
+                        onPatientIdChange={setPatientId}
+                        onOpenPatients={() => setShowPatientsDialog(true)}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Back to Patient Selection - Show when patient is selected */}
+                  {patientId && (
+                    <button
+                      onClick={() => {
+                        setPatientId('');
+                        setCurrentView('documents'); // Reset to documents view
+                      }}
+                      className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-navy-700 hover:bg-gray-100 rounded-xl transition-all duration-200 shadow-sm border border-gray-200"
+                      title="Back to Patient Selection"
+                    >
+                      <Users className="w-5 h-5" />
+                      <span className="hidden lg:block text-sm font-medium">All Patients</span>
+                    </button>
+                  )}
                   
                   <LanguageSwitcher />
                   <button
@@ -291,35 +309,37 @@ function AppContent() {
           {/* Header Spacer - ensures content starts below fixed header */}
           <div className="h-64 lg:h-56"></div>
           
-          {/* Main Layout with Left Sidebar */}
-          <div className="flex min-h-screen">
-            {/* Left Sidebar Navigation */}
-            <div className="w-64 fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40">
-              <nav className="p-6 space-y-2">
-                {navigation.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
-                      className={`
-                        w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm
-                        ${currentView === item.id
-                          ? 'bg-gradient-to-r from-navy-700 to-navy-800 text-white border border-navy-600 shadow-lg'
-                          : 'text-navy-700 hover:text-navy-900 hover:bg-gray-50 hover:shadow-md border border-gray-200/50 bg-white/50'
-                        }
-                      `}
-                    >
-                      <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''}`} />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
+          {/* Main Layout */}
+          <div className={`flex min-h-screen ${!patientId ? '' : ''}`}>
+            {/* Left Sidebar Navigation - Only show when patient is selected */}
+            {patientId && (
+              <div className="w-64 fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40">
+                <nav className="p-6 space-y-2">
+                  {navigation.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
+                        className={`
+                          w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm
+                          ${currentView === item.id
+                            ? 'bg-gradient-to-r from-navy-700 to-navy-800 text-white border border-navy-600 shadow-lg'
+                            : 'text-navy-700 hover:text-navy-900 hover:bg-gray-50 hover:shadow-md border border-gray-200/50 bg-white/50'
+                          }
+                        `}
+                      >
+                        <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''}`} />
+                        <span className="font-medium">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            )}
 
             {/* Main Content Area */}
-            <div className="flex-1 ml-64 px-4 sm:px-6 lg:px-8 py-8">
+            <div className={`flex-1 ${patientId ? 'ml-64' : ''} px-4 sm:px-6 lg:px-8 py-8`}>
               {error && (
                 <div className="mb-6 bg-red-50/90 border border-red-200 rounded-xl p-6 backdrop-blur-sm shadow-sm">
                   <div className="flex">
@@ -339,7 +359,10 @@ function AppContent() {
               {/* Main Content */}
               <div className="flex-1">
                   {/* Content */}
-                  {isLoading ? (
+                  {!patientId ? (
+                    /* Show patient selection when no patient is selected */
+                    <PatientSelectionView onSelectPatient={setPatientId} />
+                  ) : isLoading ? (
                     <div className="card bg-white/90 backdrop-blur-sm shadow-lg">
                       <div className="flex items-center justify-center py-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy-700"></div>
