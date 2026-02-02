@@ -1,11 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 import { translations, Translations } from './translations';
 
-export type Language = 'en' | 'fr';
-
 interface I18nContextType {
-  language: Language;
-  setLanguage: (lang: Language) => void;
   t: Translations;
 }
 
@@ -16,24 +12,10 @@ interface I18nProviderProps {
 }
 
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
-  // Initialize language from localStorage or default to English
-  const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem('medical-app-language');
-    return (saved as Language) || 'en';
-  });
-
-  // Update localStorage when language changes
-  const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
-    localStorage.setItem('medical-app-language', lang);
-  };
-
-  // Get current translations
-  const t = translations[language];
+  // Always use English translations
+  const t = translations;
 
   const value: I18nContextType = {
-    language,
-    setLanguage,
     t,
   };
 

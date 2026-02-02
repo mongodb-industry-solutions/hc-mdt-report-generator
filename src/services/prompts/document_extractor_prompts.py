@@ -6,7 +6,7 @@ Each category has its own specialized prompt for extracting structured informati
 """
 
 # Base system prompt for document extraction
-SYSTEM_PROMPT = """You are an expert medical document analyzer specializing in French healthcare documentation.
+SYSTEM_PROMPT = """You are an expert medical document analyzer specializing in healthcare documentation.
 Your task is to extract structured information from medical documents according to specific JSON schemas.
 Always respond with valid JSON format only."""
 
@@ -32,16 +32,16 @@ BASE_JSON_STRUCTURE = """{{
 
 # Common instructions for all document types
 COMMON_INSTRUCTIONS = """INSTRUCTIONS:
-- Extrayez toutes les informations disponibles dans le document
-- Utilisez null pour les champs non trouvés
-- Respectez strictement le format JSON fourni
-- Pour les dates, utilisez le format YYYY-MM-DD
-- Pour les heures, utilisez le format HH:MM
-- Les listes vides doivent être représentées par []
-- Les valeurs booléennes doivent être true/false, si vous ne les trouvez pas, utilisez null
-- N'inventez JAMAIS des informations qui ne sont pas dans le document
+- Extract all available information in the document
+- Use null for fields not found
+- Strictly follow the provided JSON format
+- For dates, use the format YYYY-MM-DD
+- For times, use the format HH:MM
+- Empty lists should be represented as []
+- Boolean values should be true/false, if not found, use null
+- NEVER invent information that is not in the document
 
-RÉPONSE: Fournissez uniquement le JSON valide sans texte supplémentaire."""
+RESPONSE: Provide only valid JSON without additional text."""
 
 # Hospitalization report specific JSON structure
 HOSPITALIZATION_JSON_EXTENSION = """  "sejour": {{
@@ -355,18 +355,18 @@ def build_json_structure(document_type: str, extension: str) -> str:
     return f"{base_without_closing},\n{extension}\n}}"
 
 # Hospitalization report extraction prompt
-HOSPITALIZATION_REPORT_PROMPT = """Analysez le compte rendu d'hospitalisation français fourni et extrayez les informations selon la structure JSON suivante. Pour chaque champ, si l'information n'est pas disponible, utilisez null.
+HOSPITALIZATION_REPORT_PROMPT = """Analyze the provided hospitalization report and extract information according to the following JSON structure. For each field, if the information is not available, use null.
 
 DOCUMENT TEXT:
 {content}
 
-STRUCTURE JSON REQUISE:
+REQUIRED JSON STRUCTURE:
 {json_structure}
 
 {common_instructions}"""
 
 # Surgical report extraction prompt
-SURGICAL_REPORT_PROMPT = """Analysez le compte rendu opératoire français fourni et extrayez les informations selon la structure JSON suivante.
+SURGICAL_REPORT_PROMPT = """Analyze the provided operative report and extract information according to the following JSON structure.
 
 DOCUMENT TEXT:
 {content}
@@ -377,7 +377,7 @@ STRUCTURE JSON REQUISE:
 {common_instructions}"""
 
 # Imaging report extraction prompt
-IMAGING_REPORT_PROMPT = """Analysez le compte rendu d'imagerie médicale français fourni et extrayez les informations selon la structure JSON suivante.
+IMAGING_REPORT_PROMPT = """Analyze the provided medical imaging report and extract information according to the following JSON structure.
 
 DOCUMENT TEXT:
 {content}
@@ -388,7 +388,7 @@ STRUCTURE JSON REQUISE:
 {common_instructions}"""
 
 # Consultation report extraction prompt
-CONSULTATION_REPORT_PROMPT = """Analysez le compte rendu de consultation français fourni et extrayez les informations selon la structure JSON suivante.
+CONSULTATION_REPORT_PROMPT = """Analyze the provided consultation report and extract information according to the following JSON structure.
 
 DOCUMENT TEXT:
 {content}
@@ -399,7 +399,7 @@ STRUCTURE JSON REQUISE:
 {common_instructions}"""
 
 # Lab results extraction prompt
-LAB_RESULTS_PROMPT = """Analysez les résultats d'examens biologiques français fournis et extrayez les informations selon la structure JSON suivante.
+LAB_RESULTS_PROMPT = """Analyze the provided laboratory test results and extract information according to the following JSON structure.
 
 DOCUMENT TEXT:
 {content}
@@ -410,7 +410,7 @@ STRUCTURE JSON REQUISE:
 {common_instructions}"""
 
 # Prescription extraction prompt
-PRESCRIPTION_PROMPT = """Analysez le document de prescription français fourni et extrayez les informations selon la structure JSON suivante.
+PRESCRIPTION_PROMPT = """Analyze the provided prescription document and extract information according to the following JSON structure.
 
 DOCUMENT TEXT:
 {content}
@@ -421,7 +421,7 @@ STRUCTURE JSON REQUISE:
 {common_instructions}"""
 
 # Administrative coding extraction prompt
-ADMINISTRATIVE_CODING_PROMPT = """Analysez le document administratif de codage français fourni et extrayez les informations selon la structure JSON suivante.
+ADMINISTRATIVE_CODING_PROMPT = """Analyze the provided administrative coding document and extract information according to the following JSON structure.
 
 DOCUMENT TEXT:
 {content}
@@ -432,7 +432,7 @@ STRUCTURE JSON REQUISE:
 {common_instructions}"""
 
 # Correspondence extraction prompt
-CORRESPONDENCE_PROMPT = """Analysez le courrier de liaison/correspondance médicale français fourni et extrayez les informations selon la structure JSON suivante.
+CORRESPONDENCE_PROMPT = """Analyze the provided medical correspondence/liaison letter and extract information according to the following JSON structure.
 
 DOCUMENT TEXT:
 {content}

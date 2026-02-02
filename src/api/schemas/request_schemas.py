@@ -29,8 +29,8 @@ class MDTReportRequest(BaseModel):
     # JSON filter options (only apply to JSON documents)
     # Option 1: BY DATE - cutoff date in YYYYMMDD (UI may send YYYY-MM-DD; backend accepts both)
     json_date_from: Optional[str] = Field(default=None, description="If provided (YYYYMMDD), filter lCrs by date >= this value")
-    # Option 2: AUTO - from most recent RCP date
-    json_auto_filter: Optional[bool] = Field(default=False, description="If true, filter from most recent RCP date (ignores json_date_from)")
+    # Option 2: AUTO - from most recent MDT Meeting date
+    json_auto_filter: Optional[bool] = Field(default=False, description="If true, filter from most recent MDT Meeting date (ignores json_date_from)")
 
 class DocumentType(str, Enum):
     """Document type enumeration"""

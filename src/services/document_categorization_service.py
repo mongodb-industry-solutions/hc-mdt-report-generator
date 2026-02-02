@@ -28,14 +28,14 @@ class DocumentCategorizationService:
     Service for categorizing medical documents using Mistral AI.
     
     This service performs the first LLM shot to categorize documents into one of the following categories:
-    - Documents administratifs de codage (PMSI/T2A)
-    - Comptes rendus opératoires
-    - Comptes rendus d'hospitalisation/séjour
-    - Comptes rendus d'imagerie médicale
-    - Comptes rendus de consultation
-    - Documents de prescription
-    - Résultats d'examens biologiques
-    - Courriers de liaison/correspondance médicale
+    - Administrative coding documents (PMSI/T2A)
+    - Operative reports
+    - Hospitalization/stay reports
+    - Medical imaging reports
+    - Consultation reports
+    - Prescription documents
+    - Laboratory test results
+    - Medical correspondence/liaison letters
     """
     
     def __init__(self):
@@ -157,12 +157,12 @@ class DocumentCategorizationService:
             List of supported categories
         """
         return [
-            "Documents administratifs de codage (PMSI/T2A)",
-            "Comptes rendus opératoires",
-            "Comptes rendus d'hospitalisation/séjour",
-            "Comptes rendus d'imagerie médicale",
-            "Comptes rendus de consultation",
-            "Documents de prescription",
-            "Résultats d'examens biologiques",
-            "Courriers de liaison/correspondance médicale"
+            "Administrative coding documents (PMSI/T2A)",
+            "Operative reports",
+            "Hospitalization/stay reports",
+            "Medical imaging reports",
+            "Consultation reports",
+            "Prescription documents",
+            "Laboratory test results",
+            "Medical correspondence/liaison letters"
         ] 

@@ -13,15 +13,15 @@ interface ReportViewerProps {
 const NotFoundEntityCard = ({ entityName, category }: { entityName: string; category: string }) => {
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Nom':
+      case 'Patient Information':
         return 'bg-blue-50 border-blue-200';
-      case 'Rappel clinique':
+      case 'Clinical Summary':
         return 'bg-green-50 border-green-200';
-      case 'Caracteristiques patients et tumorales':
+      case 'Patient and Tumor Characteristics':
         return 'bg-purple-50 border-purple-200';
-      case 'Motif de présentation':
+      case 'Presentation Reason':
         return 'bg-orange-50 border-orange-200';
-      case 'Proposition DRAFT Système':
+      case 'DRAFT System Recommendation':
         return 'bg-red-50 border-red-200';
       default:
         return 'bg-gray-50 border-gray-200';
@@ -79,15 +79,15 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Nom':
+      case 'Patient Information':
         return 'bg-blue-100 text-blue-800';
-      case 'Rappel clinique':
+      case 'Clinical Summary':
         return 'bg-green-100 text-green-800';
-      case 'Caracteristiques patients et tumorales':
+      case 'Patient and Tumor Characteristics':
         return 'bg-purple-100 text-purple-800';
-      case 'Motif de présentation':
+      case 'Presentation Reason':
         return 'bg-orange-100 text-orange-800';
-      case 'Proposition DRAFT Système':
+      case 'DRAFT System Recommendation':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -258,7 +258,7 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
         </div>
       )}
 
-      {/* Collapsible Documents mobilisés section - only shown when source filters were used */}
+      {/* Collapsible Documents in use section - only shown when source filters were used */}
       {documentsMobilises && documentsMobilises.length > 0 && (
         <div className="mt-3 pt-2 border-t border-gray-100">
           <button
@@ -270,7 +270,7 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
             ) : (
               <ChevronRight className="w-4 h-4" />
             )}
-            <span>Documents mobilisés ({documentsMobilises.length})</span>
+            <span>Documents in use ({documentsMobilises.length})</span>
             {entity.metadata?.used_fallback && (
               <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
                 fallback ({entity.metadata?.fallback_docs_count || '?'} docs)
@@ -641,19 +641,19 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
   }
 
   // Initialize activeTab with first available category
-  const [activeTab, setActiveTab] = useState<string>(availableCategories[0] || 'Nom');
+  const [activeTab, setActiveTab] = useState<string>(availableCategories[0] || 'Patient Information');
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'Nom':
+      case 'Patient Information':
         return User;
-      case 'Rappel clinique':
+      case 'Clinical Summary':
         return Stethoscope;
-      case 'Caracteristiques patients et tumorales':
+      case 'Patient and Tumor Characteristics':
         return Target;
-      case 'Motif de présentation':
+      case 'Presentation Reason':
         return Presentation;
-      case 'Proposition DRAFT Système':
+      case 'DRAFT System Recommendation':
         return Settings;
       default:
         return Activity;
@@ -662,23 +662,23 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
 
   const getCategoryColor = (category: string, isActive: boolean = false) => {
     switch (category) {
-      case 'Nom':
+      case 'Patient Information':
         return isActive
           ? 'border-blue-500 text-blue-600 bg-blue-50'
           : 'border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300';
-      case 'Rappel clinique':
+      case 'Clinical Summary':
         return isActive
           ? 'border-green-500 text-green-600 bg-green-50'
           : 'border-transparent text-gray-500 hover:text-green-600 hover:border-green-300';
-      case 'Caracteristiques patients et tumorales':
+      case 'Patient and Tumor Characteristics':
         return isActive
           ? 'border-purple-500 text-purple-600 bg-purple-50'
           : 'border-transparent text-gray-500 hover:text-purple-600 hover:border-purple-300';
-      case 'Motif de présentation':
+      case 'Presentation Reason':
         return isActive
           ? 'border-orange-500 text-orange-600 bg-orange-50'
           : 'border-transparent text-gray-500 hover:text-orange-600 hover:border-orange-300';
-      case 'Proposition DRAFT Système':
+      case 'DRAFT System Recommendation':
         return isActive
           ? 'border-red-500 text-red-600 bg-red-50'
           : 'border-transparent text-gray-500 hover:text-red-600 hover:border-red-300';

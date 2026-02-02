@@ -27,67 +27,74 @@ class MedicalPDFGenerator {
 
   // Entity ordering based on medical importance
   private readonly entityOrder = [
-    "NumdosGR",
-    "Nom de naissance",
-    "Prénom", 
-    "Sexe",
-    "Date de naissance",
-    "Antécédents familiaux",
-    "Adresse postale",
-    "Adresse électronique",
-    "Hôpital",
-    "Antécédents",
-    "Diagnostiqué le",
-    "Date de diagnostic",
-    "Localisation",
-    "Chimiothérapie(s) réalisée(s)",
-    "Type histologique",
-    "Radiothérapie réalisée",
-    "Métastases à distance",
-    "Chirurgie(s) réalisée(s)",
-    "État général (OMS)",
-    "Score G8",
-    "Antécédents personnels notables",
-    "Site demandeur",
-    "Spécialité(s) Sollicitée",
-    "Localisations du cancer",
-    "Commentaire tumeur primitive",
-    "Anomalie moléculaire",
-    "Métastatique",
-    "Site métastatique",
-    "CIM-O-3",
-    "Date de présentation",
-    "Motifs de présentation",
-    "Question posée à la RCP",
-    "Proposition de la RCP",
-    "Thérapie innovante",
-    "Traitement hors AMM",
-    "Inclusion dans un essai thérapeutique",
-    "Demande complément d'examen complémentaire",
+    "GRNumdos",
+    "Birth Name",
+    "First Name", 
+    "Gender",
+    "Date of Birth",
+    "Family History",
+    "Postal Address",
+    "Email Address",
+    "Hospital",
+    "Medical History",
+    "Diagnosed on",
+    "Diagnosis Date",
+    "Location",
+    "Chemotherapy Performed",
+    "Histological Type",
+    "Radiotherapy Performed",
+    "Distant Metastases",
+    "Surgery Performed",
+    "General Status (WHO)",
+    "G8 Score",
+    "Notable Personal History",
+    "Referring Site",
+    "Specialty Requested",
+    "Cancer Locations",
+    "Primary Tumor Comment",
+    "Molecular Abnormality",
+    "Metastatic",
+    "Metastatic Site",
+    "ICD-O-3",
+    "Presentation Date",
+    "Presentation Reasons",
+    "MDT Question",
+    "MDT Recommendation",
+    "Innovative Therapy",
+    "Off-label Treatment",
+    "Inclusion in Therapeutic Trial",
+    "Additional Examination Request",
     "EVASAN"
   ];
 
   // Section ordering for known sections (dynamic sections will be added after these)
   private readonly sectionOrder = [
-    "Informations sur le patient",
-    "Rappel clinique", 
-    "Caractéristiques patients et tumorales",
-    "Motif de présentation",
-    "Proposition DRAFT Système",
-    "Proposition RCP (EXPÉRIMENTAL - Validation médicale requise)"
+    "Patient Information",
+    "Clinical Summary", 
+    "Patient and Tumor Characteristics",
+    "Presentation Reason",
+    "DRAFT System Recommendation",
+    "MDT Recommendation (EXPERIMENTAL - Medical validation required)"
   ];
 
   // Clean section titles mapping (shorten long titles for PDF)
   private readonly cleanSectionTitles: Record<string, string> = {
-    "Informations sur le patient": "Informations sur le patient",
-    "Rappel clinique": "Rappel clinique",
-    "Caractéristiques patients et tumorales": "Caractéristiques patients et tumorales",
-    "Motif de présentation": "Motif de présentation",
-    "Proposition DRAFT Système": "Proposition DRAFT Système",
-    "Proposition RCP (EXPÉRIMENTAL - Validation médicale requise)": "Proposition RCP",
-    "Autres informations": "Autres informations",
-    // Handle legacy misspelling (missing accent)
-    "Caracteristiques patients et tumorales": "Caractéristiques patients et tumorales"
+    "Patient Information": "Patient Information",
+    "Clinical Summary": "Clinical Summary",
+    "Patient and Tumor Characteristics": "Patient & Tumor Characteristics",
+    "Presentation Reason": "Presentation Reason",
+    "DRAFT System Recommendation": "DRAFT System Recommendation",
+    "MDT Recommendation (EXPERIMENTAL - Medical validation required)": "MDT Recommendation",
+    "Other Information": "Other Information",
+    // Handle legacy French titles for backward compatibility
+    "Informations sur le patient": "Patient Information",
+    "Rappel clinique": "Clinical Summary",
+    "Caractéristiques patients et tumorales": "Patient & Tumor Characteristics",
+    "Caracteristiques patients et tumorales": "Patient & Tumor Characteristics", // Handle legacy misspelling
+    "Motif de présentation": "Presentation Reason",
+    "Proposition DRAFT Système": "DRAFT System Recommendation",
+    "Proposition RCP (EXPÉRIMENTAL - Validation médicale requise)": "MDT Recommendation",
+    "Autres informations": "Other Information"
   };
 
   constructor() {
@@ -103,10 +110,10 @@ class MedicalPDFGenerator {
       
       // Set document properties for proper encoding
       this.doc.setProperties({
-        title: 'Rapport MDT',
-        subject: 'Rapport de Réunion de Concertation Pluridisciplinaire',
+        title: 'MDT Report',
+        subject: 'Multidisciplinary Team Meeting Report',
         author: 'MongoDB Healthcare',
-        creator: 'Système MDT'
+        creator: 'MDT System'
       });
     } catch (error) {
       console.warn('PDF configuration warning:', error);
@@ -318,7 +325,7 @@ class MedicalPDFGenerator {
     this.doc.setTextColor('#ffffff');
     this.doc.setFontSize(16); // Slightly smaller to fit better
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('RAPPORT DE RCP', 45, 30);
+    this.doc.text('MDT REPORT', 45, 30);
     
     // Status badge - positioned at top right with more space
     const statusColor = report.status === 'COMPLETED' ? this.colors.success : 
@@ -341,7 +348,7 @@ class MedicalPDFGenerator {
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'normal');
     this.doc.text(`Patient: ${this.cleanText(report.patient_id)}`, 45, 42);
-    this.doc.text(`Généré le: ${new Date(report.created_at).toLocaleDateString('fr-FR')}`, 45, 52);
+    this.doc.text(`Generated on: ${new Date(report.created_at).toLocaleDateString('en-US')}`, 45, 52);
     
     this.currentY = headerHeight + 15; // Proper spacing after header
   }
@@ -350,7 +357,7 @@ class MedicalPDFGenerator {
     this.doc.setTextColor(this.colors.dark);
     this.doc.setFontSize(14);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text(this.cleanText('Résumé du Rapport'), this.margins.left, this.currentY);
+    this.doc.text(this.cleanText('Report Summary'), this.margins.left, this.currentY);
     this.currentY += 15; // Increased spacing
     
     // Summary box with dynamic height
@@ -387,12 +394,12 @@ class MedicalPDFGenerator {
     const documentsCount = report.metadata?.total_documents_processed || 0;
     
     return [
-      { label: 'Documents traités', value: documentsCount.toString() },
-      { label: 'Entités extraites', value: entitiesCount.toString() },
+      { label: 'Documents Processed', value: documentsCount.toString() },
+      { label: 'Entities Extracted', value: entitiesCount.toString() },
       { label: 'Taille du fichier', value: this.formatFileSize(report.file_size || 0) },
       { label: 'Mots', value: (report.word_count || 0).toString() },
       { label: 'Version', value: report.metadata?.report_version || 'N/A' },
-      { label: 'Généré le', value: new Date(report.created_at).toLocaleDateString('fr-FR') }
+      { label: 'Generated on', value: new Date(report.created_at).toLocaleDateString('en-US') }
     ];
   }
 
@@ -605,7 +612,7 @@ class MedicalPDFGenerator {
       this.doc.setFontSize(8);
       this.doc.setFont('helvetica', 'italic');
       
-      // Display Documents mobilisés if available (prioritize over sources)
+      // Display Documents in use if available (prioritize over sources)
       if (entity.metadata.documents_mobilises && Array.isArray(entity.metadata.documents_mobilises) && entity.metadata.documents_mobilises.length > 0) {
         const docsMobilises = entity.metadata.documents_mobilises as Array<{
           date: string;
@@ -615,7 +622,7 @@ class MedicalPDFGenerator {
         }>;
         
         // Show header with fallback indicator if applicable
-        let headerText = `Documents mobilisés (${docsMobilises.length}):`;
+        let headerText = `Documents in use (${docsMobilises.length}):`;
         if (entity.metadata.used_fallback) {
           headerText += ` [fallback - ${entity.metadata.fallback_docs_count || '?'} docs]`;
         }
@@ -940,10 +947,10 @@ class MedicalPDFGenerator {
       this.doc.setFont('helvetica', 'normal');
       
       // Left: Report info
-      this.doc.text(`Rapport MDT - ${report.patient_id}`, this.margins.left, this.pageHeight - 20);
+      this.doc.text(`MDT Report - ${report.patient_id}`, this.margins.left, this.pageHeight - 20);
       
       // Center: Generation date
-      const dateText = `Généré le ${new Date(report.created_at).toLocaleDateString('fr-FR')}`;
+      const dateText = `Generated on ${new Date(report.created_at).toLocaleDateString('en-US')}`;
       const dateWidth = this.doc.getTextWidth(dateText);
       this.doc.text(dateText, (this.pageWidth - dateWidth) / 2, this.pageHeight - 20);
       
@@ -1032,7 +1039,7 @@ class MedicalPDFGenerator {
   }
 
   private addPageDisclaimers(): void {
-    const disclaimerText = 'Généré par IA — usage non clinique.';
+    const disclaimerText = 'Generated by AI — Not for clinical use.';
     const totalPages = this.doc.getNumberOfPages();
     
     for (let i = 1; i <= totalPages; i++) {

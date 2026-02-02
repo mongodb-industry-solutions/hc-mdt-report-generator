@@ -63,8 +63,8 @@ class JSONToPDFConverter:
             "CIM-O-3",      
             "Date de présentation",      
             "Motifs de présentation",      
-            "Question posée à la RCP",      
-            "Proposition de la RCP",      
+            "Question asked to MDT Team",      
+            "MDT Team Recommendation",      
             "Thérapie innovante",      
             "Traitement hors AMM",      
             "Inclusion dans un essai thérapeutique",      
@@ -112,12 +112,12 @@ class JSONToPDFConverter:
             # Motif de présentation section      
             "Date de présentation": "Motif de présentation",      
             "Motifs de présentation": "Motif de présentation",      
-            "Question posée à la RCP": "Motif de présentation",      
-                  
-            # Conclusion RCP section      
-            "Proposition de la RCP": "Conclusion RCP",      
-            "Thérapie innovante": "Conclusion RCP",      
-            "Traitement hors AMM": "Conclusion RCP",      
+            "Question asked to MDT Team": "Reason for presentation",      
+            
+            # MDT Team conclusion section      
+            "MDT Team Recommendation": "MDT Team Conclusion",      
+            "Innovative Therapy": "MDT Team Conclusion",      
+            "Off-label Treatment": "MDT Team Conclusion",
             "Inclusion dans un essai thérapeutique": "Conclusion RCP",      
             "Demande complément d'examen complémentaire": "Conclusion RCP",      
             "EVASAN": "Conclusion RCP"      

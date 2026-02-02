@@ -78,7 +78,7 @@ export interface ReportEntity {
       title?: string;
       display_name?: string;
     }>;
-    // Documents mobilisés - list of documents used for extraction
+    // Documents in use - list of Documents in use for extraction
     documents_mobilises?: Array<{
       date: string;
       libnatcr: string;
