@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { FileText, Calendar, Clock, CheckCircle, AlertCircle, Loader, Upload, Download, Trash2 } from 'lucide-react';
+import { FileText, Calendar, Clock, CheckCircle, AlertCircle, Loader, Upload, Download, Trash2, Eye, Search, FileSearch } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { PatientDocument } from '../types';
 import FileUpload from './FileUpload';
+import DocumentPreviewModal from './DocumentPreviewModal';
 import { useI18n } from '../i18n/context';
 
 interface DocumentsListProps {
@@ -43,6 +44,7 @@ const getStatusBadgeClass = (status: PatientDocument['status']) => {
 export default function DocumentsList({ documents, onRefresh, patientId, onDocumentUploaded, onDocumentStatusUpdate, onPatientIdChange }: DocumentsListProps) {
   const { t } = useI18n();
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [previewDocument, setPreviewDocument] = useState<PatientDocument | null>(null);
 
   const getStatusText = (status: PatientDocument['status']) => {
     switch (status) {
@@ -149,91 +151,172 @@ export default function DocumentsList({ documents, onRefresh, patientId, onDocum
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {documents.map((document) => (
-            <div key={document.uuid} className="card">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <FileText className="w-5 h-5 text-gray-500" />
-                    <h3 className="text-lg font-medium text-gray-900">
-                      {document.filename || `Document ${document.uuid.slice(0, 8)}`}
-                    </h3>
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(document.status)}
-                      <span className={getStatusBadgeClass(document.status)}>
-                        {getStatusText(document.status).toUpperCase()}
-                      </span>
+            <div key={document.uuid} className="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
+              {/* Document Header */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                        {document.filename || `Document ${document.uuid.slice(0, 8)}`}
+                      </h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {getStatusIcon(document.status)}
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeClass(document.status)}`}>
+                          {getStatusText(document.status).toUpperCase()}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600">
-                    <div>
-                      <span className="font-medium">{t.documents.info.type}:</span>{' '}
-                      <span className="capitalize">{document.type.replace('_', ' ')}</span>
+                </div>
+              </div>
+
+              {/* Document Content Preview */}
+              <div className="p-4">
+                {/* Quick Info Grid */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t.documents.info.type}</div>
+                    <div className="text-sm font-semibold text-gray-900 mt-1 capitalize">
+                      {document.type.replace('_', ' ')}
                     </div>
-                    <div>
-                      <span className="font-medium">{t.documents.info.source}:</span>{' '}
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t.documents.info.source}</div>
+                    <div className="text-sm font-semibold text-gray-900 mt-1">
                       {document.source || 'Unknown'}
                     </div>
-                    <div>
-                      <span className="font-medium">{t.documents.info.category}:</span>{' '}
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t.documents.info.category}</div>
+                    <div className="text-sm font-semibold text-gray-900 mt-1">
                       {document.document_category || 'Not categorized'}
                     </div>
-                    <div>
-                      <span className="font-medium">{t.documents.info.entities}:</span>{' '}
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t.documents.info.entities}</div>
+                    <div className="text-sm font-semibold text-gray-900 mt-1">
                       {getExtractedEntitiesCount(document)} {t.documents.info.extracted}
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{t.documents.info.created} {formatDistanceToNow(new Date(document.created_at))} {t.documents.info.ago}</span>
+                {/* OCR Text Preview */}
+                {document.ocr_text && (
+                  <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <FileSearch className="w-4 h-4 text-blue-600" />
+                      <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Text Preview</span>
                     </div>
-                    {document.processing_completed_at && (
-                      <div className="flex items-center space-x-1">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>{t.documents.info.processed} {formatDistanceToNow(new Date(document.processing_completed_at))} {t.documents.info.ago}</span>
-                      </div>
-                    )}
+                    <p className="text-sm text-gray-700 line-clamp-3">
+                      {document.ocr_text.substring(0, 200)}{document.ocr_text.length > 200 ? '...' : ''}
+                    </p>
+                    <div className="text-xs text-blue-600 mt-1">
+                      {document.character_count} chars • {document.word_count} words
+                    </div>
                   </div>
+                )}
 
-                  {document.notes && (
-                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-700">{document.notes}</p>
-                    </div>
-                  )}
-
-                  {(document.errors?.length ?? 0) > 0 && (
-                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <h4 className="text-sm font-medium text-red-800 mb-1">Processing Errors:</h4>
-                      <ul className="text-sm text-red-700 space-y-1">
-                        {(document.errors || []).map((error, index) => (
-                          <li key={index}>• {error}</li>
-                        ))}
-                      </ul>
+                {/* Dates */}
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="w-3 h-3" />
+                    <span>{t.documents.info.created} {formatDistanceToNow(new Date(document.created_at))} {t.documents.info.ago}</span>
+                  </div>
+                  {document.processing_completed_at && (
+                    <div className="flex items-center space-x-1">
+                      <CheckCircle className="w-3 h-3 text-green-500" />
+                      <span>{t.documents.info.processed} {formatDistanceToNow(new Date(document.processing_completed_at))} {t.documents.info.ago}</span>
                     </div>
                   )}
                 </div>
-                <div className="ml-4">
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <button
-                    onClick={async () => {
-                      if (!window.confirm('Delete this document permanently?')) return;
-                      const { apiService } = await import('../services/api');
-                      await apiService.deleteDocument(patientId, document.uuid);
-                      onRefresh();
-                    }}
-                    title="Delete document"
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    onClick={() => setPreviewDocument(document)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Eye className="w-4 h-4" />
+                    <span>Preview</span>
                   </button>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const { apiService } = await import('../services/api');
+                          const fullDoc = await apiService.getDocument(patientId, document.uuid);
+                          if (fullDoc.file_content) {
+                            const blob = new Blob([atob(fullDoc.file_content)], { type: 'application/octet-stream' });
+                            const url = URL.createObjectURL(blob);
+                            const link = window.document.createElement('a');
+                            link.href = url;
+                            link.download = document.filename || 'document.pdf';
+                            link.click();
+                            URL.revokeObjectURL(url);
+                          }
+                        } catch (error) {
+                          console.error('Download failed:', error);
+                          alert('Download failed. Please try again.');
+                        }
+                      }}
+                      title="Download document"
+                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!window.confirm('Delete this document permanently?')) return;
+                        const { apiService } = await import('../services/api');
+                        await apiService.deleteDocument(patientId, document.uuid);
+                        onRefresh();
+                      }}
+                      title="Delete document"
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
+
+                {/* Notes */}
+                {document.notes && (
+                  <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800">{document.notes}</p>
+                  </div>
+                )}
+
+                {/* Errors */}
+                {(document.errors?.length ?? 0) > 0 && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <h4 className="text-sm font-medium text-red-800 mb-1">Processing Errors:</h4>
+                    <ul className="text-sm text-red-700 space-y-1">
+                      {(document.errors || []).map((error, index) => (
+                        <li key={index}>• {error}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
+      )}
+      {/* Document Preview Modal */}
+      {previewDocument && (
+        <DocumentPreviewModal
+          isOpen={true}
+          onClose={() => setPreviewDocument(null)}
+          document={previewDocument}
+          patientId={patientId}
+        />
       )}
     </div>
   );

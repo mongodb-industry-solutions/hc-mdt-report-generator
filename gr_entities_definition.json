@@ -163,7 +163,7 @@
       "extraction_instructions": "Look for explicit evidence of metastases in the text: mentions of 'metastases', 'metastatic', 'M1', 'dissemination', 'secondary locations', or specific organs with metastases. Extract exact text containing this information.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "If evidence of metastases is found, return 'Yes' followed by verbatim text in quotes, for example: 'Yes - \"Presence of multiple hepatic metastases\"". If multiple references exist, include all separated by semicolons. If no explicit evidence is found, return 'Information not available in reviewed documents'.",
+      "aggregation_instructions": "If evidence of metastases is found, return 'Yes' followed by verbatim text in quotes, for example: 'Yes - \"Presence of multiple hepatic metastases\". If multiple references exist, include all separated by semicolons. If no explicit evidence is found, return 'Information not available in reviewed documents'.",
       "source_filters": [
         {
           "libnatcr": "MDT Meeting",

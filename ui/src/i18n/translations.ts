@@ -60,6 +60,25 @@ export interface Translations {
       uploadedAgo: string;
       processedAgo: string;
     };
+    preview: {
+      title: string;
+      patientId: string;
+      type: string;
+      status: string;
+      download: string;
+      loading: string;
+      error: string;
+      retry: string;
+      search: string;
+      tabs: {
+        content: string;
+        ocr: string;
+        data: string;
+      };
+      errors: {
+        loadFailed: string;
+      };
+    };
   };
   
   // File upload
@@ -413,6 +432,25 @@ export const translations: Translations = {
       extractedEntities: 'entities extracted',
       uploadedAgo: 'uploaded',
       processedAgo: 'processed',
+    },
+    preview: {
+      title: 'Document Preview',
+      patientId: 'Patient ID',
+      type: 'Type',
+      status: 'Status',
+      download: 'Download',
+      loading: 'Loading document...',
+      error: 'Error',
+      retry: 'Retry',
+      search: 'Search...',
+      tabs: {
+        content: 'Content',
+        ocr: 'OCR Text',
+        data: 'Extracted Data',
+      },
+      errors: {
+        loadFailed: 'Failed to load document content',
+      },
     },
   },
   upload: {
