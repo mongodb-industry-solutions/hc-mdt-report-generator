@@ -31,67 +31,69 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
     setError(null);
     
     try {
-      // Get all patients
+      // Get all patients first (fast)
       const patientsResponse = await apiService.getPatients();
       const patientIds = patientsResponse.items || [];
       setPatients(patientIds);
       
-      // Load details for each patient
-      const details: Record<string, PatientInfo> = {};
+      // Create basic patient info without API calls for faster loading
+      const basicDetails: Record<string, PatientInfo> = {};
+      patientIds.forEach(patientId => {
+        basicDetails[patientId] = {
+          id: patientId,
+          documentCount: 0,
+          reportCount: 0
+        };
+      });
+      setPatientDetails(basicDetails);
+      setIsLoading(false); // Show patients immediately
+      
+      // Load detailed info in background (optional)
+      loadPatientDetails(patientIds);
+      
+    } catch (err) {
+      console.error('Error loading patients:', err);
+      setError('Failed to load patients. Please try again.');
+      setIsLoading(false);
+    }
+  };
+
+  const loadPatientDetails = async (patientIds: string[]) => {
+    // Load details for each patient in background
+    const details: Record<string, PatientInfo> = { ...patientDetails };
+    
+    // Process in smaller batches to avoid overwhelming the server
+    const batchSize = 5;
+    for (let i = 0; i < patientIds.length; i += batchSize) {
+      const batch = patientIds.slice(i, i + batchSize);
       
       await Promise.allSettled(
-        patientIds.map(async (patientId) => {
+        batch.map(async (patientId) => {
           try {
-            // Get document count
+            // Get document count only (faster)
             const docsResponse = await apiService.getPatientDocuments(patientId, 1, 1);
             const documentCount = docsResponse.total || 0;
-            
-            // Get report count
-            let reportCount = 0;
             let lastActivity: string | undefined;
             
-            try {
-              const reportsResponse = await apiService.getPatientReports(patientId, 1, 1);
-              reportCount = reportsResponse.total || 0;
-              
-              // Get the most recent activity (document or report)
-              if (docsResponse.items.length > 0) {
-                lastActivity = docsResponse.items[0].updated_at;
-              }
-              if (reportsResponse.items.length > 0) {
-                const reportDate = reportsResponse.items[0].created_at;
-                if (!lastActivity || new Date(reportDate) > new Date(lastActivity)) {
-                  lastActivity = reportDate;
-                }
-              }
-            } catch {
-              // Reports endpoint might not be available for this patient
+            if (docsResponse.items.length > 0) {
+              lastActivity = docsResponse.items[0].updated_at;
             }
             
             details[patientId] = {
               id: patientId,
               documentCount,
-              reportCount,
+              reportCount: 0, // Skip report counting for faster loading
               lastActivity
             };
           } catch (err) {
             console.error(`Failed to load details for patient ${patientId}:`, err);
-            // Add basic info even if we can't get details
-            details[patientId] = {
-              id: patientId,
-              documentCount: 0,
-              reportCount: 0
-            };
+            // Keep basic info if loading fails
           }
         })
       );
       
-      setPatientDetails(details);
-    } catch (err) {
-      console.error('Error loading patients:', err);
-      setError('Failed to load patients. Please try again.');
-    } finally {
-      setIsLoading(false);
+      // Update UI with each batch
+      setPatientDetails({ ...details });
     }
   };
 
@@ -194,7 +196,7 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
             <div>
               <p className="text-xs text-green-600 font-medium">Total Documents</p>
               <p className="text-2xl font-bold text-green-900">
-                {Object.values(patientDetails).reduce((sum, p) => sum + p.documentCount, 0)}
+                {Object.values(patientDetails).reduce((sum, p) => sum + p.documentCount, 0) || '...'}
               </p>
             </div>
           </div>
@@ -204,9 +206,9 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
           <div className="flex items-center space-x-2">
             <Calendar className="w-6 h-6 text-purple-600" />
             <div>
-              <p className="text-xs text-purple-600 font-medium">Total Reports</p>
+              <p className="text-xs text-purple-600 font-medium">Available Patients</p>
               <p className="text-2xl font-bold text-purple-900">
-                {Object.values(patientDetails).reduce((sum, p) => sum + p.reportCount, 0)}
+                {patients.length}
               </p>
             </div>
           </div>
@@ -262,25 +264,23 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
                             <FileText className="w-4 h-4 text-gray-600" />
                             <span className="text-sm text-gray-600">Documents</span>
                           </div>
-                          <p className="text-xl font-bold text-gray-900 mt-1">{details.documentCount}</p>
+                          <p className="text-xl font-bold text-gray-900 mt-1">
+                            {details.documentCount === 0 && !details.lastActivity ? '...' : details.documentCount}
+                          </p>
                         </div>
                         
                         <div className="bg-gray-50 rounded-lg p-3">
                           <div className="flex items-center space-x-2">
                             <Calendar className="w-4 h-4 text-gray-600" />
-                            <span className="text-sm text-gray-600">Reports</span>
+                            <span className="text-sm text-gray-600">Last Activity</span>
                           </div>
-                          <p className="text-xl font-bold text-gray-900 mt-1">{details.reportCount}</p>
+                          <p className="text-sm font-medium text-gray-700 mt-1">
+                            {details.lastActivity ? formatLastActivity(details.lastActivity) : '...'}
+                          </p>
                         </div>
                       </div>
 
-                      {/* Last Activity */}
-                      <div className="pt-2 border-t border-gray-100">
-                        <p className="text-xs text-gray-500">Last Activity</p>
-                        <p className="text-sm font-medium text-gray-700 mt-1">
-                          {formatLastActivity(details.lastActivity)}
-                        </p>
-                      </div>
+                      {/* Simplified Last Activity Section - removed since it's now above */}
                     </div>
                   </div>
                 </div>
