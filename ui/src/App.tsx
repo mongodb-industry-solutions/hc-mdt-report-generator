@@ -404,19 +404,28 @@ function AppContent() {
                     </>
                   )}
                 </div>
-
-                {/* Report Viewer Sidebar */}
-                {showReportViewer && selectedReport && (
-                  <div className="lg:w-1/2 xl:w-1/2 2xl:w-1/2">
-                    <ReportViewer
-                      report={selectedReport}
-                      onClose={() => setShowReportViewer(false)}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
+        
+          {/* Report Viewer Modal */}
+          {showReportViewer && selectedReport && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              {/* Backdrop */}
+              <div 
+                className="absolute inset-0 bg-black bg-opacity-50" 
+                onClick={() => setShowReportViewer(false)}
+              ></div>
+              
+              {/* Modal Content */}
+              <div className="relative w-[50vw] h-[95vh] max-w-none">
+                <ReportViewer
+                  report={selectedReport}
+                  onClose={() => setShowReportViewer(false)}
+                />
+              </div>
+            </div>
+          )}
         
           {showSettings && (
             <SettingsPanel

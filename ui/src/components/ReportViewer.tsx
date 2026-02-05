@@ -17,10 +17,20 @@ const NotFoundEntityCard = ({ entityName, category }: { entityName: string; cate
         return 'bg-blue-50 border-blue-200';
       case 'Clinical Summary':
         return 'bg-green-50 border-green-200';
+      case 'General Health and Functional Status':
+        return 'bg-teal-50 border-teal-200';
+      case 'Laboratory and Exploration Results':
+        return 'bg-cyan-50 border-cyan-200';
+      case 'Medical Diagnoses':
+        return 'bg-rose-50 border-rose-200';
+      case 'Psychological and Social Factors':
+        return 'bg-indigo-50 border-indigo-200';
       case 'Patient and Tumor Characteristics':
         return 'bg-purple-50 border-purple-200';
       case 'Presentation Reason':
         return 'bg-orange-50 border-orange-200';
+      case 'MDT Recommendation (EXPERIMENTAL - Medical validation required)':
+        return 'bg-amber-50 border-amber-200';
       case 'DRAFT System Recommendation':
         return 'bg-red-50 border-red-200';
       default:
@@ -77,16 +87,77 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
     filename: string;
   }> | undefined;
 
+  // Filter documents to only show those that were actually used for this entity
+  const getRelevantDocuments = () => {
+    if (!documentsMobilises) return [];
+    
+    // For now, return all documents to avoid over-filtering
+    // TODO: Implement proper document filtering once we understand the metadata structure better
+    return documentsMobilises;
+    
+    /* Disabled filtering logic until we can debug properly
+    const usedFilenames = new Set<string>();
+    
+    // Strategy 1: For aggregate entities with multiple sources
+    if (entity.processing_type === 'aggregate_all_matches' && entity.metadata?.sources && Array.isArray(entity.metadata.sources)) {
+      entity.metadata.sources.forEach((source: any) => {
+        if (source.filename) {
+          usedFilenames.add(source.filename);
+        }
+      });
+    }
+    
+    // Strategy 2: For entities with values array (detailed breakdown)
+    if (entity.values && Array.isArray(entity.values)) {
+      entity.values.forEach((value: any) => {
+        if (value.metadata?.filename) {
+          usedFilenames.add(value.metadata.filename);
+        }
+      });
+    }
+    
+    // Strategy 3: For single source entities
+    if (entity.metadata?.filename) {
+      usedFilenames.add(entity.metadata.filename);
+    }
+    
+    console.log(`Entity: ${entity.entity_name}, Found sources:`, Array.from(usedFilenames), 'Processing type:', entity.processing_type);
+    
+    // If we found specific sources, filter documents
+    if (usedFilenames.size > 0) {
+      const filtered = documentsMobilises.filter(doc => usedFilenames.has(doc.filename));
+      console.log(`Filtered documents for ${entity.entity_name}:`, filtered.length, 'out of', documentsMobilises.length);
+      return filtered;
+    }
+    
+    // If no specific sources found, return all documents but log it
+    console.log(`No specific sources found for ${entity.entity_name}, showing all documents`);
+    return documentsMobilises;
+    */
+  };
+
+  const relevantDocuments = getRelevantDocuments();
+
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'Patient Information':
         return 'bg-blue-100 text-blue-800';
       case 'Clinical Summary':
         return 'bg-green-100 text-green-800';
+      case 'General Health and Functional Status':
+        return 'bg-teal-100 text-teal-800';
+      case 'Laboratory and Exploration Results':
+        return 'bg-cyan-100 text-cyan-800';
+      case 'Medical Diagnoses':
+        return 'bg-rose-100 text-rose-800';
+      case 'Psychological and Social Factors':
+        return 'bg-indigo-100 text-indigo-800';
       case 'Patient and Tumor Characteristics':
         return 'bg-purple-100 text-purple-800';
       case 'Presentation Reason':
         return 'bg-orange-100 text-orange-800';
+      case 'MDT Recommendation (EXPERIMENTAL - Medical validation required)':
+        return 'bg-amber-100 text-amber-800';
       case 'DRAFT System Recommendation':
         return 'bg-red-100 text-red-800';
       default:
@@ -259,7 +330,7 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
       )}
 
       {/* Collapsible Documents in use section - only shown when source filters were used */}
-      {documentsMobilises && documentsMobilises.length > 0 && (
+      {relevantDocuments && relevantDocuments.length > 0 && (
         <div className="mt-3 pt-2 border-t border-gray-100">
           <button
             onClick={() => setShowMobilizedDocs(!showMobilizedDocs)}
@@ -270,26 +341,19 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
             ) : (
               <ChevronRight className="w-4 h-4" />
             )}
-            <span>Documents in use ({documentsMobilises.length})</span>
-            {entity.metadata?.used_fallback && (
-              <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
-                fallback ({entity.metadata?.fallback_docs_count || '?'} docs)
-              </span>
-            )}
+            <span>
+              Documents in use ({relevantDocuments.length})
+            </span>
+            <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+              filtering not available
+            </span>
           </button>
           
           {showMobilizedDocs && (
             <div className="mt-2 space-y-2 ml-6">
-              {/* Show fallback explanation if applicable */}
-              {entity.metadata?.used_fallback && (
-                <div className="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded border border-amber-200">
-                  ⚠️ Filtres initiaux n'ont pas trouvé l'entité. Recherche élargie à {entity.metadata?.fallback_docs_count || 'tous les'} documents.
-                </div>
-              )}
-              
               {/* Documents list */}
               <div className="space-y-1">
-                {documentsMobilises.map((doc, index) => (
+                {relevantDocuments.map((doc, index) => (
                   <div
                     key={index}
                     className="flex items-start text-xs bg-blue-50 px-3 py-1.5 rounded border border-blue-200"
@@ -306,31 +370,6 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
                   </div>
                 ))}
               </div>
-              
-              {/* Show original filter docs if fallback was used */}
-              {entity.metadata?.used_fallback && entity.metadata?.documents_mobilises_original_filter && (
-                <div className="mt-2 pt-2 border-t border-blue-200">
-                  <div className="text-xs text-gray-500 mb-1">Filtres initiaux ({entity.metadata.documents_mobilises_original_filter.length} docs):</div>
-                  <div className="space-y-1">
-                    {(entity.metadata.documents_mobilises_original_filter as any[]).slice(0, 5).map((doc: any, index: number) => (
-                      <div
-                        key={`orig-${index}`}
-                        className="flex items-start text-xs bg-gray-50 px-3 py-1 rounded border border-gray-200 opacity-75"
-                      >
-                        <span className="text-gray-500 mr-2 font-mono shrink-0">
-                          [{doc.date || '--------'}]
-                        </span>
-                        <span className="font-medium text-gray-600 mr-2 shrink-0">
-                          {doc.libnatcr || 'Unknown'}
-                        </span>
-                        <span className="text-gray-500 truncate flex-1">
-                          {doc.title || '-'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -649,10 +688,20 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
         return User;
       case 'Clinical Summary':
         return Stethoscope;
+      case 'General Health and Functional Status':
+        return Activity;
+      case 'Laboratory and Exploration Results':
+        return Search;
+      case 'Medical Diagnoses':
+        return AlertCircle;
+      case 'Psychological and Social Factors':
+        return User;
       case 'Patient and Tumor Characteristics':
         return Target;
       case 'Presentation Reason':
         return Presentation;
+      case 'MDT Recommendation (EXPERIMENTAL - Medical validation required)':
+        return FileText;
       case 'DRAFT System Recommendation':
         return Settings;
       default:
@@ -670,6 +719,22 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
         return isActive
           ? 'border-green-500 text-green-600 bg-green-50'
           : 'border-transparent text-gray-500 hover:text-green-600 hover:border-green-300';
+      case 'General Health and Functional Status':
+        return isActive
+          ? 'border-teal-500 text-teal-600 bg-teal-50'
+          : 'border-transparent text-gray-500 hover:text-teal-600 hover:border-teal-300';
+      case 'Laboratory and Exploration Results':
+        return isActive
+          ? 'border-cyan-500 text-cyan-600 bg-cyan-50'
+          : 'border-transparent text-gray-500 hover:text-cyan-600 hover:border-cyan-300';
+      case 'Medical Diagnoses':
+        return isActive
+          ? 'border-rose-500 text-rose-600 bg-rose-50'
+          : 'border-transparent text-gray-500 hover:text-rose-600 hover:border-rose-300';
+      case 'Psychological and Social Factors':
+        return isActive
+          ? 'border-indigo-500 text-indigo-600 bg-indigo-50'
+          : 'border-transparent text-gray-500 hover:text-indigo-600 hover:border-indigo-300';
       case 'Patient and Tumor Characteristics':
         return isActive
           ? 'border-purple-500 text-purple-600 bg-purple-50'
@@ -678,6 +743,10 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
         return isActive
           ? 'border-orange-500 text-orange-600 bg-orange-50'
           : 'border-transparent text-gray-500 hover:text-orange-600 hover:border-orange-300';
+      case 'MDT Recommendation (EXPERIMENTAL - Medical validation required)':
+        return isActive
+          ? 'border-amber-500 text-amber-600 bg-amber-50'
+          : 'border-transparent text-gray-500 hover:text-amber-600 hover:border-amber-300';
       case 'DRAFT System Recommendation':
         return isActive
           ? 'border-red-500 text-red-600 bg-red-50'
@@ -694,7 +763,7 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
 
   if (!report.content) {
     return (
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 h-full">
+      <div className="w-full h-full bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900">Report Viewer</h2>
           <button
@@ -704,7 +773,7 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-6 text-center">
+        <div className="flex-1 flex items-center justify-center p-6">
           <p className="text-gray-500">No content available for this report.</p>
         </div>
       </div>
@@ -712,7 +781,7 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg border border-gray-200 h-full flex flex-col">
+    <div className="w-full h-full bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div>
@@ -721,7 +790,8 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
         </div>
         <button
           onClick={onClose}
-          className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+          className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+          title="Close report viewer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -739,7 +809,7 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
       {/* Summary */}
       <div className="p-4 bg-gray-50 border-b border-gray-200">
         <h3 className="font-medium text-gray-900 mb-2">Entity Categories Summary</h3>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 text-sm mb-3">
           <div>
             <span className="text-gray-600">Found Entities:</span>{' '}
             <span className="font-medium">
@@ -752,28 +822,26 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
               {Object.values(organizedNotFound).reduce((sum, entities) => sum + entities.length, 0)}
             </span>
           </div>
-          <div className="col-span-2">
-            <div className="space-y-1">
-              {availableCategories.map(category => {
-                const foundCount = organizedEntities[category]?.length || 0;
-                const notFoundCount = organizedNotFound[category]?.length || 0;
-                return (
-                  <div key={category} className="flex justify-between">
-                    <span className="text-gray-600">{category}:</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-medium text-green-600">{foundCount}</span>
-                      {notFoundCount > 0 && (
-                        <>
-                          <span className="text-gray-400">|</span>
-                          <span className="font-medium text-orange-600">{notFoundCount}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+          {availableCategories.map(category => {
+            const foundCount = organizedEntities[category]?.length || 0;
+            const notFoundCount = organizedNotFound[category]?.length || 0;
+            return (
+              <div key={category} className="flex justify-between">
+                <span className="text-gray-600 truncate mr-2">{category}:</span>
+                <div className="flex items-center space-x-2 flex-shrink-0">
+                  <span className="font-medium text-green-600">{foundCount}</span>
+                  {notFoundCount > 0 && (
+                    <>
+                      <span className="text-gray-400">|</span>
+                      <span className="font-medium text-orange-600">{notFoundCount}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

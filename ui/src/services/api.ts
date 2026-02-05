@@ -506,7 +506,7 @@ class ApiService {
     try {
       // Import the PDF generator dynamically to avoid loading issues
       const { generateMedicalReportPDF } = await import('./pdfGenerator');
-      const pdfBlob = generateMedicalReportPDF(data);
+      const pdfBlob = await generateMedicalReportPDF(data);
       this.downloadBlob(pdfBlob, filename);
     } catch (error) {
       console.error('Error generating PDF:', error);

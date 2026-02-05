@@ -14,15 +14,37 @@ class MedicalPDFGenerator {
   private pageHeight: number;
   private margins = { top: 30, right: 15, bottom: 30, left: 15 };
   private currentY: number = 0;
+  private mongoDBLogoBase64: string | null = null;
   private readonly colors = {
-    primary: '#2563eb',    // Blue-600
-    secondary: '#64748b',  // Slate-500
-    success: '#16a34a',    // Green-600
-    warning: '#d97706',    // Amber-600
-    danger: '#dc2626',     // Red-600
-    light: '#f8fafc',      // Slate-50
-    dark: '#1e293b',       // Slate-800
-    border: '#e2e8f0'      // Slate-200
+    // MongoDB Primary Colors
+    primary: '#10AA50',    // MongoDB Green
+    mongodbGreen: '#10AA50', // MongoDB Green (alias for primary)
+    forestGreen: '#116149', // Forest Green
+    white: '#FFFFFF',      // White
+    
+    // MongoDB Neutrals
+    gray95: '#F9F9F9',     // Gray 95
+    gray90: '#F3F3F3',     // Gray 90
+    gray60: '#6F787F',     // Gray 60
+    gray45: '#4F555A',     // Gray 45
+    gray30: '#3B4147',     // Gray 30
+    gray15: '#232A2F',     // Gray 15
+    black: '#000000',      // Black
+    
+    // MongoDB Supporting Colors
+    skyBlue: '#43B1E5',    // Sky Blue
+    sunYellow: '#FEF01B',  // Sun Yellow
+    softPurple: '#866CC7', // Soft Purple
+    peachOrange: '#F77B78', // Peach Orange
+    
+    // Legacy color mappings for compatibility
+    secondary: '#6F787F',  // Gray 60
+    success: '#10AA50',    // MongoDB Green
+    warning: '#FEF01B',    // Sun Yellow
+    danger: '#F77B78',     // Peach Orange
+    light: '#F9F9F9',      // Gray 95
+    dark: '#232A2F',       // Gray 15
+    border: '#F3F3F3'      // Gray 90
   };
 
   // Entity ordering based on medical importance
@@ -103,6 +125,8 @@ class MedicalPDFGenerator {
     this.pageHeight = this.doc.internal.pageSize.getHeight();
     this.currentY = this.margins.top;
     
+    this.loadMongoDBLogo();
+    
     // Configure PDF for proper UTF-8 support
     try {
       // Set default font to support French characters
@@ -120,7 +144,33 @@ class MedicalPDFGenerator {
     }
   }
 
-  public generateReportPDF(report: Report): Blob {
+  private async loadMongoDBLogo(): Promise<void> {
+    try {
+      const response = await fetch('/mongodb_logo.png');
+      if (!response.ok) {
+        throw new Error(`Logo fetch failed (${response.status})`);
+      }
+
+      const blob = await response.blob();
+      this.mongoDBLogoBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Failed to read MongoDB logo'));
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.warn('Failed to load MongoDB logo:', error);
+      this.mongoDBLogoBase64 = null;
+    }
+  }
+
+  public async generateReportPDF(report: Report): Promise<Blob> {
+    // Ensure logo is loaded before generating PDF
+    if (!this.mongoDBLogoBase64) {
+      await this.loadMongoDBLogo();
+    }
+
     this.addHeader(report);
     this.addReportSummary(report);
     
@@ -202,6 +252,18 @@ class MedicalPDFGenerator {
     fixed = fixed.replace(/â€"/g, '—'); // em dash
     
     return fixed;
+  }
+
+  private addLogoFallback(): void {
+    // MongoDB-styled fallback logo
+    this.doc.setFillColor(this.colors.primary);
+    this.doc.ellipse(25, 19, 3, 4, 'F');
+    this.doc.setFillColor(this.colors.white);
+    this.doc.ellipse(25, 19, 0.3, 3, 'F');
+    this.doc.setTextColor(this.colors.white);
+    this.doc.setFontSize(7);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text('MongoDB', 32, 22);
   }
 
   // Convert markdown formatting to plain text suitable for PDF
@@ -301,56 +363,62 @@ class MedicalPDFGenerator {
   }
 
   private addHeader(report: Report): void {
-    const headerHeight = 60; // Further increased height to prevent overlap
-    
-    // Header background
-    this.doc.setFillColor(this.colors.primary);
+    const headerHeight = 60;
+
+    this.doc.setFillColor(this.colors.white);
     this.doc.rect(0, 0, this.pageWidth, headerHeight, 'F');
-    
-    // Logo placeholder (you can replace with actual logo)
-    this.doc.setFillColor('#ffffff');
-    this.doc.circle(25, 25, 8, 'F');
-    this.doc.setTextColor('#2563eb');
-    this.doc.setFontSize(12);
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.text('GR', 22, 28);
-    
-    // Institution name at the top
-    this.doc.setTextColor('#ffffff');
-    this.doc.setFontSize(11);
-    this.doc.setFont('helvetica', 'normal');
-    this.doc.text('MongoDB Healthcare', 45, 18);
-    
-    // Main title - positioned below institution name
-    this.doc.setTextColor('#ffffff');
-    this.doc.setFontSize(16); // Slightly smaller to fit better
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.text('MDT REPORT', 45, 30);
-    
-    // Status badge - positioned at top right with more space
-    const statusColor = report.status === 'COMPLETED' ? this.colors.success : 
-                       report.status === 'PROCESSING' ? this.colors.warning : this.colors.danger;
-    const statusText = this.cleanText(report.status);
-    const statusWidth = Math.max(30, this.doc.getTextWidth(statusText) + 8); // Dynamic width
-    
-    this.doc.setFillColor(statusColor);
-    this.doc.roundedRect(this.pageWidth - statusWidth - 10, 10, statusWidth, 10, 2, 2, 'F');
-    this.doc.setTextColor('#ffffff');
-    this.doc.setFontSize(9);
-    this.doc.setFont('helvetica', 'bold');
-    
-    // Center the status text in the badge
-    const statusX = this.pageWidth - statusWidth - 10 + statusWidth/2 - this.doc.getTextWidth(statusText)/2;
-    this.doc.text(statusText, statusX, 17);
-    
-    // Patient info in header - well separated from title and status
-    this.doc.setTextColor('#ffffff');
+
+    this.doc.setFillColor(this.colors.gray95);
+    this.doc.rect(0, headerHeight - 12, this.pageWidth, 12, 'F');
+
+    const logoX = 10;
+    const logoY = 14;
+    if (this.mongoDBLogoBase64) {
+      try {
+        this.doc.addImage(this.mongoDBLogoBase64, 'PNG', logoX, logoY - 4, 45, 12);
+      } catch (error) {
+        this.addLogoFallback();
+      }
+    } else {
+      this.addLogoFallback();
+    }
+
+    const textStartX = 60;
+
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text(`Patient: ${this.cleanText(report.patient_id)}`, 45, 42);
-    this.doc.text(`Generated on: ${new Date(report.created_at).toLocaleDateString('en-US')}`, 45, 52);
-    
-    this.currentY = headerHeight + 15; // Proper spacing after header
+    this.doc.setTextColor(this.colors.forestGreen);
+    this.doc.text('MongoDB Healthcare Analytics', textStartX, 18);
+
+    this.doc.setFontSize(16);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text('Clinical Assessment Report', textStartX, 30);
+
+    this.doc.setFontSize(10);
+    this.doc.setFont('helvetica', 'normal');
+    this.doc.setTextColor(this.colors.forestGreen);
+    this.doc.text('Multidisciplinary Team Review', textStartX, 40);
+
+    const statusColor = report.status === 'COMPLETED' ? this.colors.mongodbGreen :
+                        report.status === 'PROCESSING' ? this.colors.sunYellow : this.colors.peachOrange;
+    const statusText = this.cleanText(report.status);
+    const statusWidth = Math.max(36, this.doc.getTextWidth(statusText) + 10);
+
+    this.doc.setFillColor(statusColor);
+    this.doc.roundedRect(this.pageWidth - statusWidth - 15, 16, statusWidth, 12, 2, 2, 'F');
+    this.doc.setTextColor(this.colors.black);
+    this.doc.setFontSize(9);
+    this.doc.setFont('helvetica', 'bold');
+    const statusX = this.pageWidth - statusWidth - 15 + statusWidth / 2 - this.doc.getTextWidth(statusText) / 2;
+    this.doc.text(statusText, statusX, 24);
+
+    this.doc.setTextColor(this.colors.gray30);
+    this.doc.setFontSize(9);
+    this.doc.setFont('helvetica', 'normal');
+    this.doc.text(`Patient: ${this.cleanText(report.patient_id)}`, textStartX, 54);
+    this.doc.text(`Generated: ${new Date(report.created_at).toLocaleDateString('en-US')}`, this.pageWidth - 15, 54, { align: 'right' });
+
+    this.currentY = headerHeight + 8;
   }
 
   private addReportSummary(report: Report): void {
@@ -1081,9 +1149,9 @@ class MedicalPDFGenerator {
 }
 
 // Export function for easy usage
-export const generateMedicalReportPDF = (report: Report): Blob => {
+export const generateMedicalReportPDF = async (report: Report): Promise<Blob> => {
   const generator = new MedicalPDFGenerator();
-  return generator.generateReportPDF(report);
+  return await generator.generateReportPDF(report);
 };
 
 export default MedicalPDFGenerator;
