@@ -114,7 +114,7 @@ class PatientIdExtractionService:
             import re
             
             # Check which LLM provider to use (same as entity_extraction_service.py)
-            provider = os.environ.get("LLM_PROVIDER", "").lower()
+            provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
             
             # Create extraction prompt
             prompt = f"""Extract the patient ID (NumdosGR) from this medical document.
@@ -137,7 +137,17 @@ Return ONLY the JSON, no explanation."""
             system_prompt = "You are a medical data extraction specialist. Extract entities precisely as instructed."
             
             # Use the same LLM provider as entity extraction
-            if provider == "mistral":
+            if provider == "bedrock":
+                logger.info("Using AWS Bedrock client for patient ID extraction")
+                from infrastructure.llm.bedrock_client import AsyncBedrockClient
+                
+                async with AsyncBedrockClient() as bedrock_client:
+                    response = await bedrock_client.invoke_bedrock_async_robust(
+                        system_prompt,
+                        prompt,
+                        timeout_override=120,
+                    )
+            elif provider == "mistral":
                 logger.info("Using Mistral client for patient ID extraction")
                 # Use Mistral official client (same as entity extraction)
                 from infrastructure.llm.mistral_client import AsyncMistralClient
@@ -188,7 +198,7 @@ Return ONLY the JSON, no explanation."""
                         "confidence": "high",
                         "success": True,
                         "metadata": {
-                            "extraction_method": f"llm_{provider or 'default'}",
+                            "extraction_method": f"llm_{provider or 'bedrock'}",
                             "entity": "NumdosGR",
                             "timestamp": datetime.now().isoformat()
                         }

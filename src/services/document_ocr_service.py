@@ -2,7 +2,7 @@
 Document OCR Service
 
 Handles Optical Character Recognition (OCR) for various document formats
-using Mistral AI Document processing capabilities.
+using AWS hybrid approach (Textract + Bedrock).
 
 This service orchestrates text extraction from various document formats,
 delegating specific processing to specialized components.
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class DocumentOCRService:
     """
-    Service for performing OCR on documents using Mistral AI.
+    Service for performing OCR on documents using AWS hybrid approach (Textract + Bedrock).
     
     This service orchestrates the text extraction process by:
     1. Validating file formats and existence

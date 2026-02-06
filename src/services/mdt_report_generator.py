@@ -43,11 +43,28 @@ def _resolve_current_llm_model() -> str:
   """Resolve the current LLM model as selected via the settings API/UI.
 
   Priority:
-  1) Explicit environment variable LLM_MODEL (set by settings_controller)
-  2) app_settings.gpt_open_model (OpenAI/Ollama path)
-  3) app_settings.mistral_model (Mistral path)
-  4) ner_settings.mistral_model (legacy fallback)
+  1) If LLM_PROVIDER=bedrock, return Bedrock model name
+  2) Explicit environment variable LLM_MODEL (set by settings_controller)
+  3) app_settings.gpt_open_model (OpenAI/Ollama path)
+  4) app_settings.mistral_model (Mistral path)
+  5) ner_settings.mistral_model (legacy fallback)
   """
+  # Check if we're using Bedrock provider
+  llm_provider = os.environ.get("LLM_PROVIDER", "").lower()
+  if llm_provider == "bedrock":
+    # Return a user-friendly Bedrock model name
+    from config.bedrock_config import BEDROCK_MODEL
+    
+    # Map technical model IDs to user-friendly names for observability
+    bedrock_model_map = {
+      "anthropic.claude-3-haiku-20240307-v1:0": "Claude 3 Haiku (Bedrock)",
+      "anthropic.claude-3-sonnet-20240229-v1:0": "Claude 3 Sonnet (Bedrock)",
+      "anthropic.claude-3-opus-20240229-v1:0": "Claude 3 Opus (Bedrock)"
+    }
+    
+    return bedrock_model_map.get(BEDROCK_MODEL, f"AWS Bedrock ({BEDROCK_MODEL})")
+  
+  # Original logic for non-Bedrock providers
   return (
     os.environ.get("LLM_MODEL")
     or getattr(app_settings, "gpt_open_model", None)

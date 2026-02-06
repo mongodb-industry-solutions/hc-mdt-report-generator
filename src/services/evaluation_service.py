@@ -373,6 +373,26 @@ Respond with JSON only: {{"EntityName": 0.85, ...}}"""
             logger.warning(f"Unknown provider '{provider}', falling back to gpt_open")
             return await self._call_gpt_open(prompt, system_prompt)
     
+    async def _call_bedrock(self, prompt: str, system_prompt: str) -> str:
+        """Call AWS Bedrock for LLM scoring."""
+        try:
+            from infrastructure.llm.bedrock_client import AsyncBedrockClient
+            
+            logger.info("Using AWS Bedrock for evaluation semantic scoring")
+            
+            async with AsyncBedrockClient() as bedrock_client:
+                response = await bedrock_client.invoke_bedrock_async_robust(
+                    system_prompt,
+                    prompt,
+                    timeout_override=60  # 1 minute timeout for scoring
+                )
+            return response
+            
+        except Exception as e:
+            logger.error(f"Bedrock API call failed: {e}")
+            logger.warning("Falling back to gpt_open")
+            return await self._call_gpt_open(prompt, system_prompt)
+    
     async def _call_mistral(self, prompt: str, system_prompt: str) -> str:
         """Call Mistral API for LLM scoring."""
         try:

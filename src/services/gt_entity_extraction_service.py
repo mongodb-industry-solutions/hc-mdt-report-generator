@@ -136,20 +136,41 @@ class GTEntityExtractionService:
         if llm_provider:
             provider = llm_provider.lower()
         else:
-            provider = os.environ.get("LLM_PROVIDER", "").lower()
+            provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
         
-        logger.info(f"GT extraction using LLM provider: {provider or 'default (gpt_open/ollama)'}")
+        logger.info(f"GT extraction using LLM provider: {provider}")
         
         # Route based on provider
-        # - "ollama" or empty/gpt_open -> use gpt_open (which routes to Ollama if configured)
-        # - "mistral" -> use Mistral API (requires MISTRAL_MODE=api and MISTRAL_API_KEY)
-        if "ollama" in provider or not provider or "gpt" in provider:
+        if provider == "bedrock":
+            return await self._call_bedrock(prompt, system_prompt)
+        elif "ollama" in provider or "gpt" in provider:
             return await self._call_gpt_open(prompt, system_prompt)
         elif "mistral" in provider:
             return await self._call_mistral(prompt, system_prompt)
         else:
-            # Default to gpt_open for unknown providers
-            logger.warning(f"Unknown provider '{provider}', falling back to gpt_open")
+            # Default to bedrock for unknown providers
+            logger.warning(f"Unknown provider '{provider}', falling back to bedrock")
+            return await self._call_bedrock(prompt, system_prompt)
+    
+    async def _call_bedrock(self, prompt: str, system_prompt: str) -> str:
+        """Call AWS Bedrock for extraction."""
+        try:
+            from infrastructure.llm.bedrock_client import AsyncBedrockClient
+            
+            logger.info("Using AWS Bedrock for GT entity extraction")
+            
+            async with AsyncBedrockClient() as bedrock_client:
+                response = await bedrock_client.invoke_bedrock_async_robust(
+                    system_prompt,
+                    prompt,
+                    timeout_override=120  # 2 minute timeout for extraction
+                )
+            return response
+            
+        except Exception as e:
+            logger.error(f"Bedrock API call failed: {e}")
+            # Fallback to gpt_open
+            logger.warning("Falling back to gpt_open")
             return await self._call_gpt_open(prompt, system_prompt)
     
     async def _call_mistral(self, prompt: str, system_prompt: str) -> str:

@@ -72,35 +72,34 @@ class DocumentChunkingService:
         Returns:
             List of DocumentChunk objects with semantic understanding
         """
+        # Check if chunking is needed for this document
+        if not self._needs_chunking(text, max_chunk_size):
+            logger.info(f"Document is short ({len(text)} chars), skipping chunking")
+            return [DocumentChunk(
+                content=text.strip(),
+                category="document",
+                page_id=0,
+                section_id=0,
+                merge=False
+            )]
+        
+        # First split into basic chunks by size
+        basic_chunks = self._chunk_text_by_size(text, max_chunk_size, overlap)
+        logger.info(f"Split text into {len(basic_chunks)} basic chunks")
+        
+        # Check if Mistral chunking is enabled
+        if not self.use_mistral_chunking:
+            logger.info("Mistral chunking disabled, using simple chunking")
+            return self._simple_chunk_fallback(text, max_chunk_size, overlap)
+        
+        # Initialize Mistral client if needed
+        if not self.mistral_client:
+            await self.initialize()
+        
         try:
-            # Check if chunking is needed for this document
-            if not self._needs_chunking(text, max_chunk_size):
-                logger.info(f"Document is short ({len(text)} chars), skipping chunking")
-                return [DocumentChunk(
-                    content=text.strip(),
-                    category="document",
-                    page_id=0,
-                    section_id=0,
-                    merge=False
-                )]
-            
-            # First split into basic chunks by size
-            basic_chunks = self._chunk_text_by_size(text, max_chunk_size, overlap)
-            logger.info(f"Split text into {len(basic_chunks)} basic chunks")
-            
-            # Check if Mistral chunking is enabled
-            if not self.use_mistral_chunking:
-                logger.info("Mistral chunking disabled, using simple chunking")
-                return self._simple_chunk_fallback(text, max_chunk_size, overlap)
-            
-            # Initialize Mistral client if needed
-            if not self.mistral_client:
-                await self.initialize()
-            
-        # Try to process with LLM for semantic understanding
-        logger.info("Attempting LLM-based chunking...")
+            # Try to process with LLM for semantic understanding
+            logger.info("Attempting LLM-based chunking...")
             return await self._process_chunks_with_mistral(basic_chunks)
-            
         except Exception as e:
             logger.warning(f"Mistral chunking failed: {e}. Falling back to simple chunking.")
             # Fallback to simple chunking without AI
@@ -131,9 +130,9 @@ class DocumentChunkingService:
                 prompt = self._build_chunking_prompt(previous_chunk_xml, chunk_text)
                 logger.debug(f"Built prompt for chunk {i+1}, total prompt length: {len(prompt)}")
                 
-            # Get semantic chunking via unified LLM
-            logger.info(f"Calling LLM for chunk {i+1}...")
-            mistral_response = await self._invoke_mistral(prompt)
+                # Get semantic chunking via unified LLM
+                logger.info(f"Calling LLM for chunk {i+1}...")
+                mistral_response = await self._invoke_mistral(prompt)
                 logger.info(f"Received response for chunk {i+1}")
                 
                 # ADD DEBUG: Check if model responded
@@ -158,7 +157,7 @@ class DocumentChunkingService:
                 
                 # If no chunks were parsed, create a simple one
                 if not chunk_objects:
-            logger.warning(f"No chunks parsed from LLM response for chunk {i+1}")
+                    logger.warning(f"No chunks parsed from LLM response for chunk {i+1}")
                     chunk_obj = DocumentChunk(
                         content=chunk_text.strip(),
                         category="unknown",
@@ -187,7 +186,7 @@ class DocumentChunkingService:
                     previous_chunk_xml = self._chunk_to_xml(chunk_objects[-1])
                     
             except Exception as e:
-            logger.warning(f"Error processing chunk {i+1} with LLM: {e}")
+                logger.warning(f"Error processing chunk {i+1} with LLM: {e}")
                 # Fallback to simple chunk for this iteration
                 chunk_obj = DocumentChunk(
                     content=chunk_text.strip(),
@@ -250,15 +249,33 @@ class DocumentChunkingService:
     
     async def _invoke_mistral(self, prompt: str) -> str:
         """Call unified LLM for chunking (no timeout/retry)"""
+        import os
+        provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
+        
         try:
-            logger.info(f"Calling LLM with prompt length: {len(prompt)}")
-            content = await a_generate(
-                prompt=prompt,
-                system=self.system_prompt,
-                max_tokens=4000,
-                temperature=0.1,
-                provider="gpt_open",
-            )
+            logger.info(f"Calling LLM ({provider}) with prompt length: {len(prompt)}")
+            
+            if provider == "bedrock":
+                logger.info("Using Bedrock client for document chunking")
+                from infrastructure.llm.bedrock_client import AsyncBedrockClient
+                
+                async with AsyncBedrockClient() as bedrock_client:
+                    content = await bedrock_client.invoke_bedrock_async_robust(
+                        self.system_prompt,
+                        prompt,
+                        timeout_override=120,
+                    )
+            else:
+                # Fallback to GPT-Open for backward compatibility
+                logger.info(f"Using {provider} provider for document chunking")
+                content = await a_generate(
+                    prompt=prompt,
+                    system=self.system_prompt,
+                    max_tokens=4000,
+                    temperature=0.1,
+                    provider="gpt_open",
+                )
+            
             logger.info(f"LLM response received, length: {len(content) if content else 0}")
             return content
         except Exception as e:

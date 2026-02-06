@@ -231,6 +231,49 @@ async def startup_validation():
         except Exception as e:
             logger.error(f"⚠️  JWT blacklist loading failed: {e}")
         
+        # Debug LLM Provider Configuration
+        logger.info("🔍 Checking LLM Provider Configuration...")
+        llm_provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
+        logger.info(f"🤖 LLM Provider: {llm_provider} (default: bedrock)")
+        
+        # Validate Bedrock configuration if it's the provider
+        if llm_provider == "bedrock":
+            try:
+                from config.bedrock_config import get_current_region, get_current_model, is_bedrock_available
+                region = get_current_region()
+                model = get_current_model()
+                available = is_bedrock_available()
+                
+                logger.info(f"🌎 Bedrock Region: {region}")
+                logger.info(f"🧠 Bedrock Model: {model}")
+                logger.info(f"🔗 Bedrock Available: {available}")
+                
+                if available:
+                    # Test quick Bedrock connection
+                    from infrastructure.llm.bedrock_client import AsyncBedrockClient
+                    async with AsyncBedrockClient() as client:
+                        test_response = await client.invoke_bedrock_async_robust(
+                            "You are a test assistant.", 
+                            "Respond with exactly: 'Bedrock OK'", 
+                            timeout_override=10
+                        )
+                        if "Bedrock OK" in test_response or "OK" in test_response:
+                            logger.info("✅ Bedrock connection test PASSED")
+                        else:
+                            logger.info(f"⚠️ Bedrock responded but unexpected: {test_response[:50]}")
+                else:
+                    logger.error("❌ Bedrock not available - check AWS credentials")
+                    
+            except Exception as e:
+                logger.error(f"❌ Bedrock configuration failed: {e}")
+                logger.error("❌ Entity extraction may not work properly")
+        elif llm_provider == "mistral":
+            logger.info("🤖 Using Mistral provider (legacy)")
+        elif llm_provider in ["openai", "gpt_open", ""]:
+            logger.info("🤖 Using GPT-Open compatible provider")
+        else:
+            logger.warning(f"⚠️ Unknown LLM provider: {llm_provider}")
+        
         # Initialize LLM clients for model warmup
         try:
       
