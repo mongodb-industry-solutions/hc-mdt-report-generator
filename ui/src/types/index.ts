@@ -78,7 +78,7 @@ export interface ReportEntity {
       title?: string;
       display_name?: string;
     }>;
-    // Documents mobilisés - list of documents used for extraction
+    // Documents in use - list of Documents in use for extraction
     documents_mobilises?: Array<{
       date: string;
       libnatcr: string;
@@ -236,50 +236,7 @@ export interface ReportGenerationProgress {
   stage_detail?: string; // More specific info about current stage
 }
 
-// Intelligent Assistant Types
-export interface ChatMessage {
-  id: string;
-  type: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  metadata?: {
-    queryType?: 'patient_search' | 'comparative_analysis' | 'trend_analysis' | 'general';
-    processingTime?: number;
-    resultCount?: number;
-  };
-}
 
-export interface AssistantConversation {
-  id: string;
-  title: string;
-  messages: ChatMessage[];
-  created_at: Date;
-  updated_at: Date;
-  metadata?: {
-    totalMessages: number;
-    queryTypes: string[];
-  };
-}
-
-export interface SuggestedQuery {
-  id: string;
-  category: 'find_similar' | 'compare_treatments' | 'analyze_outcomes' | 'clinical_patterns';
-  title: string;
-  description: string;
-  query: string;
-  icon?: string;
-}
-
-export interface AssistantResponse {
-  message: string;
-  type: 'text' | 'patient_list' | 'analysis' | 'chart' | 'error';
-  data?: any;
-  metadata?: {
-    processingTime: number;
-    resultCount?: number;
-    queryType: string;
-  };
-}
 
 export interface LLMModel {
   id: string;

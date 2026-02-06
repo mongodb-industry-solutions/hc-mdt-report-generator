@@ -41,7 +41,7 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onAccept, onR
               id="acknowledge"
               checked={acknowledgeChecked}
               onChange={(e) => setAcknowledgeChecked(e.target.checked)}
-              className="mt-0.5 w-4 h-4 text-medical-600 border-gray-300 rounded focus:ring-medical-500"
+              className="mt-0.5 w-4 h-4 text-navy-700 border-gray-300 rounded focus:ring-navy-500"
             />
             <label htmlFor="acknowledge" className="text-sm text-gray-800">
               {t.disclaimer.modalShort.checkbox}
@@ -61,7 +61,7 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onAccept, onR
             disabled={!acknowledgeChecked}
             className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
               acknowledgeChecked
-                ? 'bg-medical-600 text-white hover:bg-medical-700'
+                ? 'bg-navy-700 text-white hover:bg-navy-800'
                 : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >

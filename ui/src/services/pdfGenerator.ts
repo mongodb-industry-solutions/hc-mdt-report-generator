@@ -14,80 +14,109 @@ class MedicalPDFGenerator {
   private pageHeight: number;
   private margins = { top: 30, right: 15, bottom: 30, left: 15 };
   private currentY: number = 0;
+  private mongoDBLogoBase64: string | null = null;
   private readonly colors = {
-    primary: '#2563eb',    // Blue-600
-    secondary: '#64748b',  // Slate-500
-    success: '#16a34a',    // Green-600
-    warning: '#d97706',    // Amber-600
-    danger: '#dc2626',     // Red-600
-    light: '#f8fafc',      // Slate-50
-    dark: '#1e293b',       // Slate-800
-    border: '#e2e8f0'      // Slate-200
+    // MongoDB Primary Colors
+    primary: '#10AA50',    // MongoDB Green
+    mongodbGreen: '#10AA50', // MongoDB Green (alias for primary)
+    forestGreen: '#116149', // Forest Green
+    white: '#FFFFFF',      // White
+    
+    // MongoDB Neutrals
+    gray95: '#F9F9F9',     // Gray 95
+    gray90: '#F3F3F3',     // Gray 90
+    gray60: '#6F787F',     // Gray 60
+    gray45: '#4F555A',     // Gray 45
+    gray30: '#3B4147',     // Gray 30
+    gray15: '#232A2F',     // Gray 15
+    black: '#000000',      // Black
+    
+    // MongoDB Supporting Colors
+    skyBlue: '#43B1E5',    // Sky Blue
+    sunYellow: '#FEF01B',  // Sun Yellow
+    softPurple: '#866CC7', // Soft Purple
+    peachOrange: '#F77B78', // Peach Orange
+    
+    // Legacy color mappings for compatibility
+    secondary: '#6F787F',  // Gray 60
+    success: '#10AA50',    // MongoDB Green
+    warning: '#FEF01B',    // Sun Yellow
+    danger: '#F77B78',     // Peach Orange
+    light: '#F9F9F9',      // Gray 95
+    dark: '#232A2F',       // Gray 15
+    border: '#F3F3F3'      // Gray 90
   };
 
   // Entity ordering based on medical importance
   private readonly entityOrder = [
-    "NumdosGR",
-    "Nom de naissance",
-    "Prénom", 
-    "Sexe",
-    "Date de naissance",
-    "Antécédents familiaux",
-    "Adresse postale",
-    "Adresse électronique",
-    "Hôpital",
-    "Antécédents",
-    "Diagnostiqué le",
-    "Date de diagnostic",
-    "Localisation",
-    "Chimiothérapie(s) réalisée(s)",
-    "Type histologique",
-    "Radiothérapie réalisée",
-    "Métastases à distance",
-    "Chirurgie(s) réalisée(s)",
-    "État général (OMS)",
-    "Score G8",
-    "Antécédents personnels notables",
-    "Site demandeur",
-    "Spécialité(s) Sollicitée",
-    "Localisations du cancer",
-    "Commentaire tumeur primitive",
-    "Anomalie moléculaire",
-    "Métastatique",
-    "Site métastatique",
-    "CIM-O-3",
-    "Date de présentation",
-    "Motifs de présentation",
-    "Question posée à la RCP",
-    "Proposition de la RCP",
-    "Thérapie innovante",
-    "Traitement hors AMM",
-    "Inclusion dans un essai thérapeutique",
-    "Demande complément d'examen complémentaire",
+    "GRNumdos",
+    "Birth Name",
+    "First Name", 
+    "Gender",
+    "Date of Birth",
+    "Family History",
+    "Postal Address",
+    "Email Address",
+    "Hospital",
+    "Medical History",
+    "Diagnosed on",
+    "Diagnosis Date",
+    "Location",
+    "Chemotherapy Performed",
+    "Histological Type",
+    "Radiotherapy Performed",
+    "Distant Metastases",
+    "Surgery Performed",
+    "General Status (WHO)",
+    "G8 Score",
+    "Notable Personal History",
+    "Referring Site",
+    "Specialty Requested",
+    "Cancer Locations",
+    "Primary Tumor Comment",
+    "Molecular Abnormality",
+    "Metastatic",
+    "Metastatic Site",
+    "ICD-O-3",
+    "Presentation Date",
+    "Presentation Reasons",
+    "MDT Question",
+    "MDT Recommendation",
+    "Innovative Therapy",
+    "Off-label Treatment",
+    "Inclusion in Therapeutic Trial",
+    "Additional Examination Request",
     "EVASAN"
   ];
 
   // Section ordering for known sections (dynamic sections will be added after these)
   private readonly sectionOrder = [
-    "Informations sur le patient",
-    "Rappel clinique", 
-    "Caractéristiques patients et tumorales",
-    "Motif de présentation",
-    "Proposition DRAFT Système",
-    "Proposition RCP (EXPÉRIMENTAL - Validation médicale requise)"
+    "Patient Information",
+    "Clinical Summary", 
+    "Patient and Tumor Characteristics",
+    "Presentation Reason",
+    "DRAFT System Recommendation",
+    "MDT Recommendation (EXPERIMENTAL - Medical validation required)"
   ];
 
   // Clean section titles mapping (shorten long titles for PDF)
   private readonly cleanSectionTitles: Record<string, string> = {
-    "Informations sur le patient": "Informations sur le patient",
-    "Rappel clinique": "Rappel clinique",
-    "Caractéristiques patients et tumorales": "Caractéristiques patients et tumorales",
-    "Motif de présentation": "Motif de présentation",
-    "Proposition DRAFT Système": "Proposition DRAFT Système",
-    "Proposition RCP (EXPÉRIMENTAL - Validation médicale requise)": "Proposition RCP",
-    "Autres informations": "Autres informations",
-    // Handle legacy misspelling (missing accent)
-    "Caracteristiques patients et tumorales": "Caractéristiques patients et tumorales"
+    "Patient Information": "Patient Information",
+    "Clinical Summary": "Clinical Summary",
+    "Patient and Tumor Characteristics": "Patient & Tumor Characteristics",
+    "Presentation Reason": "Presentation Reason",
+    "DRAFT System Recommendation": "DRAFT System Recommendation",
+    "MDT Recommendation (EXPERIMENTAL - Medical validation required)": "MDT Recommendation",
+    "Other Information": "Other Information",
+    // Handle legacy French titles for backward compatibility
+    "Informations sur le patient": "Patient Information",
+    "Rappel clinique": "Clinical Summary",
+    "Caractéristiques patients et tumorales": "Patient & Tumor Characteristics",
+    "Caracteristiques patients et tumorales": "Patient & Tumor Characteristics", // Handle legacy misspelling
+    "Motif de présentation": "Presentation Reason",
+    "Proposition DRAFT Système": "DRAFT System Recommendation",
+    "Proposition RCP (EXPÉRIMENTAL - Validation médicale requise)": "MDT Recommendation",
+    "Autres informations": "Other Information"
   };
 
   constructor() {
@@ -96,6 +125,8 @@ class MedicalPDFGenerator {
     this.pageHeight = this.doc.internal.pageSize.getHeight();
     this.currentY = this.margins.top;
     
+    this.loadMongoDBLogo();
+    
     // Configure PDF for proper UTF-8 support
     try {
       // Set default font to support French characters
@@ -103,17 +134,43 @@ class MedicalPDFGenerator {
       
       // Set document properties for proper encoding
       this.doc.setProperties({
-        title: 'Rapport MDT',
-        subject: 'Rapport de Réunion de Concertation Pluridisciplinaire',
-        author: 'Institut Gustave Roussy',
-        creator: 'Système MDT'
+        title: 'MDT Report',
+        subject: 'Multidisciplinary Team Meeting Report',
+        author: 'MongoDB Healthcare',
+        creator: 'MDT System'
       });
     } catch (error) {
       console.warn('PDF configuration warning:', error);
     }
   }
 
-  public generateReportPDF(report: Report): Blob {
+  private async loadMongoDBLogo(): Promise<void> {
+    try {
+      const response = await fetch('/mongodb_logo.png');
+      if (!response.ok) {
+        throw new Error(`Logo fetch failed (${response.status})`);
+      }
+
+      const blob = await response.blob();
+      this.mongoDBLogoBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Failed to read MongoDB logo'));
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.warn('Failed to load MongoDB logo:', error);
+      this.mongoDBLogoBase64 = null;
+    }
+  }
+
+  public async generateReportPDF(report: Report): Promise<Blob> {
+    // Ensure logo is loaded before generating PDF
+    if (!this.mongoDBLogoBase64) {
+      await this.loadMongoDBLogo();
+    }
+
     this.addHeader(report);
     this.addReportSummary(report);
     
@@ -195,6 +252,18 @@ class MedicalPDFGenerator {
     fixed = fixed.replace(/â€"/g, '—'); // em dash
     
     return fixed;
+  }
+
+  private addLogoFallback(): void {
+    // MongoDB-styled fallback logo
+    this.doc.setFillColor(this.colors.primary);
+    this.doc.ellipse(25, 19, 3, 4, 'F');
+    this.doc.setFillColor(this.colors.white);
+    this.doc.ellipse(25, 19, 0.3, 3, 'F');
+    this.doc.setTextColor(this.colors.white);
+    this.doc.setFontSize(7);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text('MongoDB', 32, 22);
   }
 
   // Convert markdown formatting to plain text suitable for PDF
@@ -294,63 +363,69 @@ class MedicalPDFGenerator {
   }
 
   private addHeader(report: Report): void {
-    const headerHeight = 60; // Further increased height to prevent overlap
-    
-    // Header background
-    this.doc.setFillColor(this.colors.primary);
+    const headerHeight = 60;
+
+    this.doc.setFillColor(this.colors.white);
     this.doc.rect(0, 0, this.pageWidth, headerHeight, 'F');
-    
-    // Logo placeholder (you can replace with actual logo)
-    this.doc.setFillColor('#ffffff');
-    this.doc.circle(25, 25, 8, 'F');
-    this.doc.setTextColor('#2563eb');
-    this.doc.setFontSize(12);
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.text('GR', 22, 28);
-    
-    // Institution name at the top
-    this.doc.setTextColor('#ffffff');
-    this.doc.setFontSize(11);
-    this.doc.setFont('helvetica', 'normal');
-    this.doc.text('Institut Gustave Roussy', 45, 18);
-    
-    // Main title - positioned below institution name
-    this.doc.setTextColor('#ffffff');
-    this.doc.setFontSize(16); // Slightly smaller to fit better
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.text('RAPPORT DE RCP', 45, 30);
-    
-    // Status badge - positioned at top right with more space
-    const statusColor = report.status === 'COMPLETED' ? this.colors.success : 
-                       report.status === 'PROCESSING' ? this.colors.warning : this.colors.danger;
-    const statusText = this.cleanText(report.status);
-    const statusWidth = Math.max(30, this.doc.getTextWidth(statusText) + 8); // Dynamic width
-    
-    this.doc.setFillColor(statusColor);
-    this.doc.roundedRect(this.pageWidth - statusWidth - 10, 10, statusWidth, 10, 2, 2, 'F');
-    this.doc.setTextColor('#ffffff');
-    this.doc.setFontSize(9);
-    this.doc.setFont('helvetica', 'bold');
-    
-    // Center the status text in the badge
-    const statusX = this.pageWidth - statusWidth - 10 + statusWidth/2 - this.doc.getTextWidth(statusText)/2;
-    this.doc.text(statusText, statusX, 17);
-    
-    // Patient info in header - well separated from title and status
-    this.doc.setTextColor('#ffffff');
+
+    this.doc.setFillColor(this.colors.gray95);
+    this.doc.rect(0, headerHeight - 12, this.pageWidth, 12, 'F');
+
+    const logoX = 10;
+    const logoY = 14;
+    if (this.mongoDBLogoBase64) {
+      try {
+        this.doc.addImage(this.mongoDBLogoBase64, 'PNG', logoX, logoY - 4, 45, 12);
+      } catch (error) {
+        this.addLogoFallback();
+      }
+    } else {
+      this.addLogoFallback();
+    }
+
+    const textStartX = 60;
+
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text(`Patient: ${this.cleanText(report.patient_id)}`, 45, 42);
-    this.doc.text(`Généré le: ${new Date(report.created_at).toLocaleDateString('fr-FR')}`, 45, 52);
-    
-    this.currentY = headerHeight + 15; // Proper spacing after header
+    this.doc.setTextColor(this.colors.forestGreen);
+    this.doc.text('MongoDB Healthcare Analytics', textStartX, 18);
+
+    this.doc.setFontSize(16);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text('Clinical Assessment Report', textStartX, 30);
+
+    this.doc.setFontSize(10);
+    this.doc.setFont('helvetica', 'normal');
+    this.doc.setTextColor(this.colors.forestGreen);
+    this.doc.text('Multidisciplinary Team Review', textStartX, 40);
+
+    const statusColor = report.status === 'COMPLETED' ? this.colors.mongodbGreen :
+                        report.status === 'PROCESSING' ? this.colors.sunYellow : this.colors.peachOrange;
+    const statusText = this.cleanText(report.status);
+    const statusWidth = Math.max(36, this.doc.getTextWidth(statusText) + 10);
+
+    this.doc.setFillColor(statusColor);
+    this.doc.roundedRect(this.pageWidth - statusWidth - 15, 16, statusWidth, 12, 2, 2, 'F');
+    this.doc.setTextColor(this.colors.black);
+    this.doc.setFontSize(9);
+    this.doc.setFont('helvetica', 'bold');
+    const statusX = this.pageWidth - statusWidth - 15 + statusWidth / 2 - this.doc.getTextWidth(statusText) / 2;
+    this.doc.text(statusText, statusX, 24);
+
+    this.doc.setTextColor(this.colors.gray30);
+    this.doc.setFontSize(9);
+    this.doc.setFont('helvetica', 'normal');
+    this.doc.text(`Patient: ${this.cleanText(report.patient_id)}`, textStartX, 54);
+    this.doc.text(`Generated: ${new Date(report.created_at).toLocaleDateString('en-US')}`, this.pageWidth - 15, 54, { align: 'right' });
+
+    this.currentY = headerHeight + 8;
   }
 
   private addReportSummary(report: Report): void {
     this.doc.setTextColor(this.colors.dark);
     this.doc.setFontSize(14);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text(this.cleanText('Résumé du Rapport'), this.margins.left, this.currentY);
+    this.doc.text(this.cleanText('Report Summary'), this.margins.left, this.currentY);
     this.currentY += 15; // Increased spacing
     
     // Summary box with dynamic height
@@ -387,12 +462,12 @@ class MedicalPDFGenerator {
     const documentsCount = report.metadata?.total_documents_processed || 0;
     
     return [
-      { label: 'Documents traités', value: documentsCount.toString() },
-      { label: 'Entités extraites', value: entitiesCount.toString() },
+      { label: 'Documents Processed', value: documentsCount.toString() },
+      { label: 'Entities Extracted', value: entitiesCount.toString() },
       { label: 'Taille du fichier', value: this.formatFileSize(report.file_size || 0) },
       { label: 'Mots', value: (report.word_count || 0).toString() },
       { label: 'Version', value: report.metadata?.report_version || 'N/A' },
-      { label: 'Généré le', value: new Date(report.created_at).toLocaleDateString('fr-FR') }
+      { label: 'Generated on', value: new Date(report.created_at).toLocaleDateString('en-US') }
     ];
   }
 
@@ -605,7 +680,7 @@ class MedicalPDFGenerator {
       this.doc.setFontSize(8);
       this.doc.setFont('helvetica', 'italic');
       
-      // Display Documents mobilisés if available (prioritize over sources)
+      // Display Documents in use if available (prioritize over sources)
       if (entity.metadata.documents_mobilises && Array.isArray(entity.metadata.documents_mobilises) && entity.metadata.documents_mobilises.length > 0) {
         const docsMobilises = entity.metadata.documents_mobilises as Array<{
           date: string;
@@ -615,7 +690,7 @@ class MedicalPDFGenerator {
         }>;
         
         // Show header with fallback indicator if applicable
-        let headerText = `Documents mobilisés (${docsMobilises.length}):`;
+        let headerText = `Documents in use (${docsMobilises.length}):`;
         if (entity.metadata.used_fallback) {
           headerText += ` [fallback - ${entity.metadata.fallback_docs_count || '?'} docs]`;
         }
@@ -940,10 +1015,10 @@ class MedicalPDFGenerator {
       this.doc.setFont('helvetica', 'normal');
       
       // Left: Report info
-      this.doc.text(`Rapport MDT - ${report.patient_id}`, this.margins.left, this.pageHeight - 20);
+      this.doc.text(`MDT Report - ${report.patient_id}`, this.margins.left, this.pageHeight - 20);
       
       // Center: Generation date
-      const dateText = `Généré le ${new Date(report.created_at).toLocaleDateString('fr-FR')}`;
+      const dateText = `Generated on ${new Date(report.created_at).toLocaleDateString('en-US')}`;
       const dateWidth = this.doc.getTextWidth(dateText);
       this.doc.text(dateText, (this.pageWidth - dateWidth) / 2, this.pageHeight - 20);
       
@@ -1032,7 +1107,7 @@ class MedicalPDFGenerator {
   }
 
   private addPageDisclaimers(): void {
-    const disclaimerText = 'Généré par IA — usage non clinique.';
+    const disclaimerText = 'Generated by AI — Not for clinical use.';
     const totalPages = this.doc.getNumberOfPages();
     
     for (let i = 1; i <= totalPages; i++) {
@@ -1074,9 +1149,9 @@ class MedicalPDFGenerator {
 }
 
 // Export function for easy usage
-export const generateMedicalReportPDF = (report: Report): Blob => {
+export const generateMedicalReportPDF = async (report: Report): Promise<Blob> => {
   const generator = new MedicalPDFGenerator();
-  return generator.generateReportPDF(report);
+  return await generator.generateReportPDF(report);
 };
 
 export default MedicalPDFGenerator;

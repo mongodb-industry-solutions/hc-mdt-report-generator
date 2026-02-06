@@ -12,7 +12,15 @@ import logging
 from typing import Dict, Any  
 from datetime import datetime  
 
-logger = logging.getLogger(__name__)  
+logger = logging.getLogger(__name__)
+
+# Import the test-en-doc processor for format conversion
+try:
+    from document_extraction.test_en_doc_processor import TestEnDocProcessor
+    TEST_EN_DOC_PROCESSOR_AVAILABLE = True
+except ImportError:
+    TEST_EN_DOC_PROCESSOR_AVAILABLE = False
+    logger.warning("TestEnDocProcessor not available - test-en-doc format auto-conversion disabled")  
 
 
 class DocumentDataExtractionService:  
@@ -70,10 +78,16 @@ class DocumentDataExtractionService:
         
         This is critical for source filtering to work - the lCrs array must be
         preserved so that each lCr can become its own document for filtering.
+        
+        Auto-detects and converts test-en-doc format (DOCUMENTS array) to 
+        platform-compatible lCrs format.
         """
         try:
             # Parse the JSON content
             parsed_json = json.loads(document_text)
+            
+            # Auto-detect and convert test-en-doc format
+            parsed_json = self._auto_convert_test_en_doc_format(parsed_json, source_file)
             
             # Log what we found
             lcrs_count = 0
@@ -131,8 +145,59 @@ class DocumentDataExtractionService:
         
         logger.info(f"Text extraction completed for {source_file} - {len(cleaned_text)} characters")
         return result
-      
-    def _clean_text(self, text: str) -> str:  
+    
+    def _auto_convert_test_en_doc_format(self, parsed_json: Dict[str, Any], source_file: str) -> Dict[str, Any]:
+        """
+        Auto-detect and convert test-en-doc format to platform-compatible lCrs format.
+        
+        Detects documents with DOCUMENTS array (test-en-doc format) and converts them
+        to the expected lCrs format that the platform's MDT system requires.
+        
+        Args:
+            parsed_json: The parsed JSON data
+            source_file: Source filename for logging
+            
+        Returns:
+            Converted JSON data in lCrs format (or original if no conversion needed)
+        """
+        try:
+            # Check if this looks like test-en-doc format
+            has_documents_array = isinstance(parsed_json.get('DOCUMENTS'), list)
+            has_lcrs_array = isinstance(parsed_json.get('lCrs'), list)
+            has_numdos = 'NUMDOS' in parsed_json
+            
+            # If it has DOCUMENTS array but no lCrs, it's likely test-en-doc format
+            if has_documents_array and not has_lcrs_array and TEST_EN_DOC_PROCESSOR_AVAILABLE:
+                logger.info(f"🔧 Auto-converting test-en-doc format for {source_file}...")
+                
+                # Extract patient ID and documents
+                patient_id = parsed_json.get('NUMDOS', 'UNKNOWN')
+                documents = parsed_json.get('DOCUMENTS', [])
+                
+                if documents:
+                    # Initialize processor and convert
+                    processor = TestEnDocProcessor()
+                    converted_data = processor._convert_to_lcrs_format(patient_id, documents)
+                    
+                    logger.info(f"✅ Converted {len(documents)} documents to lCrs format for {source_file}")
+                    logger.info(f"   Patient ID: {patient_id}, lCrs count: {len(converted_data.get('lCrs', []))}")
+                    
+                    return converted_data
+                else:
+                    logger.warning(f"⚠️ test-en-doc format detected but no DOCUMENTS found in {source_file}")
+            
+            elif has_documents_array and not TEST_EN_DOC_PROCESSOR_AVAILABLE:
+                logger.warning(f"⚠️ test-en-doc format detected in {source_file} but converter not available")
+            
+            # Return original data if no conversion needed or possible
+            return parsed_json
+            
+        except Exception as e:
+            logger.error(f"❌ Error during test-en-doc format conversion for {source_file}: {e}")
+            # Return original data on conversion error
+            return parsed_json
+    
+    def _clean_text(self, text: str) -> str:
         """Clean and normalize text content."""  
         if not text:  
             return ""  

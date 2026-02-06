@@ -139,8 +139,8 @@ class SourceFilter:
     
     Attributes:
         libnatcr (str): Required. Report type label from LIBNATCR field.
-                       Examples: "CR Anatomopathologie", "RCP", "CR Radio", 
-                       "CR Consultation", "CR Examen", "CR Opératoire"
+                       Examples: "Pathology Report", "MDT Meeting", "Radiology Report", 
+                       "Consultation Report", "Examination Report", "Operative Report"
                        
         title_keyword (Optional[str]): Optional keyword(s) to match in TITLE field.
                                       Use pipe (|) for OR logic: "NUCLEAIRE|PET"
@@ -160,12 +160,12 @@ class SourceFilter:
                                       If not found, full report text is used.
     
     Example:
-        >>> # Filter for most recent RCP report
-        >>> filter1 = SourceFilter(libnatcr="RCP", depth=1)
+        # Filter for most recent MDT Meeting report
+        >>> filter1 = SourceFilter(libnatcr="MDT Meeting", depth=1)
         
         >>> # Filter for nuclear medicine reports
         >>> filter2 = SourceFilter(
-        ...     libnatcr="CR Examen",
+        ...     libnatcr="Examination Report",
         ...     title_keyword="NUCLEAIRE",
         ...     focus_section="conclusion",
         ...     depth=1
@@ -173,7 +173,7 @@ class SourceFilter:
         
         >>> # Filter for panendoscopy reports (any type)
         >>> filter3 = SourceFilter(
-        ...     libnatcr="CR Opératoire",
+        ...     libnatcr="Operative Report",
         ...     content_keyword="PAN-ENDOSCOPIE|PANENDOSCOPIE",
         ...     depth=0
         ... )
@@ -241,7 +241,7 @@ class EntityDefinition:
         ...     processing_type=ProcessingType.MULTIPLE_MATCH,
         ...     aggregation_instructions="Combine all unique allergens into a list",
         ...     valid_values=["Penicillin", "Aspirin", "Iodine", "Latex", "None known"],
-        ...     source_filters=[SourceFilter(libnatcr="CR Consultation", depth=0)]
+        ...     source_filters=[SourceFilter(libnatcr="Consultation Report", depth=0)]
         ... )
         >>> 
         >>> print(f"Entity: {entity_def.name}")

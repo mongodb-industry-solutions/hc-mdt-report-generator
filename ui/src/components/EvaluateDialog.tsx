@@ -95,7 +95,7 @@ export default function EvaluateDialog({ isOpen, onClose, onCompleted, currentMo
         {progress && (
           <div className="mb-4">
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-medical-600 h-2 rounded-full" style={{ width: `${progress.total ? Math.round((progress.done / progress.total) * 100) : 0}%` }}></div>
+              <div className="bg-navy-700 h-2 rounded-full" style={{ width: `${progress.total ? Math.round((progress.done / progress.total) * 100) : 0}%` }}></div>
             </div>
             <div className="mt-1 text-xs text-gray-600">
               {progress.done}/{progress.total} evaluated

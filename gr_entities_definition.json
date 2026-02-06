@@ -1,338 +1,338 @@
 {  
   "entities": [  
     {  
-      "name": "NumdosGR",  
-      "definition": "Numéro d'identification unique du patient dans le système",  
-      "extraction_instructions": "Extraire le numéro d'identification du patient, généralement composé de chiffres et/ou lettres",  
+      "name": "Patient ID",  
+      "definition": "Unique patient identification number in the system",  
+      "extraction_instructions": "Extract the patient identification number, typically composed of digits and/or letters",  
       "type": "string",  
       "processing_type": "first_match"  
     }, 
     {  
-      "name": "Nom",  
-      "definition": "Nom de famille actuel du patient",  
-      "extraction_instructions": "Extraire le nom de famille du patient tel qu'il apparaît sur le document",  
+      "name": "Last Name",  
+      "definition": "Current family name of the patient",  
+      "extraction_instructions": "Extract the patient's family name as it appears in the document",  
       "type": "string",  
       "processing_type": "first_match"  
     },  
     {  
-      "name": "Nom de naissance",  
-      "definition": "Nom de famille à la naissance du patient, si différent du nom actuel",  
-      "extraction_instructions": "Extraire le nom de naissance du patient s'il est mentionné et différent du nom actuel",  
+      "name": "Maiden Name",  
+      "definition": "Birth family name of the patient, if different from current name",  
+      "extraction_instructions": "Extract the patient's birth name if mentioned and different from current name",  
       "type": "string",  
       "processing_type": "first_match"  
     },  
     {  
-      "name": "Prénom",  
-      "definition": "Prénom(s) du patient",  
-      "extraction_instructions": "Extraire le ou les prénoms du patient tels qu'ils apparaissent sur le document",  
+      "name": "First Name",  
+      "definition": "Given name(s) of the patient",  
+      "extraction_instructions": "Extract the patient's given name(s) as they appear in the document",  
       "type": "string",  
       "processing_type": "first_match"  
     },  
     {  
-      "name": "Sexe",  
-      "definition": "Genre du patient",  
-      "extraction_instructions": "Extraire le sexe du patient: Féminin, Masculin",   
+      "name": "Gender",  
+      "definition": "Patient's gender",  
+      "extraction_instructions": "Extract the patient's gender: Female, Male",   
       "type": "string", 
       "processing_type": "first_match"  
     },  
     {  
-      "name": "Date de naissance",  
-      "definition": "Date de naissance complète du patient",  
-      "extraction_instructions": "Extraire la date de naissance au format Jour/Mois/Année (JJ/MM/AAAA)",  
+      "name": "Date of Birth",  
+      "definition": "Complete birth date of the patient",  
+      "extraction_instructions": "Extract the date of birth in Day/Month/Year format (DD/MM/YYYY) or Month/Day/Year format (MM/DD/YYYY)",  
       "type": "date",  
       "processing_type": "first_match"  
     },   
     {  
-      "name": "Hôpital",  
-      "definition": "Établissement hospitalier de référence",
-      "extraction_instructions": "Extraire le nom de l'hôpital",  
+      "name": "Hospital",  
+      "definition": "Reference healthcare institution",
+      "extraction_instructions": "Extract the name of the hospital or healthcare facility",  
       "type": "enum",  
-      "valid_values": ["Guadeloupe", "Martinique", "Réunion", "Autre"],  
+      "valid_values": ["General Hospital", "University Hospital", "Cancer Center", "Regional Hospital", "Other"],  
       "processing_type": "first_match"  
     },   
     {  
-      "name": "Date de diagnostic",  
-      "definition": "Date de biopsie anatomopathologique - date officielle du diagnostic de cancer",  
-      "extraction_instructions": "Extraire la date de la biopsie anatomopathologique, qui correspond à la date du diagnostic de cancer. Chercher dans les comptes-rendus anatomopathologiques la date de l'examen ou la date de réception de la biopsie. Format: jour/mois/année (JJ/MM/AAAA).",  
+      "name": "Diagnosis Date",  
+      "definition": "Date of anatomopathological biopsy - official cancer diagnosis date",  
+      "extraction_instructions": "Extract the date of anatomopathological biopsy, which corresponds to the official cancer diagnosis date. Look for the examination date or biopsy reception date in pathology reports. Format: day/month/year (DD/MM/YYYY) or month/day/year (MM/DD/YYYY).",  
       "type": "date",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Si plusieurs dates de biopsie sont trouvées, retourner la plus ancienne car elle correspond au diagnostic initial.",
+      "aggregation_instructions": "If multiple biopsy dates are found, return the earliest one as it corresponds to the initial diagnosis.",
       "source_filters": [
         {
-          "libnatcr": "CR Anatomopathologie",
+          "libnatcr": "Pathology Report",
           "depth": 0
         }
       ]
     },
     {  
-      "name": "Localisations du cancer",  
-      "definition": "Localisation anatomique de la tumeur primitive (site primaire du cancer).",  
-      "extraction_instructions": "Extraire la localisation de la tumeur PRIMITIVE ou PRIMAIRE. Chercher des expressions comme 'tumeur primitive', 'cancer primitif', 'site primaire', 'origine du cancer'. Ignorer les métastases, localisations secondaires, ou disséminations.",  
+      "name": "Cancer Location",  
+      "definition": "Anatomical location of the primary tumor (primary cancer site).",  
+      "extraction_instructions": "Extract the location of the PRIMARY tumor. Look for expressions like 'primary tumor', 'primary cancer', 'primary site', 'cancer origin'. Ignore metastases, secondary locations, or dissemination.",  
       "type": "enum",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Si plusieurs mentions de la localisation primitive sont trouvées, retourner la plus fréquemment mentionnée ou la plus récemment confirmée. Mapper vers une seule valeur parmi : [liste des valid_values]. Si aucune localisation primitive claire, retourner 'Non déterminé'.",
+      "aggregation_instructions": "If multiple mentions of primary location are found, return the most frequently mentioned or most recently confirmed. Map to a single value from the valid_values list. If no clear primary location, return 'Not determined'.",
       "source_filters": [
         {
-          "libnatcr": "CR Opératoire",
-          "content_keyword": "PAN-ENDOSCOPIE|PANENDOSCOPIE",
+          "libnatcr": "Operative Report",
+          "content_keyword": "ENDOSCOPY|PANENDOSCOPY",
           "depth": 0
         },
         {
-          "libnatcr": "RCP",
+          "libnatcr": "MDT Meeting",
           "depth": 1
         }
       ],
       "fallback_filters": [
         {
-          "libnatcr": "CR Radio",
+          "libnatcr": "Radiology Report",
           "depth": 0
         },
         {
-          "libnatcr": "CR Examen",
-          "title_keyword": "NUCLEAIRE",
+          "libnatcr": "Examination Report",
+          "title_keyword": "NUCLEAR",
           "depth": 0
         },
         {
-          "libnatcr": "CR Consultation",
-          "content_keyword": "PAN-ENDOSCOPIE|PANENDOSCOPIE",
+          "libnatcr": "Consultation Report",
+          "content_keyword": "ENDOSCOPY|PANENDOSCOPY",
           "depth": 0
         }
       ]
     }, 
     {  
-      "name": "Lesion primaire",  
-      "definition": "Lésion primaire sur imagerie CT/IRM - caractéristiques de la tumeur primitive à l'imagerie",  
-      "extraction_instructions": "Extraire la description de la lésion primaire telle que décrite dans le dernier compte-rendu d'imagerie (scanner ou IRM). Inclure la taille, les caractéristiques, et la localisation précise.",  
+      "name": "Primary Lesion",  
+      "definition": "Primary lesion on CT/MRI imaging - characteristics of the primary tumor on imaging",  
+      "extraction_instructions": "Extract the description of the primary lesion as described in the latest imaging report (CT or MRI). Include size, characteristics, and precise location.",  
       "type": "string",  
       "processing_type": "first_match",
       "source_filters": [
         {
-          "libnatcr": "CR Radio",
+          "libnatcr": "Radiology Report",
           "depth": 1
         }
       ]
     },
     {  
-      "name": "Bilan complémentaire",  
-      "definition": "Bilan métastatique à distance - résultats des examens complémentaires",  
-      "extraction_instructions": "Extraire les résultats du bilan d'extension à distance (scanner, IRM, TEP-scan, médecine nucléaire). Se concentrer sur la conclusion des examens pour les informations clés sur les métastases.",  
+      "name": "Complementary Assessment",  
+      "definition": "Distant metastatic workup - results of complementary examinations",  
+      "extraction_instructions": "Extract results of distant staging workup (CT scan, MRI, PET-scan, nuclear medicine). Focus on examination conclusions for key information about metastases.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",
-      "aggregation_instructions": "Synthétiser les conclusions des différents examens complémentaires. Organiser par type d'examen et date. Mettre en évidence les sites métastatiques et les évolutions.",
+      "aggregation_instructions": "Synthesize conclusions from different complementary examinations. Organize by examination type and date. Highlight metastatic sites and evolution.",
       "source_filters": [
         {
-          "libnatcr": "CR Radio",
+          "libnatcr": "Radiology Report",
           "depth": 1
         },
         {
-          "libnatcr": "CR Examen",
-          "title_keyword": "NUCLEAIRE",
+          "libnatcr": "Examination Report",
+          "title_keyword": "NUCLEAR",
           "focus_section": "conclusion",
           "depth": 1
         },
         {
-          "libnatcr": "RCP",
+          "libnatcr": "MDT Meeting",
           "depth": 1
         }
       ]
     },
     {  
-      "name": "Commentaire tumeur primitive",  
-      "definition": "Synthèse clinique de l'histoire de la tumeur primitive, son évolution et les traitements reçus.",  
-      "extraction_instructions": "Créer une synthèse chronologique focalisée sur : diagnostic initial, caractéristiques tumorales, traitements oncologiques, réponses thérapeutiques, progressions de maladie. EXCLURE les détails de soins palliatifs, informations familiales, et aspects non-oncologiques.",  
+      "name": "Primary Tumor Commentary",  
+      "definition": "Clinical synthesis of primary tumor history, evolution and treatments received.",  
+      "extraction_instructions": "Create a chronological synthesis focused on: initial diagnosis, tumor characteristics, oncological treatments, therapeutic responses, disease progressions. EXCLUDE details of palliative care, family information, and non-oncological aspects.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Structurer chronologiquement : 1) Diagnostic initial et caractéristiques, 2) Traitements adjuvants, 3) Rechutes et traitements métastatiques, 4) Évolution de la maladie. Maintenir un focus oncologique. Synthétiser en paragraphes courts et clairs."  
+      "aggregation_instructions": "Structure chronologically: 1) Initial diagnosis and characteristics, 2) Adjuvant treatments, 3) Relapses and metastatic treatments, 4) Disease evolution. Maintain oncological focus. Synthesize in short, clear paragraphs."  
     },    
     {  
-      "name": "Anomalie moléculaire",  
-      "definition": "Toutes les altérations moléculaires détectées dans la tumeur, incluant mutations génétiques, pertes, amplifications, variants de signification inconnue et biomarqueurs spécifiques.",  
-      "extraction_instructions": "Extraire toutes les anomalies moléculaires, mutations génétiques, pertes de gène, amplifications, variants de signification inconnue (VUS), et résultats de biomarqueurs rapportés dans les sources cliniques. Inclure le nom du gène, le type d'altération, et toute note sur la signification clinique si disponible.",  
+      "name": "Molecular Abnormality",  
+      "definition": "All molecular alterations detected in the tumor, including genetic mutations, losses, amplifications, variants of uncertain significance and specific biomarkers.",  
+      "extraction_instructions": "Extract all molecular abnormalities, genetic mutations, gene losses, amplifications, variants of uncertain significance (VUS), and biomarker results reported in clinical sources. Include gene name, alteration type, and any notes on clinical significance if available.",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Regrouper et lister chaque anomalie moléculaire unique de façon structurée (par exemple : gène, type d'altération, statut fonctionnel). Organiser la liste par type d'altération (mutations, amplifications, pertes, autres). Éliminer toute redondance et veiller à la clarté et à la lisibilité des résultats.",
+      "aggregation_instructions": "Group and list each unique molecular abnormality in a structured way (e.g.: gene, alteration type, functional status). Organize the list by alteration type (mutations, amplifications, losses, others). Eliminate any redundancy and ensure clarity and readability of results.",
       "source_filters": [
         {
-          "libnatcr": "CR Anatomopathologie",
+          "libnatcr": "Pathology Report",
           "depth": 0
         }
       ]
     },
     {  
-      "name": "Métastatique",  
-      "definition": "Indique si le cancer présente des métastases basé sur les preuves documentées et inclut le texte verbatim utilisé pour cette conclusion.",  
-      "extraction_instructions": "Chercher des preuves explicites de métastases dans le texte : mentions de 'métastases', 'métastatique', 'M1', 'dissémination', 'localisations secondaires', ou organes spécifiques avec métastases. Extraire le texte exact contenant ces informations.",  
+      "name": "Metastatic Status",  
+      "definition": "Indicates whether the cancer has metastases based on documented evidence and includes verbatim text used for this conclusion.",  
+      "extraction_instructions": "Look for explicit evidence of metastases in the text: mentions of 'metastases', 'metastatic', 'M1', 'dissemination', 'secondary locations', or specific organs with metastases. Extract exact text containing this information.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Si des preuves de métastases sont trouvées, retourner 'Oui' suivi du texte verbatim entre guillemets, par exemple : 'Oui - \"Présence de métastases hépatiques multiples\"'. Si plusieurs références existent, les inclure toutes séparées par des points-virgules. Si aucune preuve explicite n'est trouvée, retourner 'Information non disponible dans les documents révisés'.",
+      "aggregation_instructions": "If evidence of metastases is found, return 'Yes' followed by verbatim text in quotes, for example: 'Yes - \"Presence of multiple hepatic metastases\". If multiple references exist, include all separated by semicolons. If no explicit evidence is found, return 'Information not available in reviewed documents'.",
       "source_filters": [
         {
-          "libnatcr": "RCP",
+          "libnatcr": "MDT Meeting",
           "depth": 1
         },
         {
-          "libnatcr": "CR Radio",
+          "libnatcr": "Radiology Report",
           "depth": 1
         }
       ]
     },
     {  
-      "name": "Site métastatique",  
-      "definition": "Sites métastatiques et leur évolution clinique dans le temps.",  
-      "extraction_instructions": "Extraire les sites métastatiques avec leur évolution clinique (progression, stabilité, régression) et dates si disponibles. Inclure nouvelles lésions, progression, régression.",  
+      "name": "Metastatic Sites",  
+      "definition": "Metastatic sites and their clinical evolution over time.",  
+      "extraction_instructions": "Extract metastatic sites with their clinical evolution (progression, stability, regression) and dates if available. Include new lesions, progression, regression.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Format : [Date] - [Site] : [Évolution/Description]. Classer chronologiquement. Si pas de date, grouper sous 'Sites documentés'. Fusionner mentions identiques du même site.",
+      "aggregation_instructions": "Format: [Date] - [Site]: [Evolution/Description]. Classify chronologically. If no date, group under 'Documented sites'. Merge identical mentions of the same site.",
       "source_filters": [
         {
-          "libnatcr": "CR Radio",
+          "libnatcr": "Radiology Report",
           "depth": 0
         },
         {
-          "libnatcr": "CR Examen",
+          "libnatcr": "Examination Report",
           "title_keyword": "NUCLEAIRE",
           "depth": 0
         }
       ]
     },
     {  
-    "name": "Type histologique",  
-    "definition": "Classification histologique précise de la tumeur selon son type cellulaire",  
-    "extraction_instructions": "Extraire le type histologique spécifique de la tumeur tel que mentionné dans le rapport anatomopathologique",  
+    "name": "Histological Type",  
+    "definition": "Precise histological classification of the tumor according to its cellular type",  
+    "extraction_instructions": "Extract the specific histological type of the tumor as mentioned in the pathology report",  
     "type": "string",  
     "processing_type": "aggregate_all_matches",  
-    "aggregation_instructions": "Conserver tous les types histologiques mentionnés, removing duplicates, organisés par ordre chronologique inverse (plus récent en premier), en privilégiant le plus récent et détaillé",
+    "aggregation_instructions": "Keep all mentioned histological types, removing duplicates, organized in reverse chronological order (most recent first), prioritizing the most recent and detailed",
     "source_filters": [
       {
-        "libnatcr": "CR Anatomopathologie",
+        "libnatcr": "Pathology Report",
         "depth": 0
       }
     ]
     }, 
     {  
-       "name": "Localisation",  
-      "definition": "Localisation anatomique précise de la tumeur",  
-      "extraction_instructions": "Extraire la localisation anatomique détaillée de la tumeur primitive",  
+       "name": "Location",  
+      "definition": "Precise anatomical location of the tumor",  
+      "extraction_instructions": "Extract the detailed anatomical location of the primary tumor",  
       "type": "string",  
       "processing_type": "first_match"  
     },  
     {  
-      "name": "Chimiothérapie(s) réalisée(s)",  
-      "definition": "Traitements de chimiothérapie antérieurement administrés au patient",  
-      "extraction_instructions": "Extraire tous les détails des chimiothérapies réalisées, incluant les protocoles, dates et résultats si mentionnés",  
+      "name": "Previous Chemotherapy",  
+      "definition": "Chemotherapy treatments previously administered to the patient",  
+      "extraction_instructions": "Extract all details of completed chemotherapies, including protocols, dates and results if mentioned",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",
-      "aggregation_instructions": "Analyser toutes les mentions de chimiothérapies et créer une liste chronologique dédupliquée. Éliminer les doublons exacts et consolider les protocoles similaires. Organiser par ordre chronologique inverse (plus récent en premier). Format : • Protocole/médicament (date) - indication/contexte si pertinent. Inclure les détails des cycles, essais cliniques et modalités d'administration.",
+      "aggregation_instructions": "Analyze all mentions of chemotherapies and create a deduplicated chronological list. Remove exact duplicates and consolidate similar protocols. Organize in reverse chronological order (most recent first). Format: • Protocol/drug (date) - indication/context if relevant. Include details of cycles, clinical trials and administration modalities.",
       "source_filters": [
         {
-          "libnatcr": "RCP",
+          "libnatcr": "MDT Meeting",
           "depth": 0
         },
         {
-          "libnatcr": "Hospitalisation",
+          "libnatcr": "Hospitalization",
           "depth": 0
         }
       ]
     },  
     {  
-      "name": "Radiothérapie réalisée",  
-      "definition": "Traitements de radiothérapie antérieurement administrés au patient",  
-      "extraction_instructions": "Extraire tous les détails des radiothérapies réalisées, incluant la localisation, les doses et dates si mentionnées",  
+      "name": "Previous Radiotherapy",  
+      "definition": "Radiotherapy treatments previously administered to the patient",  
+      "extraction_instructions": "Extract all details of completed radiotherapies, including location, doses and dates if mentioned",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",
-      "aggregation_instructions": "Analyser toutes les mentions de radiothérapies et créer une liste chronologique dédupliquée. Éliminer les doublons exacts et consolider les traitements similaires. Organiser par ordre chronologique inverse (plus récent en premier). Format : • Type de radiothérapie (date) - localisation/indication si pertinente. Inclure les détails des doses, durées et modalités spécifiques.",
+      "aggregation_instructions": "Analyze all mentions of radiotherapies and create a deduplicated chronological list. Remove exact duplicates and consolidate similar treatments. Organize in reverse chronological order (most recent first). Format: • Radiotherapy type (date) - location/indication if relevant. Include details of doses, durations and specific modalities.",
       "source_filters": [
         {
-          "libnatcr": "RCP",
+          "libnatcr": "MDT Meeting",
           "depth": 0
         },
         {
-          "libnatcr": "Hospitalisation",
+          "libnatcr": "Hospitalization",
           "depth": 0
         }
       ]
     },  
     {  
-      "name": "Chirurgie(s) réalisée(s)",  
-      "definition": "Interventions chirurgicales antérieurement réalisées chez le patient avec descriptions cliniques.",  
-      "extraction_instructions": "Extraire les interventions chirurgicales avec des descriptions cliniques compréhensibles (ex: 'mastectomie', 'résection', 'ablation', 'curage'). IGNORER les codes CCAM, codes techniques, et références alphanumériques. Chercher des descriptions en langage médical clair. Inclure la date et la localisation anatomique si mentionnées.",  
+      "name": "Previous Surgery",  
+      "definition": "Surgical interventions previously performed on the patient with clinical descriptions.",  
+      "extraction_instructions": "Extract surgical interventions with understandable clinical descriptions (e.g.: 'mastectomy', 'resection', 'removal', 'lymph node dissection'). IGNORE procedure codes, technical codes, and alphanumeric references. Look for descriptions in clear medical language. Include date and anatomical location if mentioned.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Extraire uniquement les chirurgies avec descriptions cliniques claires. Format : [Date] - [Description chirurgicale] ([Localisation]). Ignorer tous les codes techniques (CCAM, alphanumériques). Supprimer les doublons. Classer par ordre chronologique décroissant. Si seuls des codes techniques sont présents, retourner 'Chirurgies documentées uniquement par codes techniques - détails cliniques non disponibles'.",
+      "aggregation_instructions": "Extract only surgeries with clear clinical descriptions. Format: [Date] - [Surgical description] ([Location]). Ignore all technical codes (procedure codes, alphanumeric). Remove duplicates. Classify in descending chronological order. If only technical codes are present, return 'Surgeries documented only by technical codes - clinical details not available'.",
       "source_filters": [
         {
-          "libnatcr": "CR Opératoire",
+          "libnatcr": "Operative Report",
           "depth": 0
         }
       ]
     },
     {  
-      "name": "État général (OMS)",  
-      "definition": "Score de l'état général du patient selon l'échelle de l'Organisation Mondiale de la Santé (0-4)",  
-      "extraction_instructions": "Extraire le score OMS de l'état général, généralement exprimé comme un chiffre de 0 à 4",  
+      "name": "Performance Status (WHO)",  
+      "definition": "Patient's performance status score according to World Health Organization scale (0-4)",  
+      "extraction_instructions": "Extract the WHO performance status score, typically expressed as a number from 0 to 4",  
       "type": "enum",
        "valid_values": ["0", "1", "2", "3", "4"], 
         "processing_type": "first_match",
       "source_filters": [
         {
-          "libnatcr": "RCP",
+          "libnatcr": "MDT Meeting",
           "depth": 1
         },
         {
-          "libnatcr": "CR Consultation",
+          "libnatcr": "Consultation Report",
           "depth": 1
         }
       ]
     },  
     {  
-      "name": "Score G8",  
-      "definition": "Score d'évaluation gériatrique G8 pour les patients de plus de 70 ans (score sur 17).",  
-      "extraction_instructions": "Chercher explicitement le 'Score G8', 'G8', ou 'évaluation gériatrique G8' suivi d'une valeur numérique (ex: 'G8 : 12/17', 'Score G8 = 15'). Extraire également toute mention d'absence d'évaluation G8 ou de raisons pour lesquelles elle n'a pas été réalisée.",  
+      "name": "G8 Score",  
+      "definition": "G8 geriatric assessment score for patients over 70 years old (score out of 17).",  
+      "extraction_instructions": "Explicitly look for 'G8 Score', 'G8', or 'G8 geriatric assessment' followed by a numerical value (e.g.: 'G8: 12/17', 'G8 Score = 15'). Also extract any mention of absence of G8 evaluation or reasons why it was not performed.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Si un score G8 est trouvé, retourner 'Score G8 : [valeur]/17'. Si aucun score n'est documenté mais que le patient a plus de 70 ans, retourner 'Score G8 non documenté (patient éligible)'. Si le patient a moins de 70 ans, retourner 'Score G8 non applicable (patient < 70 ans)'. Si une évaluation alternative est mentionnée, l'indiquer.",
+      "aggregation_instructions": "If a G8 score is found, return 'G8 Score: [value]/17'. If no score is documented but the patient is over 70 years old, return 'G8 Score not documented (eligible patient)'. If the patient is under 70 years old, return 'G8 Score not applicable (patient < 70 years)'. If an alternative assessment is mentioned, indicate it.",
       "source_filters": [
         {
-          "libnatcr": "RCP",
+          "libnatcr": "MDT Meeting",
           "depth": 1
         },
         {
-          "libnatcr": "CR Consultation",
+          "libnatcr": "Consultation Report",
           "depth": 0
         }
       ]
     },
     {  
-      "name": "Antécédents personnels notables",  
-      "definition": "Antécédents médicaux personnels significatifs du patient (hors cancer actuel)",  
-      "extraction_instructions": "Extraire UNIQUEMENT les antécédents médicaux personnels cliniquement significatifs DISTINCTS du cancer actuellement traité. INCLURE : autres cancers antérieurs, maladies chroniques impactant le pronostic/traitement (diabète, insuffisance cardiaque/rénale/hépatique, BPCO), interventions chirurgicales majeures, allergies médicamenteuses. EXCLURE : symptômes bénins isolés, consultations de routine, examens normaux, détails du cancer actuel.",  
+      "name": "Notable Personal History",  
+      "definition": "Significant personal medical history of the patient (excluding current cancer)",  
+      "extraction_instructions": "Extract ONLY clinically significant personal medical history DISTINCT from the currently treated cancer. INCLUDE: other prior cancers, chronic diseases impacting prognosis/treatment (diabetes, heart/kidney/liver failure, COPD), major surgical interventions, drug allergies. EXCLUDE: isolated benign symptoms, routine consultations, normal examinations, current cancer details.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",
-      "aggregation_instructions": "Créer une liste hiérarchisée par importance clinique : 1) Autres cancers antérieurs (avec dates) 2) Comorbidités majeures impactant le pronostic 3) Allergies médicamenteuses 4) Interventions chirurgicales majeures. Éliminer détails non-essentiels. Format : points courts, une ligne par antécédent significatif.",
+      "aggregation_instructions": "Create a list hierarchized by clinical importance: 1) Other prior cancers (with dates) 2) Major comorbidities impacting prognosis 3) Drug allergies 4) Major surgical interventions. Eliminate non-essential details. Format: short points, one line per significant history item.",
       "source_filters": [
         {
-          "libnatcr": "CR Consultation",
+          "libnatcr": "Consultation Report",
           "depth": 1
         },
         {
-          "libnatcr": "Hospitalisation",
+          "libnatcr": "Hospitalization",
           "depth": 1
         }
       ]
     },
     {  
-      "name": "Antécédents familiaux",  
-      "definition": "Antécédents médicaux familiaux pertinents pour le contexte oncologique.",  
-      "extraction_instructions": "Extraire UNIQUEMENT les pathologies familiales cliniquement pertinentes : cancers familiaux, syndromes héréditaires, mutations génétiques héréditaires. PRIORITÉ aux cancers du même type ou syndromes prédisposants. Chercher 'père/mère/frère/sœur avec', 'antécédents familiaux de cancer', 'histoire familiale'. EXCLURE pathologies familiales non-oncologiques sauf si directement liées au risque de cancer.",  
+      "name": "Family History",  
+      "definition": "Family medical history relevant to the oncological context.",  
+      "extraction_instructions": "Extract ONLY clinically relevant family pathologies: family cancers, hereditary syndromes, hereditary genetic mutations. PRIORITY to cancers of the same type or predisposing syndromes. Look for 'father/mother/brother/sister with', 'family history of cancer', 'family history'. EXCLUDE non-oncological family pathologies unless directly related to cancer risk.",  
       "type": "string",  
       "processing_type": "aggregate_all_matches",  
-      "aggregation_instructions": "Hiérarchiser par pertinence oncologique : 1) Cancers du même type chez apparentés proches 2) Autres cancers familiaux 3) Syndromes héréditaires/mutations. Format : [Relation] - [Pathologie] (âge si mentionné). Si aucun antécédent pertinent, retourner 'Aucun antécédent familial oncologique documenté'.",
+      "aggregation_instructions": "Hierarchize by oncological relevance: 1) Same type cancers in close relatives 2) Other family cancers 3) Hereditary syndromes/mutations. Format: [Relation] - [Pathology] (age if mentioned). If no relevant history, return 'No oncological family history documented'.",
       "source_filters": [
         {
-          "libnatcr": "CR Consultation",
+          "libnatcr": "Consultation Report",
           "depth": 1
         },
         {
-          "libnatcr": "RCP",
+          "libnatcr": "MDT Meeting",
           "depth": 1
         }
       ]

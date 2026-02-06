@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, User, BarChart3, Settings, X, MessageCircle, Bot, Database, Eye, Users } from 'lucide-react';
+import { FileText, User, BarChart3, Settings, X, Eye, Users } from 'lucide-react';
 import PatientSelector from './components/PatientSelector';
+import PatientSelectionView from './components/PatientSelectionView';
 import DocumentsList from './components/DocumentsList';
 import ReportsList from './components/ReportsList';
 import ReportViewer from './components/ReportViewer';
 import SettingsPanel from './components/SettingsPanel';
 import Observability from './components/Observability';
 import LanguageSwitcher from './components/LanguageSwitcher';
-import IntelligentAssistant from './components/IntelligentAssistant';
 import PatientsDialog from './components/PatientsDialog';
 import DisclaimerModal from './components/DisclaimerModal';
+import MongoDBHealthcareLogo from './components/CobrandedLogo';
 import { I18nProvider, useI18n } from './i18n/context';
 import { apiService, getApiBaseURL } from './services/api';
 import { PatientDocument, Report, ReportGenerationProgress } from './types';
 
 function AppContent() {
   const { t } = useI18n();
-  const [currentView, setCurrentView] = useState<'documents' | 'reports' | 'assistant' | 'observability'>('documents');
+  const [currentView, setCurrentView] = useState<'documents' | 'reports' | 'observability'>('documents');
   const [showPatientsDialog, setShowPatientsDialog] = useState<boolean>(false);
   // Start with empty patient ID - will be extracted from uploaded documents
   // UUID-first architecture: upload first, patient ID is extracted during processing
@@ -215,93 +216,85 @@ function AppContent() {
   const navigation = [
     { id: 'documents', label: t.navigation.documents, icon: FileText },
     { id: 'reports', label: t.navigation.reports, icon: BarChart3 },
-    { id: 'assistant', label: t.navigation.assistant, icon: MessageCircle, preview: true },
     { id: 'observability', label: t.navigation.observability, icon: Eye },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {disclaimerAccepted && (
         <>
           {/* Fixed Header */}
-          <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-200">
-            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-              {/* Institution Banner */}
-              <div className="bg-medical-600 text-white px-4 py-2 -mx-4 -mt-0 mb-4">
-                <div className="flex items-center justify-between">
-                  {/* Warning Message - Left Side */}
-                  <div className="bg-amber-50 border border-amber-200 rounded-md px-3 py-1 shadow-sm">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm font-bold text-amber-800">{t.header.warningBanner}</span>
+          <header className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md shadow-lg border-b border-gray-200">
+            <div className="w-full px-4 sm:px-6 lg:px-8">
+              {/* Professional Header with Cobranded Logo */}
+              <div className="bg-gradient-to-r from-navy-800 to-navy-900 text-white px-6 py-4 -mx-4 -mt-0 mb-6 border-b-2 border-mongodb-green">
+                <div className="flex items-center justify-between relative">
+                  {/* Empty div for layout balance */}
+                  <div className="flex-1"></div>
+                  
+                  {/* MongoDB Healthcare Logo - Center */}
+                  <div className="flex-1 flex justify-center">
+                    <div className="transform scale-150">
+                      <MongoDBHealthcareLogo size="lg" />
                     </div>
                   </div>
                   
-                  {/* Institution Name - Center */}
-                  <div className="absolute left-1/2 transform -translate-x-1/2">
-                    <h2 className="text-lg font-semibold">{t.header.institution}</h2>
+                  {/* Professional Badge - Right Side */}
+                  <div className="flex-1 flex justify-end">
+                    <div className="flex items-center space-x-2 bg-mongodb-green/10 border border-mongodb-green/30 rounded-lg px-4 py-2">
+                      <div className="w-2 h-2 bg-mongodb-green rounded-full"></div>
+                      <span className="text-sm font-medium text-mongodb-green">Backend Connected</span>
+                    </div>
                   </div>
-                  
-                  {/* Spacer for balance - Right Side */}
-                  <div className="w-24"></div>
                 </div>
               </div>
               
-              <div className="flex justify-between items-center py-4">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-medical-600 rounded-lg flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
+              <div className="flex justify-between items-center py-6">
+                <div className="flex items-center space-x-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-navy-600 to-navy-800 rounded-xl flex items-center justify-center shadow-lg">
+                      <User className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h1 className="text-xl font-bold text-gray-900">
+                      <h1 className="text-2xl font-bold text-navy-900 tracking-tight">
                         {t.header.title}
                       </h1>
-                      <p className="text-sm text-gray-500">{t.header.subtitle}</p>
+                      <p className="text-sm text-gray-600 font-medium">{t.header.subtitle}</p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  {/* Smart Header Collapse - Dynamic content based on view */}
-                  <div className="header-transition">
-                    {currentView === 'assistant' ? (
-                      /* Assistant Mode - Global Context */
-                      <div className="header-context-indicator">
-                        <div className="flex items-center space-x-2">
-                          <Bot className="w-5 h-5 text-medical-600" />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-medical-700">
-                              Assistant Intelligent
-                            </span>
-                            <span className="text-xs text-medical-600">
-                              Analyse globale • Base de connaissances
-                            </span>
-                          </div>
-                        </div>
-                        <div className="hidden sm:flex items-center space-x-2 pl-3 border-l border-medical-200">
-                          <Database className="w-4 h-4 text-medical-500" />
-                          <span className="text-xs text-medical-600 font-medium">
-                            {t.assistant.allPatients}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      /* Patient Mode - Patient-specific context */
-                      <div className="header-patient-mode">
-                        <PatientSelector
-                          patientId={patientId}
-                          onPatientIdChange={setPatientId}
-                          onOpenPatients={() => setShowPatientsDialog(true)}
-                        />
-                      </div>
-                    )}
-                  </div>
+                  {/* Patient Mode - Only show when patient is selected */}
+                  {patientId && (
+                    <div className="header-patient-mode">
+                      <PatientSelector
+                        patientId={patientId}
+                        onPatientIdChange={setPatientId}
+                        onOpenPatients={() => setShowPatientsDialog(true)}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Back to Patient Selection - Show when patient is selected */}
+                  {patientId && (
+                    <button
+                      onClick={() => {
+                        setPatientId('');
+                        setCurrentView('documents'); // Reset to documents view
+                      }}
+                      className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-navy-700 hover:bg-gray-100 rounded-xl transition-all duration-200 shadow-sm border border-gray-200"
+                      title="Back to Patient Selection"
+                    >
+                      <Users className="w-5 h-5" />
+                      <span className="hidden lg:block text-sm font-medium">All Patients</span>
+                    </button>
+                  )}
                   
                   <LanguageSwitcher />
                   <button
                     onClick={() => setShowSettings(true)}
-                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-3 text-gray-500 hover:text-navy-700 hover:bg-gray-100 rounded-xl transition-all duration-200 shadow-sm border border-gray-200"
                     title={t.settings.title}
                   >
                     <Settings className="w-5 h-5" />
@@ -309,71 +302,71 @@ function AppContent() {
                 </div>
               </div>
 
-              {/* Navigation - now part of fixed header */}
-              <div className="border-t border-gray-200 bg-gray-50 -mx-4 px-4 py-3">
-                <nav className="flex space-x-1">
+
+            </div>
+          </header>
+
+          {/* Header Spacer - ensures content starts below fixed header */}
+          <div className="h-64 lg:h-56"></div>
+          
+          {/* Main Layout */}
+          <div className={`flex min-h-screen ${!patientId ? '' : ''}`}>
+            {/* Left Sidebar Navigation - Only show when patient is selected */}
+            {patientId && (
+              <div className="w-64 fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40">
+                <nav className="p-6 space-y-2">
                   {navigation.map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'assistant' | 'observability')}
+                        onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
                         className={`
-                          flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors
+                          w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm
                           ${currentView === item.id
-                            ? 'bg-medical-100 text-medical-700 border border-medical-200'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                            ? 'bg-gradient-to-r from-navy-700 to-navy-800 text-white border border-navy-600 shadow-lg'
+                            : 'text-navy-700 hover:text-navy-900 hover:bg-gray-50 hover:shadow-md border border-gray-200/50 bg-white/50'
                           }
                         `}
                       >
-                        <Icon className="w-4 h-4" />
-                        <span>{item.label}</span>
-                        {item.preview && (
-                          <span className="preview-badge ml-2">
-                            {t.assistant.previewBadge}
-                          </span>
-                        )}
+                        <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''}`} />
+                        <span className="font-medium">{item.label}</span>
                       </button>
                     );
                   })}
                 </nav>
               </div>
-            </div>
-          </header>
-
-          {/* Header Spacer - ensures content starts below fixed header */}
-          <div className="h-64 lg:h-60"></div>
-          
-          {/* Main Content */}
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {error && (
-              <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <X className="h-5 w-5 text-red-400" />
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">{t.messages.error}</h3>
-                    <div className="mt-2 text-sm text-red-700">{error}</div>
-                  </div>
-                </div>
-              </div>
             )}
 
-            {currentView === 'assistant' ? (
-              /* Assistant full-width layout */
-              <IntelligentAssistant />
-            ) : (
-              /* Standard documents/reports layout */
+            {/* Main Content Area */}
+            <div className={`flex-1 ${patientId ? 'ml-64' : ''} px-4 sm:px-6 lg:px-8 py-8`}>
+              {error && (
+                <div className="mb-6 bg-red-50/90 border border-red-200 rounded-xl p-6 backdrop-blur-sm shadow-sm">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <X className="h-5 w-5 text-red-400" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">{t.messages.error}</h3>
+                      <div className="mt-2 text-sm text-red-700">{error}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Standard documents/reports layout */}
               <div className="flex flex-col lg:flex-row gap-6">
-                {/* Main Content */}
-                <div className="flex-1">
+              {/* Main Content */}
+              <div className="flex-1">
                   {/* Content */}
-                  {isLoading ? (
-                    <div className="card">
+                  {!patientId ? (
+                    /* Show patient selection when no patient is selected */
+                    <PatientSelectionView onSelectPatient={setPatientId} />
+                  ) : isLoading ? (
+                    <div className="card bg-white/90 backdrop-blur-sm shadow-lg">
                       <div className="flex items-center justify-center py-12">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-medical-600"></div>
-                        <span className="ml-3 text-gray-600">{t.messages.loadingPatientData}</span>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy-700"></div>
+                        <span className="ml-3 text-navy-700 font-medium">{t.messages.loadingPatientData}</span>
                       </div>
                     </div>
                   ) : (
@@ -411,21 +404,29 @@ function AppContent() {
                     </>
                   )}
                 </div>
-
-                {/* Report Viewer Sidebar */}
-                {showReportViewer && selectedReport && (
-                  <div className="lg:w-1/2 xl:w-1/2 2xl:w-1/2">
-                    <ReportViewer
-                      report={selectedReport}
-                      onClose={() => setShowReportViewer(false)}
-                    />
-                  </div>
-                )}
               </div>
-            )}
+            </div>
           </div>
-
-          {/* Settings Modal */}
+        
+          {/* Report Viewer Modal */}
+          {showReportViewer && selectedReport && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              {/* Backdrop */}
+              <div 
+                className="absolute inset-0 bg-black bg-opacity-50" 
+                onClick={() => setShowReportViewer(false)}
+              ></div>
+              
+              {/* Modal Content */}
+              <div className="relative w-[50vw] h-[95vh] max-w-none">
+                <ReportViewer
+                  report={selectedReport}
+                  onClose={() => setShowReportViewer(false)}
+                />
+              </div>
+            </div>
+          )}
+        
           {showSettings && (
             <SettingsPanel
               apiBaseUrl={apiBaseUrl}

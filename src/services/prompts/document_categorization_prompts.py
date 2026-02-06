@@ -21,14 +21,14 @@ Your task is to accurately categorize medical documents based on their content a
 DOCUMENT_CATEGORIZATION_PROMPT = """Analyze the following medical document and categorize it into one of the predefined categories.
 
 DOCUMENT CATEGORIES:
-1. Documents administratifs de codage (PMSI/T2A) - Administrative coding documents for hospital billing and activity classification
-2. Comptes rendus opératoires - Surgical reports and operative notes
-3. Comptes rendus d'hospitalisation/séjour - Hospitalization and stay reports
-4. Comptes rendus d'imagerie médicale - Medical imaging reports (X-rays, CT scans, MRIs, etc.)
-5. Comptes rendus de consultation - Consultation reports and outpatient visit notes
-6. Documents de prescription - Prescription documents and medication orders
-7. Résultats d'examens biologiques - Biological test results and laboratory reports
-8. Courriers de liaison/correspondance médicale - Medical correspondence and liaison letters
+1. Administrative coding documents (PMSI/T2A) - Administrative coding documents for hospital billing and activity classification
+2. Operative reports - Surgical reports and operative notes
+3. Hospitalization/stay reports - Hospitalization and stay reports
+4. Medical imaging reports - Medical imaging reports (X-rays, CT scans, MRIs, etc.)
+5. Consultation reports - Consultation reports and outpatient visit notes
+6. Prescription documents - Prescription documents and medication orders
+7. Laboratory test results - Biological test results and laboratory reports
+8. Medical correspondence/liaison letters - Medical correspondence and liaison letters
 
 DOCUMENT TEXT:
 {content}
@@ -46,7 +46,7 @@ RESPONSE FORMAT:
 <REASONING>brief explanation of why this category was chosen</REASONING>
 
 Examples:
-- For a surgical report: <CATEGORY>Comptes rendus opératoires</CATEGORY>
-- For a CT scan report: <CATEGORY>Comptes rendus d'imagerie médicale</CATEGORY>
-- For a blood test result: <CATEGORY>Résultats d'examens biologiques</CATEGORY>
+- For a surgical report: <CATEGORY>Operative reports</CATEGORY>
+- For a CT scan report: <CATEGORY>Medical imaging reports</CATEGORY>
+- For a blood test result: <CATEGORY>Laboratory test results</CATEGORY>
 """ 

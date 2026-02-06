@@ -62,19 +62,19 @@ export default function PDFPreviewModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <Eye className="h-5 w-5 text-medical-600" />
+            <Eye className="h-5 w-5 text-navy-700" />
             <h2 className="text-lg font-semibold text-gray-900">
-              Aperçu du Rapport PDF
+              PDF Report Preview
             </h2>
           </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={handleDownload}
               disabled={!pdfUrl || isGenerating}
-              className="flex items-center space-x-2 px-4 py-2 bg-medical-600 text-white rounded-md hover:bg-medical-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-navy-700 text-white rounded-md hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <Download className="h-4 w-4" />
-              <span>Télécharger PDF</span>
+              <span>Download PDF</span>
             </button>
             <button
               onClick={onClose}
@@ -89,7 +89,7 @@ export default function PDFPreviewModal({
         <div className="flex-1 flex items-center justify-center p-4">
           {isGenerating ? (
             <div className="flex flex-col items-center space-y-4">
-              <Loader className="h-8 w-8 animate-spin text-medical-600" />
+              <Loader className="h-8 w-8 animate-spin text-navy-700" />
               <p className="text-gray-600">Génération de l'aperçu PDF...</p>
             </div>
           ) : error ? (
@@ -101,7 +101,7 @@ export default function PDFPreviewModal({
               </div>
               <button
                 onClick={generatePreview}
-                className="px-4 py-2 bg-medical-600 text-white rounded-md hover:bg-medical-700 transition-colors"
+                className="px-4 py-2 bg-navy-700 text-white rounded-md hover:bg-navy-800 transition-colors"
               >
                 Réessayer
               </button>
@@ -110,7 +110,7 @@ export default function PDFPreviewModal({
             <iframe
               src={pdfUrl}
               className="w-full h-full border border-gray-300 rounded-md"
-              title="Aperçu du rapport PDF"
+              title="PDF report preview"
             />
           ) : null}
         </div>
@@ -119,7 +119,7 @@ export default function PDFPreviewModal({
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between text-sm text-gray-600">
             <div>
-              <span className="font-medium">Rapport:</span> {report.title}
+              <span className="font-medium">Report:</span> {report.title}
             </div>
             <div>
               <span className="font-medium">Patient:</span> {report.patient_id}

@@ -108,8 +108,8 @@ export default function ReportGenerationDialog({
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-medical-100 rounded-lg flex items-center justify-center">
-                      <Settings className="w-5 h-5 text-medical-600" />
+                    <div className="w-10 h-10 bg-navy-100 rounded-lg flex items-center justify-center">
+                      <Settings className="w-5 h-5 text-navy-700" />
                     </div>
                     <div>
                       <Dialog.Title className="text-lg font-semibold text-gray-900">
@@ -142,7 +142,7 @@ export default function ReportGenerationDialog({
                         value={customTitle}
                         onChange={(e) => setCustomTitle(e.target.value)}
                         placeholder="Enter custom report title..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-500 focus:border-medical-500 transition-colors"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500 transition-colors"
                         disabled={isGenerating}
                       />
                       <p className="text-xs text-gray-500 mt-1">
@@ -234,7 +234,7 @@ export default function ReportGenerationDialog({
                   <button
                     onClick={handleGenerate}
                     disabled={isGenerating}
-                    className="px-6 py-2 text-sm font-medium text-white bg-medical-600 border border-transparent rounded-lg hover:bg-medical-700 disabled:opacity-50 transition-colors"
+                    className="px-6 py-2 text-sm font-medium text-white bg-navy-700 border border-transparent rounded-lg hover:bg-navy-800 disabled:opacity-50 transition-colors"
                   >
                     Generate Report
                   </button>

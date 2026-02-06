@@ -167,9 +167,8 @@ app.include_router(report_router)
 app.include_router(patient_document_router)
 app.include_router(settings_router)
 app.include_router(observability_router)
-# Deprecated - evaluation is now per-report via ground_truth_router
-# app.include_router(evaluate_router)
 app.include_router(ground_truth_router)
+
 from controllers.entity_config_controller import router as entity_config_router
 app.include_router(entity_config_router)
 

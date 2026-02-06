@@ -138,7 +138,7 @@ export default function EvaluationResultsDialog({
         <div className="flex-1 overflow-auto p-6">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-medical-600 animate-spin" />
+              <Loader2 className="w-8 h-8 text-navy-700 animate-spin" />
             </div>
           ) : error ? (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -156,7 +156,7 @@ export default function EvaluationResultsDialog({
               <button
                 onClick={runEvaluation}
                 disabled={isRunning}
-                className="px-6 py-3 bg-medical-600 text-white rounded-lg hover:bg-medical-700 disabled:opacity-50"
+                className="px-6 py-3 bg-navy-700 text-white rounded-lg hover:bg-navy-800 disabled:opacity-50"
               >
                 {isRunning ? (
                   <span className="flex items-center gap-2">
@@ -171,7 +171,7 @@ export default function EvaluationResultsDialog({
                 <div className="mt-4">
                   <div className="w-64 mx-auto bg-gray-200 rounded-full h-2">
                     <div
-                      className="h-2 rounded-full bg-medical-600 transition-all"
+                      className="h-2 rounded-full bg-navy-700 transition-all"
                       style={{ width: `${progress.progress}%` }}
                     />
                   </div>
@@ -340,7 +340,7 @@ export default function EvaluationResultsDialog({
             )}
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-white bg-medical-600 rounded-lg hover:bg-medical-700"
+              className="px-4 py-2 text-sm font-medium text-white bg-navy-700 rounded-lg hover:bg-navy-800"
             >
               Close
             </button>

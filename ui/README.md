@@ -29,18 +29,6 @@ A modern React application for managing medical documents and generating MDT (Mu
 - **Summary Statistics**: Document counts, entity totals, and processing metadata
 - **Multi-format Download**: Export reports as JSON or PDF
 
-### 🤖 Intelligent Assistant (Preview)
-- **Global Knowledge Base Analysis**: Query across anonymized clinical data in the database
-- **Smart Medical Queries**: Pre-built query suggestions for common clinical analyses:
-  - Find similar anonymized cases with comparable clinical profiles
-  - Compare treatment efficacy across different therapeutic protocols
-  - Analyze anonymized outcomes and survival rates
-  - Explore molecular patterns and biomarker correlations
-  - Perform cohort analysis with anonymized clinical criteria
-  - Assess comorbidity impact on treatment choices
-- **Contextual Responses**: AI-powered responses tailored to medical query content
-- **Conversation Management**: Save and organize analysis conversations with auto-generated titles
-- **Preview Mode**: Intelligent response simulation while full anonymized database connectivity is in development
 
 ### 🌍 Internationalization
 - **Bilingual Support**: Complete English and French language support
@@ -158,24 +146,7 @@ VITE_API_BASE_URL=http://localhost:8000
 4. Expand entity cards to see source document details
 5. Download reports in JSON or PDF format
 
-### 6. Intelligent Assistant Usage
-1. Navigate to the **Assistant** tab (marked with "APERÇU/PREVIEW" badge)
-2. **Smart Header Context**: Notice the header changes to show global analysis scope
-3. **Welcome Interface**: Start with suggested medical queries or ask custom questions
-4. **Query Categories**: Choose from 6 types of clinical analyses:
-   - **Similar Cases**: "Analysez des cas anonymisés avec des mutations BRCA..."
-   - **Treatment Comparison**: "Comparez les résultats entre immunothérapie et chimiothérapie..."
-   - **Outcome Analysis**: "Quels sont les taux de réponse anonymisés pour les cas traités par NIVOLUMAB?"
-   - **Molecular Patterns**: "Analysez les mutations TP53 et leur corrélation..."
-   - **Cohort Analysis**: "Analysez les cas anonymisés de plus de 65 ans avec un score OMS > 2"
-   - **Comorbidities**: "Comment les pathologies cardiaques affectent-elles le choix thérapeutique?"
-5. **Conversation Management**:
-   - Conversations auto-save with titles generated from first message
-   - View conversation history grouped by date (Today, Yesterday, specific dates)
-   - Delete individual conversations or clear all history
-6. **Preview Mode**: Receives contextual AI responses simulating full anonymized database analysis
-
-### 7. Language Management
+### 6. Language Management
 1. **Language Switcher**: Click the globe icon (🌍) in the top-right header
 2. **Available Languages**: 
    - **Français** (French) - Default language
@@ -218,14 +189,7 @@ ui/
 │   │   ├── SettingsPanel.tsx       # Configuration panel
 │   │   ├── LanguageSwitcher.tsx    # Bilingual language toggle
 │   │   ├── PDFPreviewModal.tsx     # PDF document preview
-│   │   ├── ReportGenerationDialog.tsx # Report creation dialog
-│   │   └── Assistant/              # Intelligent Assistant components
-│   │       ├── IntelligentAssistant.tsx    # Main assistant orchestrator
-│   │       ├── AssistantChat.tsx           # Chat interface
-│   │       ├── AssistantSidebar.tsx        # Conversation sidebar
-│   │       ├── ChatMessage.tsx             # Individual message display
-│   │       ├── ConversationList.tsx        # Conversation history
-│   │       └── SuggestedQueries.tsx        # Medical query suggestions
+│   │   └── ReportGenerationDialog.tsx # Report creation dialog
 │   ├── i18n/               # Internationalization system
 │   │   ├── context.tsx              # I18n React context
 │   │   └── translations.ts          # English/French translations
@@ -310,10 +274,6 @@ CMD ["nginx", "-g", "daemon off;"]
    - Refresh page if translations don't update immediately
    - Verify browser supports localStorage
 
-6. **Assistant Feature Issues**
-   - Assistant conversations stored in localStorage - clear if experiencing issues
-   - Preview mode responses are simulated - full database connectivity coming soon
-   - Conversation history limited by browser storage capacity
 
 ### Browser Support
 - Chrome 90+

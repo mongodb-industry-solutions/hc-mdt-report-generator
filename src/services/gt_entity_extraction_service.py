@@ -43,18 +43,18 @@ TASK:
 Read the document and extract the value for each entity listed above.
 
 CRITICAL - USE EXACT ENTITY NAMES:
-- Use the EXACT entity names as shown above (with spaces and accents)
-- Example: "Date de diagnostic", NOT "DATE_DE_DIAGNOSTIC"
-- Example: "Localisation primitive", NOT "LOCALISATION_PRIMITIVE"
+- Use the EXACT entity names as shown above (with spaces and proper capitalization)
+- Example: "Diagnosis Date", NOT "DIAGNOSIS_DATE"
+- Example: "Cancer Location", NOT "CANCER_LOCATION"
 
 EXTRACTION RULES:
 - Extract verbatim values from the document
-- For dates, preserve the original format (e.g., "12/06/2024", "12 juin 2024")
+- For dates, preserve the original format (e.g., "12/06/2024", "June 12, 2024")
 - For medical values, include units if present (e.g., "Ki67: 15%")
 - If an entity is not found, set its value to null
 
 Return ONLY valid JSON with the EXACT entity names as keys:
-{{"Date de diagnostic": "extracted_value", "Localisation primitive": "extracted_value", ...}}"""
+{{"Diagnosis Date": "extracted_value", "Cancer Location": "extracted_value", ...}}"""
 
 
 class GTEntityExtractionService:
