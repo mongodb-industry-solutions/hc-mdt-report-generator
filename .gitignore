@@ -120,6 +120,7 @@ progress_extraction_*.json
 # Session files
 *.pkl
 session_backup.pkl
+frontend/node_modules/
 ui/node_modules/
 
 # Root-level test files (experimental/debugging)

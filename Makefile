@@ -20,13 +20,13 @@ setup: install
 install:
 	@echo "Installing dependencies..."
 	@pip install -r requirements.txt
-	@cd ui && npm install
+	@cd frontend && npm install
 
 backend:
 	@uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
 frontend:
-	@cd ui && npm run dev
+	@cd frontend && npm run dev
 
 dev:
 	@echo "Start development servers:"
@@ -38,6 +38,6 @@ test:
 	@python -m pytest tests/ -v
 
 clean:
-	@rmdir /s /q ui\dist 2>nul || echo ""
-	@rmdir /s /q ui\node_modules\.vite 2>nul || echo ""
+	@rmdir /s /q frontend\dist 2>nul || echo ""
+	@rmdir /s /q frontend\node_modules\.vite 2>nul || echo ""
 	@for /d /r . %%d in (__pycache__) do @if exist "%%d" rmdir /s /q "%%d"

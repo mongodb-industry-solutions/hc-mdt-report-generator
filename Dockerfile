@@ -1,8 +1,8 @@
 FROM node:20-slim AS frontend-build
 WORKDIR /frontend
-COPY ui/package*.json ./
+COPY frontend/package*.json ./
 RUN npm ci
-COPY ui/ ./
+COPY frontend/ ./
 RUN npm run build
 
 FROM python:3.11-slim

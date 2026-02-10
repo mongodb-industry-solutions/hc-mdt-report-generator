@@ -177,7 +177,7 @@ if os.path.exists("static"):
     app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 # Serve UI public assets (including default favicon) for docs and other clients
-ui_public_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../ui/public"))
+ui_public_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend/public"))
 if os.path.isdir(ui_public_path):
     app.mount("/assets", StaticFiles(directory=ui_public_path), name="assets")
 
