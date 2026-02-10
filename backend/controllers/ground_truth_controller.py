@@ -72,7 +72,7 @@ async def upload_ground_truth(
     patient_id: str,
     report_uuid: str,
     file: UploadFile = File(...),
-    ocr_engine: str = Form(default="easyocr", description="OCR engine: 'mistral' or 'easyocr'"),
+    ocr_engine: str = Form(default="bedrock", description="OCR engine: 'bedrock', 'mistral', or 'easyocr'"),
     llm_provider: Optional[str] = Form(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'mistral', 'ollama', 'gpt_open'")
 ):
     """
@@ -90,7 +90,7 @@ async def upload_ground_truth(
         patient_id: Patient identifier
         report_uuid: Report UUID to attach ground truth to
         file: PDF file upload
-        ocr_engine: OCR engine to use ("mistral" or "easyocr")
+        ocr_engine: OCR engine to use ("bedrock", "mistral", or "easyocr")
         llm_provider: LLM provider for entity extraction ("mistral" or "gpt_open")
     """
     
@@ -108,7 +108,7 @@ async def upload_ground_truth(
                 return
             
             # Validate OCR engine
-            if ocr_engine not in ["mistral", "easyocr"]:
+            if ocr_engine not in ["bedrock", "mistral", "easyocr"]:
                 yield _sse_event("FAILED", 0, f"Invalid OCR engine: {ocr_engine}")
                 return
             

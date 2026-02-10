@@ -694,7 +694,7 @@ class ApiService {
     patientId: string,
     reportUuid: string,
     file: File,
-    ocrEngine: 'mistral' | 'easyocr' = 'easyocr',
+    ocrEngine: 'bedrock' | 'easyocr' | 'mistral' = 'bedrock',
     onProgress?: (data: GTUploadProgress) => void
   ): Promise<GTUploadProgress | null> {
     const formData = new FormData();

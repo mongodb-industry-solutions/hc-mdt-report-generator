@@ -20,7 +20,7 @@ export default function GTUploadDialog({
   onComplete,
 }: GTUploadDialogProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [ocrEngine, setOcrEngine] = useState<'mistral' | 'easyocr'>('easyocr');
+  const [ocrEngine, setOcrEngine] = useState<'bedrock' | 'easyocr' | 'mistral'>('bedrock');
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState<GTUploadProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -188,7 +188,22 @@ export default function GTUploadDialog({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               OCR Engine
             </label>
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-3">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="ocr-engine"
+                  value="bedrock"
+                  checked={ocrEngine === 'bedrock'}
+                  onChange={() => setOcrEngine('bedrock')}
+                  disabled={isUploading}
+                  className="w-4 h-4 text-navy-700 focus:ring-navy-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">
+                  AWS Bedrock
+                  <span className="text-xs text-green-600 font-medium ml-1">(enterprise-grade, primary choice)</span>
+                </span>
+              </label>
               <label className="flex items-center">
                 <input
                   type="radio"
@@ -216,7 +231,7 @@ export default function GTUploadDialog({
                 />
                 <span className="ml-2 text-sm text-gray-700">
                   Mistral OCR
-                  <span className="text-xs text-gray-500 ml-1">(better quality)</span>
+                  <span className="text-xs text-gray-500 ml-1">(secondary choice)</span>
                 </span>
               </label>
             </div>

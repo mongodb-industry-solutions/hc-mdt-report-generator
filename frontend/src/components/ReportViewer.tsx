@@ -801,7 +801,7 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
       <div className="max-h-96 overflow-y-auto border-b border-gray-200">
         <ReportDisclaimer 
           reportDate={new Date(report.created_at).toLocaleString()}
-          aiModel="Mistral Large Language Model"
+          aiModel="AI Large Language Model (AWS Bedrock/Mistral)"
           version="Proof of Concept v1.0"
         />
       </div>

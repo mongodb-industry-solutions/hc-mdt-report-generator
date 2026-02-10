@@ -5,7 +5,7 @@ Extracts entities from OCR text using the same LLM-based approach
 as the main entity extraction, but optimized for ground truth documents.
 
 UPDATED: Now supports template_id for consistency with report generation,
-and uses Mistral API when LLM_PROVIDER is set to 'mistral'.
+uses AWS Bedrock as primary choice and Mistral API as secondary choice.
 """
 
 import os
@@ -86,7 +86,7 @@ class GTEntityExtractionService:
             template_id: Optional template ID to use (for consistency with report)
             entity_names: Optional list of specific entity names to extract.
                          If None, uses all entities from template.
-            llm_provider: LLM provider to use ("mistral" or "gpt_open").
+            llm_provider: LLM provider to use ("bedrock", "mistral", or "gpt_open").
                          If None, falls back to LLM_PROVIDER env var.
                          
         Returns:
@@ -144,8 +144,8 @@ class GTEntityExtractionService:
         # Route based on provider - Bedrock first, then Mistral as secondary
         if provider == "bedrock":
             return await self._call_bedrock(prompt, system_prompt)
-        # elif "mistral" in provider:
-        #     return await self._call_mistral(prompt, system_prompt)
+        elif "mistral" in provider:
+            return await self._call_mistral(prompt, system_prompt)
         elif "ollama" in provider or "gpt" in provider:
             return await self._call_gpt_open(prompt, system_prompt)
         else:
