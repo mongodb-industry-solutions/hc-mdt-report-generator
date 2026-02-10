@@ -114,7 +114,7 @@ class Settings(BaseSettings):
         return self.allowed_headers
 
     model_config = {
-        "env_file": ".env",
+        "env_file": "../.env",
         "extra": "ignore"
     }
 

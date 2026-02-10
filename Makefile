@@ -19,11 +19,11 @@ setup: install
 
 install:
 	@echo "Installing dependencies..."
-	@pip install -r requirements.txt
+	@pip install -r backend/requirements.txt
 	@cd frontend && npm install
 
 backend:
-	@uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+	@cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 frontend:
 	@cd frontend && npm run dev

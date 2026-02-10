@@ -11,8 +11,8 @@ import sys
 import asyncio
 import logging
 
-# Add the src directory to the Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+# Add the backend directory to the Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from config.database import MongoDBConnection
 

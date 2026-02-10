@@ -152,8 +152,9 @@ pip install -r requirements.txt
 # Start MongoDB (Docker suggested)
 docker run -d -p 27017:27017 --name mongodb mongo:7
 
-# Run the API
-uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+# Run the API  
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Frontend:
