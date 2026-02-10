@@ -126,7 +126,7 @@
 ## 📁 Project Structure
 
 ```
-ui/
+frontend/
 ├── src/
 │   ├── components/
 │   │   ├── PatientSelector.tsx      # Patient ID input

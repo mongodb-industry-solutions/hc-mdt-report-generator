@@ -121,7 +121,6 @@ progress_extraction_*.json
 *.pkl
 session_backup.pkl
 frontend/node_modules/
-ui/node_modules/
 
 # Root-level test files (experimental/debugging)
 test_*.py

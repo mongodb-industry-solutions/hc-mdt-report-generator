@@ -178,7 +178,7 @@ The frontend communicates with the backend through these main endpoints:
 
 ### Project Structure
 ```
-ui/
+frontend/
 ├── src/
 │   ├── components/          # React components
 │   │   ├── DocumentsList.tsx      # Patient document management
