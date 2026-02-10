@@ -39,7 +39,7 @@ async def a_generate(
     Args:
         prompt: User prompt content.
         system: Optional system instruction.
-        provider: "gpt_open" or "mistral". Defaults to env LLM_PROVIDER or "mistral".
+        provider: "gpt_open" only. Defaults to env LLM_PROVIDER or "gpt_open".
         model: Optional model override per provider.
         **kwargs: Provider-specific options (e.g., temperature, max_tokens).
 

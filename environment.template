@@ -20,8 +20,8 @@ MONGODB_DB=clarityGR
 # ============================================================================
 # LLM PROVIDER CONFIGURATION
 # ============================================================================
-# Provider: 'ollama' for local Ollama, 'mistral' for Mistral API
-LLM_PROVIDER=ollama
+# Provider: 'bedrock' for AWS Bedrock, 'ollama' for local Ollama, 'mistral' for Mistral API
+LLM_PROVIDER=bedrock
 
 # Mistral Mode: 'api' for cloud API, 'local' for local deployment
 MISTRAL_MODE=local

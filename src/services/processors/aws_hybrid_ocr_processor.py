@@ -154,7 +154,7 @@ Return the cleaned text directly, no explanations."""
                 
                 cleaned_text = await bedrock_client.invoke_bedrock_async_robust(
                     system_prompt=system_prompt,
-                    user_prompt=user_prompt,
+                    prompt=user_prompt,
                     timeout_override=60  # Shorter timeout for cleanup
                 )
                 

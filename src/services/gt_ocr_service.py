@@ -2,7 +2,7 @@
 Ground Truth OCR Service
 
 Handles OCR extraction from ground truth PDF files.
-Supports multiple OCR engines: Mistral OCR and EasyOCR.
+Supports multiple OCR engines: Mistral OCR, EasyOCR, and AWS Bedrock (Textract + Bedrock).
 """
 
 import base64
@@ -14,7 +14,7 @@ from typing import Literal, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
-OCREngine = Literal["mistral", "easyocr"]
+OCREngine = Literal["bedrock", "easyocr", "mistral"]
 
 
 class GTOCRService:
@@ -22,18 +22,20 @@ class GTOCRService:
     Service for extracting text from ground truth PDF files.
     
     Supports:
-    - Mistral OCR: Cloud-based, higher quality
-    - EasyOCR: Local, faster, no API costs
+    - Bedrock OCR: AWS Textract + Bedrock, enterprise-grade (primary choice)
+    - EasyOCR: Local, faster, no API costs  
+    - Mistral OCR: Cloud-based, higher quality (secondary choice)
     """
 
     def __init__(self):
         self._easyocr_reader = None
         self._mistral_processor = None
+        self._aws_ocr_processor = None
 
     async def extract_text(
         self,
         pdf_content: bytes,
-        ocr_engine: OCREngine = "easyocr",
+        ocr_engine: OCREngine = "bedrock",
         languages: list = None
     ) -> Tuple[str, int]:
         """
@@ -41,7 +43,7 @@ class GTOCRService:
         
         Args:
             pdf_content: PDF file content as bytes
-            ocr_engine: OCR engine to use ("mistral" or "easyocr")
+            ocr_engine: OCR engine to use ("bedrock", "easyocr", or "mistral")
             languages: List of language codes (default: ["fr", "en"])
             
         Returns:
@@ -50,10 +52,12 @@ class GTOCRService:
         if languages is None:
             languages = ["fr", "en"]
 
-        if ocr_engine == "mistral":
-            return await self._extract_with_mistral(pdf_content)
+        if ocr_engine == "bedrock":
+            return await self._extract_with_bedrock(pdf_content)
         elif ocr_engine == "easyocr":
             return await self._extract_with_easyocr(pdf_content, languages)
+        elif ocr_engine == "mistral":
+            return await self._extract_with_mistral(pdf_content)
         else:
             raise ValueError(f"Unsupported OCR engine: {ocr_engine}")
 
@@ -154,6 +158,77 @@ class GTOCRService:
             )
         except Exception as e:
             logger.error(f"EasyOCR extraction failed: {e}")
+            raise
+
+    async def _extract_with_bedrock(self, pdf_content: bytes) -> Tuple[str, int]:
+        """
+        Extract text using AWS hybrid OCR (Textract + Bedrock).
+        
+        For PDFs, converts pages to images first for better Textract compatibility.
+        
+        Args:
+            pdf_content: PDF file content as bytes
+            
+        Returns:
+            Tuple of (extracted_text, page_count)
+        """
+        try:
+            import fitz  # PyMuPDF
+            from services.processors.ocr_processor import OCRProcessor
+            
+            if self._aws_ocr_processor is None:
+                self._aws_ocr_processor = OCRProcessor()
+                await self._aws_ocr_processor.initialize()
+            
+            # Open PDF from bytes
+            pdf_doc = fitz.open(stream=pdf_content, filetype="pdf")
+            page_count = len(pdf_doc)
+            
+            logger.info(f"🔍 Processing {page_count} pages with AWS Textract (PDF→Images)")
+            
+            all_text = []
+            
+            # Process each page as an image for better Textract compatibility
+            for page_num in range(page_count):
+                try:
+                    page = pdf_doc[page_num]
+                    
+                    # Convert page to high-res image
+                    mat = fitz.Matrix(2.0, 2.0)  # 2x scale for better OCR quality
+                    pix = page.get_pixmap(matrix=mat)
+                    img_data = pix.tobytes("png")
+                    
+                    # Convert to base64
+                    img_base64 = base64.b64encode(img_data).decode("utf-8")
+                    
+                    # Process with Textract via base64 (as PNG image)
+                    page_text = await self._aws_ocr_processor.process_base64(img_base64, ".png")
+                    
+                    if page_text.strip():
+                        all_text.append(f"--- Page {page_num + 1} ---\n{page_text.strip()}")
+                    
+                    logger.debug(f"✅ Page {page_num + 1}/{page_count} processed: {len(page_text)} chars")
+                    
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to process page {page_num + 1}: {e}")
+                    all_text.append(f"--- Page {page_num + 1} ---\n[OCR failed for this page]")
+            
+            pdf_doc.close()
+            
+            # Combine all page texts
+            extracted_text = "\n\n".join(all_text)
+            
+            logger.info(f"🎯 AWS Bedrock OCR extracted {len(extracted_text)} characters from {page_count} pages")
+            return extracted_text, page_count
+            
+        except ImportError as e:
+            logger.error(f"Missing dependency for PDF processing: {e}")
+            raise ImportError(
+                "AWS Bedrock OCR requires PyMuPDF for PDF processing. "
+                "Install with: pip install pymupdf"
+            )
+        except Exception as e:
+            logger.error(f"AWS Bedrock OCR extraction failed: {e}")
             raise
 
     def _estimate_page_count(self, pdf_content: bytes) -> int:

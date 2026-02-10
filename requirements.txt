@@ -22,8 +22,6 @@ aiofiles>=23.0.0
 Pillow>=10.0.0  
   
 # AI/ML  
-mistralai>=1.8.2  
-openai>=1.0.0  # Added: Often used alongside Mistral
 # PyTorch for local Mistral inference (CUDA support required)
 torch>=2.0.0
 torchvision>=0.15.0

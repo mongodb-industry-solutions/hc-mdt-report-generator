@@ -63,8 +63,9 @@ class GTEntityExtractionService:
     
     Supports:
     - Template ID for consistency with report generation
-    - Mistral API when LLM_PROVIDER is "mistral"
-    - Fallback to gpt_open when LLM_PROVIDER is not "mistral"
+    - AWS Bedrock when LLM_PROVIDER is "bedrock" (primary choice)
+    - Mistral API when LLM_PROVIDER is "mistral" (secondary choice)
+    - Fallback to gpt_open for other providers
     """
 
     def __init__(self):
@@ -140,13 +141,13 @@ class GTEntityExtractionService:
         
         logger.info(f"GT extraction using LLM provider: {provider}")
         
-        # Route based on provider
+        # Route based on provider - Bedrock first, then Mistral as secondary
         if provider == "bedrock":
             return await self._call_bedrock(prompt, system_prompt)
+        # elif "mistral" in provider:
+        #     return await self._call_mistral(prompt, system_prompt)
         elif "ollama" in provider or "gpt" in provider:
             return await self._call_gpt_open(prompt, system_prompt)
-        elif "mistral" in provider:
-            return await self._call_mistral(prompt, system_prompt)
         else:
             # Default to bedrock for unknown providers
             logger.warning(f"Unknown provider '{provider}', falling back to bedrock")
@@ -174,11 +175,11 @@ class GTEntityExtractionService:
             return await self._call_gpt_open(prompt, system_prompt)
     
     async def _call_mistral(self, prompt: str, system_prompt: str) -> str:
-        """Call Mistral API for extraction."""
+        """Call Mistral API for extraction (secondary choice)."""
         try:
             from infrastructure.llm.mistral_client import AsyncMistralClient
             
-            logger.info("Using Mistral API for GT entity extraction")
+            logger.info("Using Mistral API for GT entity extraction (secondary choice)")
             mistral_client = AsyncMistralClient()
             response = await mistral_client.invoke_mistral_async_robust(
                 system_prompt,

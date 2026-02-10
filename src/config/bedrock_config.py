@@ -16,8 +16,8 @@ try:
     from config.settings import settings
     BEDROCK_REGION = getattr(settings, 'bedrock_region', 'us-east-1')
     BEDROCK_MODEL = getattr(settings, 'bedrock_model', 'anthropic.claude-3-haiku-20240307-v1:0')
-    logger.info(f"🔧 Bedrock region loaded from settings: {BEDROCK_REGION}")
-    logger.info(f"🔧 Bedrock model loaded from settings: {BEDROCK_MODEL}")
+    # logger.info(f"🔧 Bedrock region loaded from settings: {BEDROCK_REGION}")
+    # logger.info(f"🔧 Bedrock model loaded from settings: {BEDROCK_MODEL}")
 except ImportError:
     BEDROCK_REGION = os.environ.get('BEDROCK_REGION', 'us-east-1')
     BEDROCK_MODEL = os.environ.get('BEDROCK_MODEL', 'anthropic.claude-3-haiku-20240307-v1:0')
@@ -30,7 +30,7 @@ def get_async_bedrock_client():
     Returns:
         AsyncBedrockClient class
     """
-    logger.info("🤖 Using AWS Bedrock client")
+    # logger.info("🤖 Using AWS Bedrock client")
     from infrastructure.llm.bedrock_client import AsyncBedrockClient
     return AsyncBedrockClient
 

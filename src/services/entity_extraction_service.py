@@ -69,7 +69,7 @@ from domain.entities.ner_models import (
 )  
   
 # Infrastructure imports  
-from infrastructure.llm.mistral_client import AsyncMistralClient  
+# from infrastructure.llm.mistral_client import AsyncMistralClient  
 from infrastructure.llm.bedrock_client import AsyncBedrockClient
   
 # Service imports  
@@ -1176,24 +1176,23 @@ class EntityExtractionService:
         for attempt in range(self.max_batch_retries + 1):  
             try:  
                 provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
-                logger.info(f"📞 Calling LLM (attempt {attempt + 1}/{self.max_batch_retries + 1})... provider={provider}")
-                
-                if provider == "mistral":
-                    # Use Mistral official client
-                    mistral_client = AsyncMistralClient()
-                    model_response = await mistral_client.invoke_mistral_async_robust(
-                        system_prompt,
-                        prompt,
-                        timeout_override=self.batch_timeout,
-                    )
-                elif provider == "bedrock":
-                    # Use AWS Bedrock client
+
+                if provider == "bedrock":
+                    # Use AWS Bedrock client as main provider
                     async with AsyncBedrockClient() as bedrock_client:
                         model_response = await bedrock_client.invoke_bedrock_async_robust(
                             system_prompt,
                             prompt,
                             timeout_override=self.batch_timeout,
                         )
+                # elif provider == "mistral":
+                #     # Deprecated - Keeping Mistral as an option for now, but Bedrock is main provider
+                #     mistral_client = AsyncMistralClient()
+                #     model_response = await mistral_client.invoke_mistral_async_robust(
+                #         system_prompt,
+                #         prompt,
+                #         timeout_override=self.batch_timeout,
+                #     )
                 else:
                     # Unified wrapper call (runs in a thread to avoid blocking loop)
                     model_response = await asyncio.to_thread(
@@ -1275,21 +1274,22 @@ class EntityExtractionService:
                 provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
                 logger.info(f"📞 Calling LLM for merged batch {batch_index} (attempt {attempt + 1}/{self.max_batch_retries + 1})... provider={provider}")
                 
-                if provider == "mistral":
-                    mistral_client = AsyncMistralClient()
-                    model_response = await mistral_client.invoke_mistral_async_robust(
-                        system_prompt,
-                        prompt,
-                        timeout_override=self.batch_timeout,
-                    )
-                elif provider == "bedrock":
-                    # Use AWS Bedrock client
+                if provider == "bedrock":
+                    # Use AWS Bedrock client as main provider
                     async with AsyncBedrockClient() as bedrock_client:
                         model_response = await bedrock_client.invoke_bedrock_async_robust(
                             system_prompt,
                             prompt,
                             timeout_override=self.batch_timeout,
                         )
+                # elif provider == "mistral":
+                #     # Secondary option - Mistral support maintained
+                #     mistral_client = AsyncMistralClient()
+                #     model_response = await mistral_client.invoke_mistral_async_robust(
+                #         system_prompt,
+                #         prompt,
+                #         timeout_override=self.batch_timeout,
+                #     )
                 else:
                     model_response = await asyncio.to_thread(
                         generate,
@@ -1527,21 +1527,22 @@ class EntityExtractionService:
             for attempt in range(self.max_batch_retries + 1):  
                 try:  
                     provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
-                    if provider == "mistral":
-                        mistral_client = AsyncMistralClient()
-                        result = await mistral_client.invoke_mistral_async_robust(
-                            system_prompt,
-                            prompt,
-                            timeout_override=1200,
-                        )
-                    elif provider == "bedrock":
-                        # Use AWS Bedrock client for aggregation
+                    if provider == "bedrock":
+                        # Use AWS Bedrock client for aggregation (primary choice)
                         async with AsyncBedrockClient() as bedrock_client:
                             result = await bedrock_client.invoke_bedrock_async_robust(
                                 system_prompt,
                                 prompt,
                                 timeout_override=1200,
                             )
+                    # elif provider == "mistral":
+                    #     # Secondary option - Mistral support maintained  
+                    #     mistral_client = AsyncMistralClient()
+                    #     result = await mistral_client.invoke_mistral_async_robust(
+                    #         system_prompt,
+                    #         prompt,
+                    #         timeout_override=1200,
+                    #     )
                     else:
                         result = await asyncio.to_thread(
                             generate,
