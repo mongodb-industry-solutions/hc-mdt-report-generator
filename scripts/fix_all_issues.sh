@@ -229,8 +229,8 @@ validate_system() {
     
     # Check React project
     log "INFO" "🔍 Validating React project..."
-    if [ -f "$PROJECT_DIR/ui/package.json" ]; then
-        cd "$PROJECT_DIR/ui"
+    if [ -f "$PROJECT_DIR/frontend/package.json" ]; then
+        cd "$PROJECT_DIR/frontend"
         if [ -d "node_modules" ] && [ -f "package-lock.json" ]; then
             log "SUCCESS" "   ✅ React dependencies installed"
         else

@@ -97,7 +97,7 @@ update_nodejs() {
 check_react_project() {
     log "STEP" "🔍 Checking React project structure..."
     
-    local ui_dir="$PROJECT_DIR/ui"
+    local ui_dir="$PROJECT_DIR/frontend"
     
     if [ ! -d "$ui_dir" ]; then
         log "ERROR" "❌ UI directory not found: $ui_dir"
@@ -122,7 +122,7 @@ check_react_project() {
 clean_react_dependencies() {
     log "STEP" "🧹 Cleaning React dependencies..."
     
-    local ui_dir="$PROJECT_DIR/ui"
+    local ui_dir="$PROJECT_DIR/frontend"
     cd "$ui_dir"
     
     # Remove existing node_modules and lock files
@@ -142,7 +142,7 @@ clean_react_dependencies() {
 fix_package_json() {
     log "STEP" "🔧 Fixing package.json for Node.js 18 compatibility..."
     
-    local ui_dir="$PROJECT_DIR/ui"
+    local ui_dir="$PROJECT_DIR/frontend"
     local package_json="$ui_dir/package.json"
     
     # Backup original package.json
@@ -175,7 +175,7 @@ fix_package_json() {
 install_react_dependencies() {
     log "STEP" "📦 Installing React dependencies..."
     
-    local ui_dir="$PROJECT_DIR/ui"
+    local ui_dir="$PROJECT_DIR/frontend"
     cd "$ui_dir"
     
     # Try npm ci first (faster if package-lock.json is valid)
@@ -214,7 +214,7 @@ install_react_dependencies() {
 test_react_build() {
     log "STEP" "🧪 Testing React build..."
     
-    local ui_dir="$PROJECT_DIR/ui"
+    local ui_dir="$PROJECT_DIR/frontend"
     cd "$ui_dir"
     
     # Try production build
@@ -241,7 +241,7 @@ test_react_build() {
 test_react_dev_server() {
     log "STEP" "🧪 Testing React development server..."
     
-    local ui_dir="$PROJECT_DIR/ui"
+    local ui_dir="$PROJECT_DIR/frontend"
     cd "$ui_dir"
     
     # Kill any existing processes on port 3000
