@@ -5,9 +5,9 @@ from fastapi.testclient import TestClient
 from pymongo import MongoClient
 from unittest.mock import patch
 
-# Add src to path - use absolute path
+# Add backend to path - use absolute path
 current_dir = os.path.dirname(os.path.abspath(__file__))
-src_dir = os.path.join(os.path.dirname(current_dir), 'src')
+src_dir = os.path.join(os.path.dirname(current_dir), 'backend')
 sys.path.insert(0, src_dir)
 
 @pytest.fixture
@@ -40,9 +40,9 @@ def client(test_db):
     
     with patch.dict(os.environ, test_env, clear=False):
         import importlib
-        import src.config.settings
-        importlib.reload(src.config.settings)
+        import backend.config.settings
+        importlib.reload(backend.config.settings)
         
-        from src.main import app
+        from backend.main import app
         with TestClient(app) as test_client:
             yield test_client 

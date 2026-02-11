@@ -11,8 +11,8 @@ from pymongo.errors import ConnectionFailure, CollectionInvalid
 from datetime import datetime
 import logging
 
-# Add src to path to import config
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+# Add backend to path to import config
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 try:
     from config.settings import settings
@@ -177,10 +177,10 @@ if __name__ == "__main__":
         print()
         print("🎉 MongoDB cluster setup completed successfully!")
         print("💡 Next steps:")
-        print("   1. Install Python dependencies: pip install -r requirements.txt")
-        print("   2. Start backend: python src/main.py")
-        print("   3. Install frontend deps: cd ui && npm install")
-        print("   4. Start frontend: cd ui && npm run dev")
+        print("   1. Install Python dependencies: pip install -r backend/requirements.txt")
+        print("   2. Start backend: cd backend && python main.py")
+        print("   3. Install frontend deps: cd frontend && npm install")
+        print("   4. Start frontend: cd frontend && npm run dev")
     else:
         print("❌ MongoDB setup failed. Please check your connection string and try again.")
         sys.exit(1)

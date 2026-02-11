@@ -59,7 +59,7 @@ High-level components and data flow:
 
 Notes:
 - Static UI (built) is served by backend at / (Docker build copies to ./static)
-- Public UI assets mounted at /assets (src/ui/public)
+- Public UI assets mounted at /assets (src/frontend/public)
 - Auth router exists but is NOT mounted by default
 ```
 
@@ -81,7 +81,7 @@ poc-aifac-claritygr/
 │   ├── middleware/                 # rate limiter, input validator, auth helpers
 │   ├── models/                     # Pydantic models stored in Mongo
 │   └── api/schemas/                # Request/response schemas
-└── ui/                             # React app (Vite, Tailwind)
+└── frontend/                       # React app (Vite, Tailwind)
 ```
 
 ---
@@ -152,13 +152,14 @@ pip install -r requirements.txt
 # Start MongoDB (Docker suggested)
 docker run -d -p 27017:27017 --name mongodb mongo:7
 
-# Run the API
-uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+# Run the API  
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Frontend:
 ```bash
-cd poc-aifac-claritygr/ui
+cd poc-aifac-claritygr/frontend
 npm install
 npm run dev
 # UI at http://localhost:3000 (proxies/targets API at http://localhost:8000)

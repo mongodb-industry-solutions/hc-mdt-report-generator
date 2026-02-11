@@ -120,7 +120,7 @@ progress_extraction_*.json
 # Session files
 *.pkl
 session_backup.pkl
-ui/node_modules/
+frontend/node_modules/
 
 # Root-level test files (experimental/debugging)
 test_*.py
@@ -132,3 +132,5 @@ security_check.sh
 env.bak/
 venv.bak/
 docs
+data
+scripts/bulk_data_ingestion.py
