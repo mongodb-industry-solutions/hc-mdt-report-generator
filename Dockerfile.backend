@@ -1,0 +1,24 @@
+FROM python:3.13-slim
+
+WORKDIR /
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libmagic1 \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy backend directory contents
+COPY backend/ .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY gr_entities_definition.json ./
+
+EXPOSE 8080
+
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
