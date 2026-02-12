@@ -1,9 +1,12 @@
 FROM python:3.13-slim
 
-WORKDIR /
+WORKDIR /app
 
 # uv installation
 RUN pip install uv
+
+# Copy pyproject.toml first to install dependencies
+COPY backend/pyproject.toml .
 
 # Install dependencies with uv
 RUN uv sync --no-dev
@@ -19,9 +22,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy backend directory contents
 COPY backend/ .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
 
 COPY gr_entities_definition.json ./
 

@@ -25,30 +25,26 @@ const LLM_API_KEY_STORAGE_KEY = 'claritygr_llm_api_key';
 // Provider-specific API key prefix
 const LLM_PROVIDER_API_KEY_PREFIX = 'claritygr_llm_api_key_';
 
-// Dynamic API URL with localStorage persistence
+// Get API URL - uses Next.js API proxy pattern
 function getApiBaseURL(): string {
-  // Check if we have a stored URL first
-  const storedUrl = localStorage.getItem(API_URL_STORAGE_KEY);
-  if (storedUrl) {
-    return storedUrl;
+  // Only access localStorage on client-side (not during SSR)
+  if (typeof window !== 'undefined') {
+    // Check if we have a stored URL first (allows user override via settings)
+    const storedUrl = localStorage.getItem(API_URL_STORAGE_KEY);
+    if (storedUrl) {
+      return storedUrl;
+    }
   }
 
-  // Auto-detect the API URL based on how the UI is accessed
-  let detectedUrl: string;
+  // Use Next.js API proxy route - this will be proxied to backend via BACKEND_URL
+  const proxyUrl = '/api/internal';
   
-  // If accessing via localhost, use localhost
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    detectedUrl = 'http://localhost:8000';
-  } else {
-    // For remote access, assume API is on same host, port 8000
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    detectedUrl = `${protocol}//${hostname}:8000`;
+  // Only store in localStorage on client-side
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(API_URL_STORAGE_KEY, proxyUrl);
   }
   
-  // Store the detected URL
-  localStorage.setItem(API_URL_STORAGE_KEY, detectedUrl);
-  return detectedUrl;
+  return proxyUrl;
 }
 
 class ApiService {
@@ -78,12 +74,15 @@ class ApiService {
   // Update base URL and persist to localStorage
   updateBaseURL(url: string) {
     this.api.defaults.baseURL = url;
-    localStorage.setItem(API_URL_STORAGE_KEY, url);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(API_URL_STORAGE_KEY, url);
+    }
     console.log('🌐 API Base URL updated to:', url);
   }
   
   // Get the current LLM model ID
   getCurrentLLMModelId(): string {
+    if (typeof window === 'undefined') return 'mistral-small-latest';
     const storedModelId = localStorage.getItem(LLM_MODEL_STORAGE_KEY);
     return storedModelId || 'mistral-small-latest'; // Default if not set
   }
@@ -95,7 +94,9 @@ class ApiService {
       const mappedModelId = modelId;
       
       // Save model ID to local storage
-      localStorage.setItem(LLM_MODEL_STORAGE_KEY, mappedModelId);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(LLM_MODEL_STORAGE_KEY, mappedModelId);
+      }
       
       // If API key is provided, save it using the model-specific storage
       if (apiKey) {
@@ -107,7 +108,7 @@ class ApiService {
       }
       
       // If base URL is provided for OpenAI models, save it
-      if (baseUrl && modelId === 'gpt-oss-20b') {
+      if (baseUrl && modelId === 'gpt-oss-20b' && typeof window !== 'undefined') {
         localStorage.setItem('claritygr_gpt_open_url', baseUrl);
         console.log('🌐 GPT Open base URL cached:', baseUrl);
       }
@@ -146,6 +147,8 @@ class ApiService {
   
   // Get API key for specific LLM model or provider
   getLLMApiKey(modelId?: string): string {
+    if (typeof window === 'undefined') return '';
+    
     // If a model ID is provided, try to get its specific key first
     if (modelId) {
       // Try model-specific key
@@ -167,6 +170,8 @@ class ApiService {
   
   // Store API key for a specific model or provider
   storeLLMApiKey(apiKey: string, modelId: string): void {
+    if (typeof window === 'undefined') return;
+    
     // Always store the key by model ID
     localStorage.setItem(`${LLM_PROVIDER_API_KEY_PREFIX}${modelId}`, apiKey);
     
@@ -182,6 +187,7 @@ class ApiService {
   
   // Get the current GPT Open base URL
   getGptOpenBaseUrl(): string {
+    if (typeof window === 'undefined') return 'http://35.88.139.67:8080';
     return localStorage.getItem('claritygr_gpt_open_url') || 'http://35.88.139.67:8080';
   }
 
