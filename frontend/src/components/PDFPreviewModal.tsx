@@ -38,7 +38,7 @@ export default function PDFPreviewModal({
     
     try {
       const { generateMedicalReportPDF } = await import('../services/pdfGenerator');
-      const pdfBlob = generateMedicalReportPDF(report);
+      const pdfBlob = await generateMedicalReportPDF(report);
       const url = URL.createObjectURL(pdfBlob);
       setPdfUrl(url);
     } catch (err) {
