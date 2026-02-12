@@ -21,12 +21,12 @@ env:
 ## Single Pod Containers
 envSecrets:
   # MongoDB Configuration
-  MONGODB_URI: <secret-group>
-  MONGODB_DB: <secret-group> 
-  SECRET_KEY: <secret-group>
-  JWT_SECRET_KEY: <secret-group>
-  JWT_ALGORITHM: <secret-group>
-  JWT_ACCESS_TOKEN_EXPIRE_MINUTES: <secret-group> 
+  MONGODB_URI: mdt-report-generator-secrets
+  MONGODB_DB: mdt-report-generator-secrets 
+  SECRET_KEY: mdt-report-generator-secrets
+  JWT_SECRET_KEY: mdt-report-generator-secrets
+  JWT_ALGORITHM: mdt-report-generator-secrets
+  JWT_ACCESS_TOKEN_EXPIRE_MINUTES: mdt-report-generator-secrets 
 
 ## should be used in case of multiple sidecar containers
 # sidecarContainers:
