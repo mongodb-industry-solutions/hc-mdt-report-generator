@@ -18,6 +18,10 @@ export default function PDFPreviewModal({
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState<{
+    progress: number;
+    currentStep: string;
+  }>({ progress: 0, currentStep: '' });
 
   useEffect(() => {
     if (isOpen && !pdfUrl) {
@@ -35,17 +39,30 @@ export default function PDFPreviewModal({
   const generatePreview = async () => {
     setIsGenerating(true);
     setError(null);
+    setGenerationProgress({ progress: 0, currentStep: 'Initializing...' });
     
     try {
       const { generateMedicalReportPDF } = await import('../services/pdfGenerator');
-      const pdfBlob = await generateMedicalReportPDF(report);
+      
+      // Create progress callback
+      const progressCallback = (progress: number, step: string) => {
+        setGenerationProgress({ progress, currentStep: step });
+      };
+      
+      const pdfBlob = await generateMedicalReportPDF(report, progressCallback);
       const url = URL.createObjectURL(pdfBlob);
       setPdfUrl(url);
+      
+      setGenerationProgress({ progress: 100, currentStep: 'Preview ready!' });
     } catch (err) {
       console.error('Error generating PDF preview:', err);
       setError('Erreur lors de la génération de l\'aperçu PDF');
     } finally {
       setIsGenerating(false);
+      // Reset progress after a short delay
+      setTimeout(() => {
+        setGenerationProgress({ progress: 0, currentStep: '' });
+      }, 1000);
     }
   };
 
@@ -88,9 +105,27 @@ export default function PDFPreviewModal({
         {/* Content */}
         <div className="flex-1 flex items-center justify-center p-4">
           {isGenerating ? (
-            <div className="flex flex-col items-center space-y-4">
+            <div className="flex flex-col items-center space-y-6 w-full max-w-md">
               <Loader className="h-8 w-8 animate-spin text-navy-700" />
-              <p className="text-gray-600">Génération de l'aperçu PDF...</p>
+              <div className="w-full space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">{generationProgress.currentStep || 'Génération de l\'aperçu PDF...'}</span>
+                  <span className="font-medium text-navy-700">{Math.round(generationProgress.progress)}%</span>
+                </div>
+                
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div
+                    className="bg-navy-700 h-3 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${Math.min(generationProgress.progress, 100)}%` }}
+                  />
+                </div>
+                
+                <div className="text-xs text-gray-500 text-center">
+                  <span className="bg-blue-100 px-2 py-1 rounded text-blue-700">
+                    Creating comprehensive summaries with AI
+                  </span>
+                </div>
+              </div>
             </div>
           ) : error ? (
             <div className="flex flex-col items-center space-y-4 text-center">

@@ -60,6 +60,14 @@ export default function ReportsList({
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   
+  // PDF generation progress state
+  const [pdfGenerationProgress, setPdfGenerationProgress] = useState<{
+    isGenerating: boolean;
+    progress: number;
+    currentStep: string;
+    reportId?: string;
+  }>({ isGenerating: false, progress: 0, currentStep: '' });
+  
   // Ensure reverse chronological order (newest first)
   const sortedReports = React.useMemo(() => {
     return [...reports].sort((a, b) => 
@@ -204,9 +212,81 @@ export default function ReportsList({
     apiService.downloadAsJSON(report, filename);
   };
 
-  const handleDownloadPDF = (report: Report) => {
-    const filename = `${report.filename.replace('.json', '')}.pdf`;
-    apiService.downloadAsPDF(report, filename);
+  const handleDownloadPDF = async (report: Report) => {
+    try {
+      console.log('🔄 Starting PDF download for report:', report.uuid, 'patient:', report.patient_id);
+      
+      // Set initial progress
+      setPdfGenerationProgress({
+        isGenerating: true,
+        progress: 0,
+        currentStep: 'Initializing PDF generation...',
+        reportId: report.uuid
+      });
+      
+      // Test simple PDF generation first
+      console.log('🧪 Testing simple PDF generation...');
+      setPdfGenerationProgress(prev => ({ ...prev, progress: 10, currentStep: 'Testing PDF engine...' }));
+      
+      const { generateSimpleTestPDF } = await import('../services/testPDF');
+      const simplePdfBlob = await generateSimpleTestPDF();
+      console.log('✅ Simple PDF generation successful, blob size:', simplePdfBlob.size);
+      
+      const filename = `${report.filename.replace('.json', '')}.pdf`;
+      
+      // Import the PDF generator with progress tracking
+      console.log('🔄 Generating full medical report PDF...');
+      setPdfGenerationProgress(prev => ({ ...prev, progress: 20, currentStep: 'Loading PDF generator...' }));
+      
+      const { generateMedicalReportPDF } = await import('../services/pdfGenerator');
+      
+      // Create progress callback for PDF generation
+      const progressCallback = (progress: number, step: string) => {
+        setPdfGenerationProgress(prev => ({ 
+          ...prev, 
+          progress: Math.min(20 + (progress * 0.7), 90), // Scale 0-100 to 20-90
+          currentStep: step 
+        }));
+      };
+      
+      setPdfGenerationProgress(prev => ({ ...prev, progress: 25, currentStep: 'Generating comprehensive summaries...' }));
+      const pdfBlob = await generateMedicalReportPDF(report, progressCallback);
+      console.log('✅ Medical PDF generation successful, blob size:', pdfBlob.size);
+      
+      setPdfGenerationProgress(prev => ({ ...prev, progress: 95, currentStep: 'Preparing download...' }));
+      
+      // Create download link
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      setPdfGenerationProgress(prev => ({ ...prev, progress: 100, currentStep: 'Download completed!' }));
+      
+      // Reset progress after a short delay
+      setTimeout(() => {
+        setPdfGenerationProgress({ isGenerating: false, progress: 0, currentStep: '' });
+      }, 2000);
+      
+      console.log('✅ PDF download completed');
+    } catch (error) {
+      console.error('❌ Error generating PDF:', error);
+      console.error('Error stack:', error.stack);
+      setPdfGenerationProgress(prev => ({ ...prev, currentStep: `Error: ${error.message}` }));
+      
+      setTimeout(() => {
+        setPdfGenerationProgress({ isGenerating: false, progress: 0, currentStep: '' });
+      }, 3000);
+      
+      alert(`PDF Generation Error: ${error.message}`);
+      // Fallback to JSON download
+      const filename = `${report.filename.replace('.json', '')}.json`;
+      apiService.downloadAsJSON(report, filename);
+    }
   };
 
   const getEntitiesCount = (report: Report): number => {
@@ -286,6 +366,39 @@ export default function ReportsList({
                   Entities extracted: {generationProgress.entities_extracted}
                 </span>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PDF Generation Progress */}
+      {pdfGenerationProgress.isGenerating && (
+        <div className="card border-blue-200 bg-blue-50">
+          <div className="flex items-center space-x-3 mb-4">
+            <Loader className="w-5 h-5 text-blue-600 animate-spin" />
+            <h3 className="text-lg font-medium text-blue-900">Generating PDF Report</h3>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-blue-700">{pdfGenerationProgress.currentStep}</span>
+              <span className="font-medium text-blue-800">{Math.round(pdfGenerationProgress.progress)}%</span>
+            </div>
+            
+            <div className="w-full bg-blue-200 rounded-full h-3">
+              <div
+                className="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${Math.min(pdfGenerationProgress.progress, 100)}%` }}
+              />
+            </div>
+            
+            <div className="text-xs text-blue-600">
+              <div className="flex items-center justify-between">
+                <span>Creating comprehensive medical summaries with AI...</span>
+                <span className="bg-blue-100 px-2 py-1 rounded text-blue-700 font-medium">
+                  Processing
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -415,10 +528,15 @@ export default function ReportsList({
                         </button>
                         <button
                           onClick={() => handleDownloadPDF(report)}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          disabled={report.status !== 'COMPLETED'}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={report.status !== 'COMPLETED' || (pdfGenerationProgress.isGenerating && pdfGenerationProgress.reportId === report.uuid)}
                         >
-                          Download as PDF
+                          <div className="flex items-center justify-between">
+                            <span>Download as PDF</span>
+                            {pdfGenerationProgress.isGenerating && pdfGenerationProgress.reportId === report.uuid && (
+                              <Loader className="w-3 h-3 animate-spin text-blue-500" />
+                            )}
+                          </div>
                         </button>
                       </div>
                     </div>

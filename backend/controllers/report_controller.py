@@ -360,4 +360,86 @@ async def create_mdt_report_stream(patient_id: str, request: Optional[MDTReportR
             "X-Content-Type-Options": "nosniff",
             "Transfer-Encoding": "chunked"
         }
-    ) 
+    )
+
+
+@router.post("/{patient_id}/reports/section-summary")
+async def generate_section_summary(patient_id: str, request: dict):
+    """
+    Generate a narrative summary for a report section using LLM.
+    
+    Takes entities from a section and generates a comprehensive text summary.
+    """
+    try:
+        logger.info(f"Section summary request for patient {patient_id}")
+        
+        section_title = request.get("section_title", "")
+        entities = request.get("entities", [])
+        
+        logger.info(f"Processing section '{section_title}' with {len(entities)} entities")
+        
+        if not entities:
+            logger.warning(f"No entities provided for section {section_title}")
+            return {"summary": "No information available for this section."}
+        
+        # Enhanced logging
+        entity_names = [entity.get('name', 'Unknown') for entity in entities[:3]]
+        logger.info(f"Sample entities: {entity_names}")
+        
+        try:
+            from services.section_summary_service import SectionSummaryService
+            summary_service = SectionSummaryService()
+            summary = await summary_service.generate_summary(section_title, entities)
+            
+            logger.info(f"✅ Generated summary for {section_title}: {len(summary or '')} characters")
+            if summary:
+                # Log if summary appears to be from fallback (contains specific pattern)
+                if "is documented as:" in summary or "is comprehensively documented as:" in summary:
+                    logger.warning(f"🔄 Summary for {section_title} appears to be from fallback function")
+                else:
+                    logger.info(f"🤖 Summary for {section_title} appears to be from LLM generation")
+                    
+                logger.info(f"📝 Summary preview: {summary[:200]}...")
+            else:
+                logger.warning(f"⚠️ Empty summary returned for {section_title}")
+            
+            return {"summary": summary}
+            
+        except ImportError as e:
+            logger.error(f"Failed to import SectionSummaryService: {e}")
+            # Create a detailed fallback summary
+            fallback = self._create_detailed_fallback(section_title, entities)
+            return {"summary": fallback}
+        except Exception as e:
+            logger.error(f"Error in SectionSummaryService: {e}")
+            fallback = self._create_detailed_fallback(section_title, entities)
+            return {"summary": fallback}
+        
+    except Exception as e:
+        logger.error(f"Failed to generate section summary: {e}")
+        return {"summary": ""}
+
+def _create_detailed_fallback(section_title: str, entities: list) -> str:
+    """Create a detailed fallback summary using entity data"""
+    if not entities:
+        return f"No information was available for the {section_title} section."
+    
+    summary_parts = [f"The {section_title} section includes important medical information."]
+    
+    # Include key data points with actual values
+    for entity in entities[:4]:  # Limit to first 4 entities
+        name = entity.get('name', 'Unknown')
+        value = str(entity.get('value', '')).strip()
+        
+        if value and len(value) > 0:
+            # Preserve full values for comprehensive fallback summaries
+            # Only truncate extremely long values (over 1000 chars) to prevent display issues
+            if len(value) > 1000:
+                value = value[:1000] + " [continued with additional details]"
+            summary_parts.append(f"The {name} is documented as: {value}.")
+    
+    if len(entities) > 4:
+        remaining = len(entities) - 4
+        summary_parts.append(f"Additional {remaining} data points were also extracted for this section.")
+    
+    return " ".join(summary_parts)
