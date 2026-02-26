@@ -207,10 +207,7 @@ export default function ReportsList({
     }
   }, [generationError]);
 
-  const handleDownloadJSON = (report: Report) => {
-    const filename = `${report.filename.replace('.json', '')}.json`;
-    apiService.downloadAsJSON(report, filename);
-  };
+
 
   const handleDownloadPDF = async (report: Report) => {
     try {
@@ -273,7 +270,7 @@ export default function ReportsList({
       }, 2000);
       
       console.log('✅ PDF download completed');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error generating PDF:', error);
       console.error('Error stack:', error.stack);
       setPdfGenerationProgress(prev => ({ ...prev, currentStep: `Error: ${error.message}` }));
@@ -283,9 +280,6 @@ export default function ReportsList({
       }, 3000);
       
       alert(`PDF Generation Error: ${error.message}`);
-      // Fallback to JSON download
-      const filename = `${report.filename.replace('.json', '')}.json`;
-      apiService.downloadAsJSON(report, filename);
     }
   };
 
@@ -511,36 +505,17 @@ export default function ReportsList({
                     <span>{t.reports.info.view}</span>
                   </button>
                   
-                  <div className="relative group">
-                    <button className="btn-secondary flex items-center space-x-1">
-                      <Download className="w-4 h-4" />
-                      <span>{t.reports.info.download}</span>
-                    </button>
-                    
-                    <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                      <div className="py-1">
-                        <button
-                          onClick={() => handleDownloadJSON(report)}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          disabled={report.status !== 'COMPLETED'}
-                        >
-                          Download as JSON
-                        </button>
-                        <button
-                          onClick={() => handleDownloadPDF(report)}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                          disabled={report.status !== 'COMPLETED' || (pdfGenerationProgress.isGenerating && pdfGenerationProgress.reportId === report.uuid)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>Download as PDF</span>
-                            {pdfGenerationProgress.isGenerating && pdfGenerationProgress.reportId === report.uuid && (
-                              <Loader className="w-3 h-3 animate-spin text-blue-500" />
-                            )}
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => handleDownloadPDF(report)}
+                    className="btn-secondary flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={report.status !== 'COMPLETED' || (pdfGenerationProgress.isGenerating && pdfGenerationProgress.reportId === report.uuid)}
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>{t.reports.info.download}</span>
+                    {pdfGenerationProgress.isGenerating && pdfGenerationProgress.reportId === report.uuid && (
+                      <Loader className="w-3 h-3 animate-spin text-blue-500 ml-1" />
+                    )}
+                  </button>
                   <button
                     onClick={async () => {
                       if (!window.confirm('Delete this report permanently?')) return;

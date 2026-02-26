@@ -13,7 +13,7 @@ class MedicalPDFGenerator {
   private doc: jsPDF;
   private pageWidth: number;
   private pageHeight: number;
-  private margins = { top: 30, right: 15, bottom: 30, left: 15 };
+  private margins = { top: 30, right: 15, bottom: 40, left: 15 };
   private currentY: number = 0;
   private mongoDBLogoBase64: string | null = null;
   private readonly colors = {
