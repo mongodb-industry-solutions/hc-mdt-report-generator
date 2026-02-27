@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, User, BarChart3, Settings, X, Eye, Users } from 'lucide-react';
 import PatientSelector from './components/PatientSelector';
 import PatientSelectionView from './components/PatientSelectionView';
-import DocumentsList from './components/DocumentsList';
+import DocumentsContainer from './components/DocumentsContainer';
 import ReportsList from './components/ReportsList';
 import ReportViewer from './components/ReportViewer';
 import SettingsPanel from './components/SettingsPanel';
@@ -220,12 +220,12 @@ function AppContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white overflow-x-hidden max-w-[100vw]">
       {disclaimerAccepted && (
         <>
           {/* Fixed Header */}
           <header className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md shadow-lg border-b border-gray-200">
-            <div className="w-full px-4 sm:px-6 lg:px-8">
+            <div className="w-full px-4 sm:px-6 lg:px-8 overflow-hidden">
               {/* Professional Header with Cobranded Logo */}
               <div className="bg-gradient-to-r from-navy-800 to-navy-900 text-white px-6 py-4 -mx-4 -mt-0 mb-6 border-b-2 border-mongodb-green">
                 <div className="flex items-center justify-between relative">
@@ -339,7 +339,7 @@ function AppContent() {
             )}
 
             {/* Main Content Area */}
-            <div className={`flex-1 ${patientId ? 'ml-64' : ''} px-4 sm:px-6 lg:px-8 py-8`}>
+            <div className={`flex-1 ${patientId ? 'ml-64' : ''} px-4 sm:px-6 lg:px-8 py-8`} style={{ maxWidth: patientId ? 'calc(100vw - 16rem)' : '100vw', overflowX: 'hidden' }}>
               {error && (
                 <div className="mb-6 bg-red-50/90 border border-red-200 rounded-xl p-6 backdrop-blur-sm shadow-sm">
                   <div className="flex">
@@ -355,9 +355,9 @@ function AppContent() {
               )}
 
               {/* Standard documents/reports layout */}
-              <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex flex-col lg:flex-row gap-6 overflow-hidden w-full">
               {/* Main Content */}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0 overflow-hidden">
                   {/* Content */}
                   {!patientId ? (
                     /* Show patient selection when no patient is selected */
@@ -372,7 +372,7 @@ function AppContent() {
                   ) : (
                     <>
                       {currentView === 'documents' && (
-                        <DocumentsList
+                        <DocumentsContainer
                           documents={documents}
                           onRefresh={handleRefreshDocuments}
                           patientId={patientId}

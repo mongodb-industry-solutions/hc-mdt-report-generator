@@ -89,7 +89,7 @@ export default function DocumentsList({ documents, onRefresh, patientId, onDocum
           </p>
         </div>
         
-        <div className="flex items-center space-x-3">
+        {/* <div className="flex items-center space-x-3">
           <button
             onClick={() => setShowUploadModal(true)}
             className="btn-primary flex items-center space-x-2"
@@ -97,15 +97,7 @@ export default function DocumentsList({ documents, onRefresh, patientId, onDocum
             <Upload className="w-4 h-4" />
             <span>{t.documents.upload}</span>
           </button>
-          <button
-            disabled={true}
-            className="btn-outline flex items-center space-x-2 opacity-50 cursor-not-allowed"
-            title="Coming soon: Fetch documents from EHR server"
-          >
-            <Download className="w-4 h-4" />
-            <span>{t.documents.fetchFromEhr}</span>
-          </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Upload Modal */}
@@ -157,12 +149,12 @@ export default function DocumentsList({ documents, onRefresh, patientId, onDocum
               {/* Document Header */}
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                  <div className="flex items-start space-x-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm flex-shrink-0">
                       <FileText className="w-6 h-6 text-blue-600" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-semibold text-gray-900 break-words leading-tight">
                         {document.filename || `Document ${document.uuid.slice(0, 8)}`}
                       </h3>
                       <div className="flex items-center space-x-2 mt-1">

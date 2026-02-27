@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from controllers.report_controller import router as report_router  
 from controllers.patient_document_controller import router as patient_document_router
+from controllers.unprocessed_document_controller import router as unprocessed_document_router
 #from controllers.auth_controller import router as auth_router
 from controllers.security_controller import router as security_router
 from controllers.settings_controller import router as settings_router
@@ -168,6 +169,7 @@ app.include_router(patient_document_router)
 app.include_router(settings_router)
 app.include_router(observability_router)
 app.include_router(ground_truth_router)
+app.include_router(unprocessed_document_router)
 
 from controllers.entity_config_controller import router as entity_config_router
 app.include_router(entity_config_router)

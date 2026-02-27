@@ -128,13 +128,14 @@ IMPORTANT: Write a thorough, complete summary that includes ALL the provided inf
 **TASK:**
 Write a detailed, professional medical narrative that:
 1. Incorporates EVERY piece of provided medical information without exception
-2. Creates flowing, coherent prose (not bullet points or lists)
+2. Creates flowing, coherent prose. Add bullet points if it enhances readability, but ensure they are fully detailed and not just lists of terms.
 3. Groups related information logically into cohesive paragraphs
 4. Uses appropriate medical terminology and clinical language
 5. Maintains clinical accuracy and provides full context
 6. Creates meaningful connections between different data points
 7. Writes in third person perspective
 8. Provides comprehensive details for all treatments, plans, and interventions
+9. DO NOT include any introductory phrases like "Here is a narrative summary" or "Summary:" - just write the summary directly.
 
 **WRITING REQUIREMENTS:**
 - Write 3-5 complete paragraphs (minimum 200 words)
@@ -147,8 +148,10 @@ Write a detailed, professional medical narrative that:
 - NEVER truncate or summarize with "etc." or "..."
 
 **COMPREHENSIVE EXAMPLE STYLE:**
+Use this style for your summary, ensuring every detail is included and explained:
 Instead of: "Age: 65, Gender: Male, DOB: 1958-03-15, Condition: CAD"
 Write: "The patient is a 65-year-old male born on March 15, 1958, who presents with a documented history of coronary artery disease requiring comprehensive cardiovascular management and ongoing medical supervision..."
+This is only an example of the level of detail and completeness expected. Your summary should be similarly comprehensive, including all provided data with full context and clinical significance.Do not use this specific example for the summary, but follow the same approach of fully incorporating all details into a rich, detailed narrative.
 
 Generate a comprehensive, detailed narrative summary that includes every piece of medical information:"""
 

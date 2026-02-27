@@ -15,7 +15,13 @@ import {
   Evaluation,
   EvaluationSummary,
   GTUploadProgress,
-  EvaluationProgress
+  EvaluationProgress,
+  UnprocessedDocument,
+  UnprocessedDocumentDetail,
+  PaginatedUnprocessedDocuments,
+  UnprocessedDocumentCounts,
+  ProcessDocumentsResponse,
+  BatchProcessingStatusResponse
 } from '../types';
 
 // Storage keys
@@ -879,6 +885,95 @@ class ApiService {
   }> {
     const response = await this.api.get(
       `/patients/${patientId}/reports/${reportUuid}/evaluation`
+    );
+    return response.data;
+  }
+
+  // ============================================================================
+  // Unprocessed Documents API
+  // ============================================================================
+
+  /**
+   * Get paginated list of unprocessed documents for a patient
+   */
+  async getUnprocessedDocuments(
+    patientId: string,
+    page: number = 1,
+    pageSize: number = 20
+  ): Promise<PaginatedUnprocessedDocuments> {
+    const response = await this.api.get(
+      `/patients/${patientId}/unprocessed-documents?page=${page}&page_size=${pageSize}`
+    );
+    return response.data;
+  }
+
+  /**
+   * Get a single unprocessed document with full content
+   */
+  async getUnprocessedDocument(
+    patientId: string,
+    documentId: string
+  ): Promise<UnprocessedDocumentDetail> {
+    const response = await this.api.get(
+      `/patients/${patientId}/unprocessed-documents/${documentId}`
+    );
+    return response.data;
+  }
+
+  /**
+   * Get count of unprocessed documents for a patient
+   */
+  async getUnprocessedDocumentCount(patientId: string): Promise<number> {
+    const response = await this.api.get(
+      `/patients/${patientId}/unprocessed-documents/count`
+    );
+    return response.data.count;
+  }
+
+  /**
+   * Get unprocessed document counts for all patients
+   */
+  async getUnprocessedDocumentCounts(): Promise<UnprocessedDocumentCounts> {
+    const response = await this.api.get('/patients/unprocessed-documents/counts');
+    return response.data;
+  }
+
+  /**
+   * Process selected unprocessed documents
+   */
+  async processUnprocessedDocuments(
+    patientId: string,
+    documentIds: string[]
+  ): Promise<ProcessDocumentsResponse> {
+    const response = await this.api.post(
+      `/patients/${patientId}/unprocessed-documents/process`,
+      { document_ids: documentIds }
+    );
+    return response.data;
+  }
+
+  /**
+   * Process all unprocessed documents for a patient
+   */
+  async processAllUnprocessedDocuments(
+    patientId: string
+  ): Promise<ProcessDocumentsResponse> {
+    const response = await this.api.post(
+      `/patients/${patientId}/unprocessed-documents/process-all`
+    );
+    return response.data;
+  }
+
+  /**
+   * Get processing status for a batch of documents
+   */
+  async getUnprocessedProcessingStatus(
+    patientId: string,
+    documentIds: string[]
+  ): Promise<BatchProcessingStatusResponse> {
+    const response = await this.api.post(
+      `/patients/${patientId}/unprocessed-documents/process/status`,
+      { document_ids: documentIds }
     );
     return response.data;
   }
