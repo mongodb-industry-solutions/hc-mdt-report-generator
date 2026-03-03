@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ListPlus, Check, Trash2, AlertTriangle, Plus, Minus, Filter, ChevronDown, ChevronRight, Settings } from 'lucide-react';
+import { ListPlus, Check, Trash2, AlertTriangle, Plus, Minus, Filter, ChevronDown, ChevronRight, Settings, Code, X } from 'lucide-react';
 import { EntityConfig, EntityDef, EntityTemplate, SourceFilter } from '../types';
 import { apiService } from '../services/api';
 
@@ -16,6 +16,9 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
   const [showTemplateDialog, setShowTemplateDialog] = useState<'create' | 'rename' | null>(null);
   const [templateFormName, setTemplateFormName] = useState('');
   const [templateFormDescription, setTemplateFormDescription] = useState('');
+  
+  // JSON viewer state
+  const [showJsonViewer, setShowJsonViewer] = useState(false);
   
   // Entity editing state
   const [entityConfigStatus, setEntityConfigStatus] = useState<'idle' | 'loading' | 'validating' | 'saving' | 'success' | 'error'>('idle');
@@ -278,20 +281,25 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
 
           {/* Entity Configuration */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Entity List */}
-            <div className="md:col-span-1 border border-gray-200 rounded-md max-h-96 overflow-auto bg-white">
-              {entityConfig?.entities?.map((e, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setSelectedEntityIndex(idx)}
-                  className={`w-full text-left px-3 py-2 border-b last:border-b-0 hover:bg-gray-50 ${selectedEntityIndex === idx ? 'bg-green-50 border-l-4 border-l-green-500' : ''}`}
-                >
-                  <div className="text-sm text-gray-900 truncate">{e.name || '(unnamed entity)'}</div>
-                  <div className="text-xs text-gray-400 truncate">{e.processing_type || '(default)'}</div>
-                </button>
-              ))}
-              <div className="p-2">
+            {/* Entity List Column */}
+            <div className="md:col-span-1 space-y-3">
+              {/* Entity List */}
+              <div className="border border-gray-200 rounded-md max-h-96 overflow-auto bg-white">
+                {entityConfig?.entities?.map((e, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSelectedEntityIndex(idx)}
+                    className={`w-full text-left px-3 py-2 border-b last:border-b-0 hover:bg-gray-50 ${selectedEntityIndex === idx ? 'bg-green-50 border-l-4 border-l-green-500' : ''}`}
+                  >
+                    <div className="text-sm text-gray-900 truncate">{e.name || '(unnamed entity)'}</div>
+                    <div className="text-xs text-gray-400 truncate">{e.processing_type || '(default)'}</div>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="space-y-2">
                 <button
                   type="button"
                   className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md border-2 border-green-600 hover:border-green-700"
@@ -304,6 +312,17 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
                 >
                   Add New Entity
                 </button>
+                
+                {selectedTemplateId && (
+                  <button
+                    type="button"
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 text-sm font-medium shadow-sm border-2 border-blue-600 hover:border-blue-700 flex items-center justify-center space-x-2"
+                    onClick={() => setShowJsonViewer(true)}
+                  >
+                    <Code className="w-4 h-4" />
+                    <span>View Template JSON </span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -384,6 +403,34 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
               >
                 Create Template
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* JSON Viewer Modal */}
+      {showJsonViewer && selectedTemplateId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <div className="flex items-center space-x-2">
+                <Code className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-medium text-gray-900">Template JSON</h3>
+                <span className="text-sm text-gray-500">({templates.find(t => t.id === selectedTemplateId)?.name})</span>
+              </div>
+              <button
+                type="button"
+                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                onClick={() => setShowJsonViewer(false)}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 bg-blue-50 overflow-auto max-h-[calc(80vh-120px)]">
+              <pre className="text-sm text-gray-800 bg-white p-6 rounded-lg border border-blue-200 overflow-x-auto">
+{JSON.stringify(templates.find(t => t.id === selectedTemplateId), null, 2)}
+              </pre>
             </div>
           </div>
         </div>
