@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { Report, ReportEntity, ReportContent } from '../types';
 import reportGroupingConfig from '../config/report_grouping_config.json';
 
@@ -706,18 +706,21 @@ class MedicalPDFGenerator {
   private addSection(section: PDFSection): void {
     // Calculate content height first to ensure title and content stay together
     let contentHeight = 0;
+    
+    // Calculate summary height if available
     if (section.summary && section.summary.trim()) {
-      // Calculate summary height
       this.doc.setFontSize(10);
       this.doc.setFont('helvetica', 'normal');
       const summaryText = this.cleanText(section.summary);
       const wrappedText = this.wrapText(summaryText, this.pageWidth - this.margins.left - this.margins.right);
-      contentHeight = wrappedText.length * 6 + 8; // lineHeight * lines + spacing
-    } else {
-      // Calculate entities height
-      section.entities.forEach((entity) => {
-        contentHeight += this.calculateEntityHeight(entity) + 2; // Small spacing between entities
-      });
+      contentHeight += wrappedText.length * 6 + 8; // lineHeight * lines + spacing
+    }
+    
+    // Calculate entities section height (always included after summary)
+    if (section.entities && section.entities.length > 0) {
+      contentHeight += 25; // Space for "Entités cliniques extraites" subtitle
+      contentHeight += this.calculateClinicalEntitiesListHeight(section.entities);
+      contentHeight += 10; // Bottom spacing
     }
     
     const titleHeight = 22;
@@ -743,14 +746,15 @@ class MedicalPDFGenerator {
     
     this.currentY += 22; // Better spacing for larger title
     
-    // Display summary if available, otherwise fall back to entities
+    // Display summary if available
     if (section.summary && section.summary.trim()) {
       this.addSectionSummaryNoPageCheck(section.summary);
-    } else {
-      // Fallback to entity listing
-      section.entities.forEach((entity, index) => {
-        this.addEntityNoPageCheck(entity, index % 2 === 0);
-      });
+      this.currentY += 12; // Space between summary and entities
+    }
+    
+    // Always display clinical entities list after the summary
+    if (section.entities && section.entities.length > 0) {
+      this.addClinicalEntitiesList(section.entities);
     }
     
     this.currentY += 18; // Consistent spacing after section
@@ -813,6 +817,93 @@ class MedicalPDFGenerator {
     });
     
     this.currentY = textY + 8; // Space after summary
+  }
+
+  private addClinicalEntitiesList(entities: ReportEntity[]): void {
+    // Check if we need a new page for the entities section
+    const entitiesHeight = this.calculateClinicalEntitiesListHeight(entities);
+    this.addPageIfNeeded(entitiesHeight + 25); // 25 for the subtitle
+
+    // Add subtitle for clinical entities
+    this.doc.setTextColor(80, 80, 80); // Deep grey color
+    this.doc.setFontSize(11);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text('Clinical Entities Extracted:', this.margins.left, this.currentY + 12);
+    this.currentY += 20;
+
+    // Filter entities with meaningful values
+    const entitiesWithValues = entities.filter(entity => {
+      const displayValue = this.getEntityDisplayValue(entity);
+      return displayValue && displayValue !== 'Value not available' && displayValue.trim().length > 0;
+    });
+
+    if (entitiesWithValues.length === 0) {
+      // Display "No entities found" message
+      this.doc.setTextColor(this.colors.gray60);
+      this.doc.setFontSize(9);
+      this.doc.setFont('helvetica', 'italic');
+      this.doc.text('No clinical entities extracted for this section.', this.margins.left + 10, this.currentY + 8);
+      this.currentY += 15;
+      return;
+    }
+
+    // Prepare table data
+    const tableData = entitiesWithValues.map(entity => [
+      this.cleanText(entity.entity_name),
+      this.getEntityDisplayValue(entity)
+    ]);
+
+    // Create table using autoTable
+    autoTable(this.doc, {
+      startY: this.currentY,
+      head: [['Entity', 'Value']],
+      body: tableData,
+      theme: 'grid',
+      styles: {
+        fontSize: 9,
+        cellPadding: 4,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.5,
+        textColor: [50, 50, 50]
+      },
+      headStyles: {
+        fillColor: [0, 106, 78], // MongoDB green background
+        textColor: [255, 255, 255], // White text
+        fontStyle: 'bold',
+        fontSize: 10
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252] // Very light gray for alternate rows
+      },
+      columnStyles: {
+        0: { cellWidth: 60, fontStyle: 'bold' }, // Entity column - fixed width, bold
+        1: { cellWidth: 'auto' } // Value column - auto width
+      },
+      margin: { left: this.margins.left, right: this.margins.right },
+      tableWidth: 'auto'
+    });
+
+    // Update currentY after table
+    this.currentY = (this.doc as any).lastAutoTable.finalY + 10;
+  }
+
+  private calculateClinicalEntitiesListHeight(entities: ReportEntity[]): number {
+    // Filter entities with meaningful values
+    const entitiesWithValues = entities.filter(entity => {
+      const displayValue = this.getEntityDisplayValue(entity);
+      return displayValue && displayValue !== 'Value not available' && displayValue.trim().length > 0;
+    });
+
+    if (entitiesWithValues.length === 0) {
+      return 20; // Height for "No entities found" message
+    }
+
+    // Estimate table height: header + (number of rows * average row height) + margins
+    const headerHeight = 15;
+    const averageRowHeight = 12; // Approximate height per row in the table
+    const tableMargins = 10;
+    
+    return headerHeight + (entitiesWithValues.length * averageRowHeight) + tableMargins;
   }
 
   private async generateSectionSummary(section: PDFSection, patientId: string): Promise<string> {
