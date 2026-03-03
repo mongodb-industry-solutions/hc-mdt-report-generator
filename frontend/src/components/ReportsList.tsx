@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Plus, Eye, Download, Calendar, Clock, CheckCircle, AlertCircle, Loader, X, Trash2, FileText } from 'lucide-react';
+import { BarChart3, Plus, Eye, Download, Calendar, Clock, CheckCircle, AlertCircle, Loader, X, Trash2, FileText, Settings } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { apiService } from '../services/api';
 import { Report, ReportGenerationProgress } from '../types';
 import ReportGenerationDialog, { ReportGenerationSettings } from './ReportGenerationDialog';
+import TemplateConfiguration from './TemplateConfiguration';
 import { useI18n } from '../i18n/context';
 
 interface ReportsListProps {
@@ -331,6 +332,9 @@ export default function ReportsList({
           </button>
         </div>
       </div>
+
+      {/* Template Configuration */}
+      <TemplateConfiguration />
 
       {/* Generation Progress */}
       {isGenerating && generationProgress && (
