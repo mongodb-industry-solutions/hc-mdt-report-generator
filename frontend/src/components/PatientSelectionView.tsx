@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { User, Search, FileText, Calendar, Users, ArrowRight, Loader } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useI18n } from '../i18n/context';
+import InfoModal from './InfoModal';
+import InfoButton from './InfoButton';
+import { useInfoModal, tabInfoContent } from '../hooks/useInfoModal';
 
 interface PatientSelectionViewProps {
   onSelectPatient: (patientId: string) => void;
@@ -21,6 +24,9 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Info modal for patient selection
+  const patientSelectionInfo = useInfoModal('patientSelection', true);
 
   useEffect(() => {
     loadPatients();
@@ -152,7 +158,12 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="text-center">
+      <div className="text-center relative">
+        {/* Info Button - positioned absolutely in top right */}
+        <div className="absolute top-0 right-0 z-10">
+          <InfoButton onClick={patientSelectionInfo.showModal} />
+        </div>
+        
         <div className="flex items-center justify-center mb-4">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
             <Users className="w-6 h-6 text-white" />
@@ -289,6 +300,13 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
           </div>
         )}
       </div>
+      
+      {/* Info Modal */}
+      <InfoModal
+        isOpen={patientSelectionInfo.isOpen}
+        onClose={patientSelectionInfo.hideModal}
+        content={tabInfoContent.patientSelection}
+      />
     </div>
   );
 }

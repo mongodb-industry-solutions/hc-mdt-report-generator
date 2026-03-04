@@ -11,9 +11,12 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import PatientsDialog from './components/PatientsDialog';
 import DisclaimerModal from './components/DisclaimerModal';
 import MongoDBHealthcareLogo from './components/CobrandedLogo';
+import InfoModal from './components/InfoModal';
+import InfoButton from './components/InfoButton';
 import { I18nProvider, useI18n } from './i18n/context';
 import { apiService, getApiBaseURL } from './services/api';
 import { PatientDocument, Report, ReportGenerationProgress } from './types';
+import { useInfoModal, tabInfoContent } from './hooks/useInfoModal';
 
 function AppContent() {
   const { t } = useI18n();
@@ -36,6 +39,11 @@ function AppContent() {
   // Report generation state - moved here to persist across tab switches
   const [isGeneratingReport, setIsGeneratingReport] = useState<boolean>(false);
   const [reportGenerationProgress, setReportGenerationProgress] = useState<ReportGenerationProgress | null>(null);
+
+  // Info modal states for each tab
+  const documentsInfo = useInfoModal('documents', currentView === 'documents' && !!patientId);
+  const reportsInfo = useInfoModal('reports', currentView === 'reports' && !!patientId);
+  const observabilityInfo = useInfoModal('observability', currentView === 'observability' && !!patientId);
 
   // Debug: Track generation state across tab switches
   useEffect(() => {
@@ -214,9 +222,9 @@ function AppContent() {
   };
 
   const navigation = [
-    { id: 'documents', label: t.navigation.documents, icon: FileText },
-    { id: 'reports', label: t.navigation.reports, icon: BarChart3 },
-    { id: 'observability', label: t.navigation.observability, icon: Eye },
+    { id: 'documents', label: t.navigation.documents, icon: FileText, infoModal: documentsInfo },
+    { id: 'reports', label: t.navigation.reports, icon: BarChart3, infoModal: reportsInfo },
+    { id: 'observability', label: t.navigation.observability, icon: Eye, infoModal: observabilityInfo },
   ];
 
   return (
@@ -313,25 +321,33 @@ function AppContent() {
           <div className={`flex min-h-screen ${!patientId ? '' : ''}`}>
             {/* Left Sidebar Navigation - Only show when patient is selected */}
             {patientId && (
-              <div className="w-64 fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40">
+              <div className="w-80 fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40">
                 <nav className="p-6 space-y-2">
                   {navigation.map((item) => {
                     const Icon = item.icon;
                     return (
-                      <button
-                        key={item.id}
-                        onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
-                        className={`
-                          w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm
-                          ${currentView === item.id
-                            ? 'bg-gradient-to-r from-navy-700 to-navy-800 text-white border border-navy-600 shadow-lg'
-                            : 'text-navy-700 hover:text-navy-900 hover:bg-gray-50 hover:shadow-md border border-gray-200/50 bg-white/50'
-                          }
-                        `}
-                      >
-                        <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''}`} />
-                        <span className="font-medium">{item.label}</span>
-                      </button>
+                      <div key={item.id} className="flex items-stretch space-x-1">
+                        <button
+                          onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
+                          className={`
+                            flex-1 flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm
+                            ${currentView === item.id
+                              ? 'bg-gradient-to-r from-navy-700 to-navy-800 text-white border border-navy-600 shadow-lg'
+                              : 'text-navy-700 hover:text-navy-900 hover:bg-gray-50 hover:shadow-md border border-gray-200/50 bg-white/50'
+                            }
+                          `}
+                        >
+                          <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''}`} />
+                          <span className="font-medium">{item.label}</span>
+                        </button>
+                        
+                        {/* Info Button - positioned inline next to the tab button */}
+                        <InfoButton
+                          onClick={item.infoModal.showModal}
+                          className="flex-shrink-0"
+                          isActive={currentView === item.id}
+                        />
+                      </div>
                     );
                   })}
                 </nav>
@@ -339,7 +355,7 @@ function AppContent() {
             )}
 
             {/* Main Content Area */}
-            <div className={`flex-1 ${patientId ? 'ml-64' : ''} px-4 sm:px-6 lg:px-8 py-8`} style={{ maxWidth: patientId ? 'calc(100vw - 16rem)' : '100vw', overflowX: 'hidden' }}>
+            <div className={`flex-1 ${patientId ? 'ml-80' : ''} px-4 sm:px-6 lg:px-8 py-8`} style={{ maxWidth: patientId ? 'calc(100vw - 20rem)' : '100vw', overflowX: 'hidden' }}>
               {error && (
                 <div className="mb-6 bg-red-50/90 border border-red-200 rounded-xl p-6 backdrop-blur-sm shadow-sm">
                   <div className="flex">
@@ -441,6 +457,27 @@ function AppContent() {
               onClose={() => setShowPatientsDialog(false)}
               onSelect={(pid) => setPatientId(pid)}
             />
+          )}
+
+          {/* Info Modals for each tab - only show when patient is selected */}
+          {patientId && (
+            <>
+              <InfoModal
+                isOpen={documentsInfo.isOpen}
+                onClose={documentsInfo.hideModal}
+                content={tabInfoContent.documents}
+              />
+              <InfoModal
+                isOpen={reportsInfo.isOpen}
+                onClose={reportsInfo.hideModal}
+                content={tabInfoContent.reports}
+              />
+              <InfoModal
+                isOpen={observabilityInfo.isOpen}
+                onClose={observabilityInfo.hideModal}
+                content={tabInfoContent.observability}
+              />
+            </>
           )}
         </>
       )}
