@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, User, BarChart3, Settings, X, Eye, Users } from 'lucide-react';
+import { FileText, User, BarChart3, Settings, X, Eye, Users, Menu, ChevronLeft } from 'lucide-react';
 import PatientSelector from './components/PatientSelector';
 import PatientSelectionView from './components/PatientSelectionView';
 import DocumentsContainer from './components/DocumentsContainer';
@@ -36,6 +36,9 @@ function AppContent() {
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(true);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean>(false);
   
+  // Sidebar collapse state
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  
   // Report generation state - moved here to persist across tab switches
   const [isGeneratingReport, setIsGeneratingReport] = useState<boolean>(false);
   const [reportGenerationProgress, setReportGenerationProgress] = useState<ReportGenerationProgress | null>(null);
@@ -51,6 +54,19 @@ function AppContent() {
       console.log('🎯 App-level generation state: GENERATING - Progress:', reportGenerationProgress?.progress + '%' || 'null');
     }
   }, [isGeneratingReport, reportGenerationProgress]);
+
+  // Keyboard shortcut for sidebar toggle (Ctrl/Cmd + \\)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === '\\' && patientId) {
+        event.preventDefault();
+        setIsSidebarCollapsed(!isSidebarCollapsed);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isSidebarCollapsed, patientId]);
 
   // Update API base URL when it changes
   useEffect(() => {
@@ -233,30 +249,30 @@ function AppContent() {
         <>
           {/* Fixed Header */}
           <header className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md shadow-lg border-b border-gray-200">
-            <div className="w-full px-4 sm:px-6 lg:px-8 overflow-hidden">
-              {/* Professional Header with Cobranded Logo */}
-              <div className="bg-gradient-to-r from-navy-800 to-navy-900 text-white px-6 py-4 -mx-4 -mt-0 mb-6 border-b-2 border-mongodb-green">
-                <div className="flex items-center justify-between relative">
-                  {/* Empty div for layout balance */}
-                  <div className="flex-1"></div>
-                  
-                  {/* MongoDB Healthcare Logo - Center */}
-                  <div className="flex-1 flex justify-center">
-                    <div className="transform scale-150">
-                      <MongoDBHealthcareLogo size="lg" />
-                    </div>
+            {/* Professional Header with Cobranded Logo - Full Width */}
+            <div className="bg-gradient-to-r from-navy-800 to-navy-900 text-white px-6 py-4 border-b-2 border-mongodb-green">
+              <div className="flex items-center justify-between relative">
+                {/* Empty div for layout balance */}
+                <div className="flex-1"></div>
+                
+                {/* MongoDB Healthcare Logo - Center */}
+                <div className="flex-1 flex justify-center">
+                  <div className="transform scale-150">
+                    <MongoDBHealthcareLogo size="lg" />
                   </div>
-                  
-                  {/* Professional Badge - Right Side */}
-                  <div className="flex-1 flex justify-end">
-                    <div className="flex items-center space-x-2 bg-mongodb-green/10 border border-mongodb-green/30 rounded-lg px-4 py-2">
-                      <div className="w-2 h-2 bg-mongodb-green rounded-full"></div>
-                      <span className="text-sm font-medium text-mongodb-green">Backend Connected</span>
-                    </div>
+                </div>
+                
+                {/* Professional Badge - Right Side */}
+                <div className="flex-1 flex justify-end">
+                  <div className="flex items-center space-x-2 bg-mongodb-green/10 border border-mongodb-green/30 rounded-lg px-4 py-2">
+                    <div className="w-2 h-2 bg-mongodb-green rounded-full"></div>
+                    <span className="text-sm font-medium text-mongodb-green">Backend Connected</span>
                   </div>
                 </div>
               </div>
-              
+            </div>
+            
+            <div className="w-full px-4 sm:px-6 lg:px-8 overflow-hidden">
               <div className="flex justify-between items-center py-6">
                 <div className="flex items-center space-x-6">
                   <div className="flex items-center space-x-3">
@@ -315,13 +331,41 @@ function AppContent() {
           </header>
 
           {/* Header Spacer - ensures content starts below fixed header */}
-          <div className="h-64 lg:h-56"></div>
+          <div className="h-56 lg:h-48"></div>
           
           {/* Main Layout */}
           <div className={`flex min-h-screen ${!patientId ? '' : ''}`}>
             {/* Left Sidebar Navigation - Only show when patient is selected */}
             {patientId && (
-              <div className="w-80 fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40">
+              <div className={`fixed left-0 top-56 lg:top-48 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ${
+                isSidebarCollapsed ? 'w-20' : 'w-80'
+              }`}>
+                {/* Sidebar Header with Title and Toggle */}
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                  {!isSidebarCollapsed && (
+                    <div className="flex-1">
+                      <h2 className="text-lg font-bold text-navy-800 truncate">
+                        Patient Workspace
+                      </h2>
+                      <p className="text-xs text-gray-600 truncate">
+                        {patientId}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-navy-700 hover:text-navy-900 ${isSidebarCollapsed ? 'mx-auto' : 'ml-2'}`}
+                    title={isSidebarCollapsed ? 'Expand Sidebar (Ctrl/⌘ + \\)' : 'Collapse Sidebar (Ctrl/⌘ + \\)'}
+                  >
+                    {isSidebarCollapsed ? (
+                      <Menu className="w-5 h-5" />
+                    ) : (
+                      <ChevronLeft className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+
                 <nav className="p-6 space-y-2">
                   {navigation.map((item) => {
                     const Icon = item.icon;
@@ -330,23 +374,27 @@ function AppContent() {
                         <button
                           onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
                           className={`
-                            flex-1 flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm
+                            ${isSidebarCollapsed ? 'flex-col p-2 space-x-0 space-y-1' : 'flex-row px-4 py-3 space-x-3'}
+                            flex-1 flex items-center rounded-xl font-semibold transition-all duration-200 shadow-sm
                             ${currentView === item.id
                               ? 'bg-gradient-to-r from-navy-700 to-navy-800 text-white border border-navy-600 shadow-lg'
                               : 'text-navy-700 hover:text-navy-900 hover:bg-gray-50 hover:shadow-md border border-gray-200/50 bg-white/50'
                             }
                           `}
+                          title={isSidebarCollapsed ? item.label : undefined}
                         >
-                          <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''}`} />
-                          <span className="font-medium">{item.label}</span>
+                          <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''} ${isSidebarCollapsed ? 'mb-1' : ''}`} />
+                          {!isSidebarCollapsed && <span className="font-medium">{item.label}</span>}
                         </button>
                         
-                        {/* Info Button - positioned inline next to the tab button */}
-                        <InfoButton
-                          onClick={(position) => item.infoModal.showModal(position)}
-                          className="flex-shrink-0"
-                          isActive={currentView === item.id}
-                        />
+                        {/* Info Button - only show when sidebar is expanded */}
+                        {!isSidebarCollapsed && (
+                          <InfoButton
+                            onClick={(position) => item.infoModal.showModal(position)}
+                            className="flex-shrink-0"
+                            isActive={currentView === item.id}
+                          />
+                        )}
                       </div>
                     );
                   })}
@@ -355,7 +403,7 @@ function AppContent() {
             )}
 
             {/* Main Content Area */}
-            <div className={`flex-1 ${patientId ? 'ml-80' : ''} px-4 sm:px-6 lg:px-8 py-8`} style={{ maxWidth: patientId ? 'calc(100vw - 20rem)' : '100vw', overflowX: 'hidden' }}>
+            <div className={`flex-1 ${patientId ? (isSidebarCollapsed ? 'ml-20' : 'ml-80') : ''} px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300`} style={{ maxWidth: patientId ? (isSidebarCollapsed ? 'calc(100vw - 5rem)' : 'calc(100vw - 20rem)') : '100vw', overflowX: 'hidden' }}>
               {error && (
                 <div className="mb-6 bg-red-50/90 border border-red-200 rounded-xl p-6 backdrop-blur-sm shadow-sm">
                   <div className="flex">
