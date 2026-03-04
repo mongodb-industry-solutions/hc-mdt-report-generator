@@ -2,15 +2,24 @@ import React from 'react';
 import { Info } from 'lucide-react';
 
 interface InfoButtonProps {
-  onClick: () => void;
+  onClick: (position?: { x: number; y: number }) => void;
   className?: string;
   isActive?: boolean;
 }
 
 export default function InfoButton({ onClick, className = '', isActive = false }: InfoButtonProps) {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    onClick(position);
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       className={`
         inline-flex items-center justify-center px-3 py-3
         ${isActive 

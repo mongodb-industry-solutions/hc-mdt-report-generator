@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Info } from 'lucide-react';
 
 export interface InfoModalContent {
@@ -6,7 +6,9 @@ export interface InfoModalContent {
   subtitle?: string;
   sections: {
     title: string;
-    points: string[];
+    description?: string;  // New: descriptive text paragraph
+    points?: string[];     // Now optional
+    numbered?: boolean;    // New: use numbered list instead of bullets
     icon?: React.ComponentType<{ className?: string }>;
   }[];
   tips?: string[];
@@ -16,21 +18,68 @@ interface InfoModalProps {
   isOpen: boolean;
   onClose: () => void;
   content: InfoModalContent;
+  buttonPosition?: { x: number; y: number } | null;
 }
 
-export default function InfoModal({ isOpen, onClose, content }: InfoModalProps) {
-  if (!isOpen) return null;
+export default function InfoModal({ isOpen, onClose, content, buttonPosition }: InfoModalProps) {
+  const [isAnimating, setIsAnimating] = useState(true);
+  const [isClosing, setIsClosing] = useState(false);
+  
+  useEffect(() => {
+    if (isOpen && !isClosing) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => setIsAnimating(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isClosing]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setIsAnimating(true);
+    
+    // Wait for closing animation then actually close
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 700);
+  };
+
+  if (!isOpen && !isClosing) return null;
+
+  // Calculate the translate values to start from button position
+  let initialTranslate = 'translate(0, 0)';
+  if (buttonPosition) {
+    // Get the center of the viewport
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Calculate offset from button to center
+    const offsetX = buttonPosition.x - centerX;
+    const offsetY = buttonPosition.y - centerY;
+    
+    initialTranslate = `translate(${offsetX}px, ${offsetY}px)`;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-50" 
-        onClick={onClose}
+        className={`absolute inset-0 bg-black transition-opacity duration-700 ${
+          (isAnimating || isClosing) ? 'opacity-0' : 'opacity-50'
+        }`}
+        onClick={handleClose}
       ></div>
       
       {/* Modal Content */}
-      <div className="relative w-full max-w-2xl max-h-[90vh] m-4">
+      <div 
+        className="relative w-full max-w-2xl max-h-[90vh] m-4 transition-all duration-700 ease-out"
+        style={{
+          transform: (isAnimating || isClosing)
+            ? `${initialTranslate} scale(0.1)` 
+            : 'translate(0, 0) scale(1)',
+          opacity: (isAnimating || isClosing) ? 0 : 1
+        }}
+      >
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-navy-700 to-navy-800 px-6 py-4">
@@ -47,7 +96,7 @@ export default function InfoModal({ isOpen, onClose, content }: InfoModalProps) 
                 </div>
               </div>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="p-2 text-navy-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -68,14 +117,38 @@ export default function InfoModal({ isOpen, onClose, content }: InfoModalProps) 
                       )}
                       <h3 className="text-lg font-semibold text-navy-800">{section.title}</h3>
                     </div>
-                    <ul className="space-y-2">
-                      {section.points.map((point, pointIndex) => (
-                        <li key={pointIndex} className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-mongodb-green rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-gray-700 leading-relaxed">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    
+                    {/* Description text (optional) */}
+                    {section.description && (
+                      <p className="text-gray-700 leading-relaxed mb-4">
+                        {section.description}
+                      </p>
+                    )}
+                    
+                    {/* Points - numbered or bullets */}
+                    {section.points && section.points.length > 0 && (
+                      section.numbered ? (
+                        <ol className="space-y-2 list-none">
+                          {section.points.map((point, pointIndex) => (
+                            <li key={pointIndex} className="flex items-start space-x-3">
+                              <div className="w-6 h-6 bg-mongodb-green rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 mt-0.5">
+                                {pointIndex + 1}
+                              </div>
+                              <span className="text-gray-700 leading-relaxed">{point}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <ul className="space-y-2">
+                          {section.points.map((point, pointIndex) => (
+                            <li key={pointIndex} className="flex items-start space-x-3">
+                              <div className="w-2 h-2 bg-mongodb-green rounded-full mt-2 flex-shrink-0"></div>
+                              <span className="text-gray-700 leading-relaxed">{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )
+                    )}
                   </div>
                 );
               })}
@@ -103,7 +176,7 @@ export default function InfoModal({ isOpen, onClose, content }: InfoModalProps) 
             {/* Footer */}
             <div className="flex justify-end pt-6 mt-6 border-t border-gray-200">
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="px-6 py-2 bg-gradient-to-r from-navy-600 to-navy-700 text-white rounded-lg hover:from-navy-700 hover:to-navy-800 transition-all font-medium shadow-lg"
               >
                 Got it!

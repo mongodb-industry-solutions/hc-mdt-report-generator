@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { FileText, BarChart3, Eye, Upload, Stethoscope, Activity, TrendingUp, Database, Users, UserPlus } from 'lucide-react';
+import { FileText, BarChart3, Eye, Upload, Stethoscope, Activity, TrendingUp, Database, Users, UserPlus, Pencil } from 'lucide-react';
 import { InfoModalContent } from '../components/InfoModal';
 
 // Storage key prefix for tracking visited tabs
@@ -23,6 +23,7 @@ export function useInfoModal(tabId: string, isActive: boolean = false) {
   
   const [hasBeenVisited, setHasBeenVisited] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState<{ x: number; y: number } | null>(null);
 
   // Initialize visited status on mount
   useEffect(() => {
@@ -37,13 +38,57 @@ export function useInfoModal(tabId: string, isActive: boolean = false) {
   // Effect to show modal when tab becomes active for first time
   useEffect(() => {
     if (isActive && !hasBeenVisited && !isOpen) {
-      setIsOpen(true);
+      // For patient selection, show from center (no info button exists)
+      if (tabId === 'patientSelection') {
+        setButtonPosition(null);
+        setIsOpen(true);
+      } else {
+        // For other tabs, try to get the info button position
+        // Use a small delay to ensure the button is rendered
+        const timer = setTimeout(() => {
+          // Find all InfoButtons by their unique class pattern
+          // InfoButtons have classes like "inline-flex items-center justify-center" and contain Info icon
+          const infoButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
+            btn.className.includes('inline-flex') && 
+            btn.className.includes('items-center') &&
+            btn.className.includes('justify-center') &&
+            btn.querySelector('.lucide-info')
+          );
+          
+          // Tab order: documents (0), reports (1), observability (2)
+          const tabOrder = ['documents', 'reports', 'observability'];
+          const tabIndex = tabOrder.indexOf(tabId);
+          
+          if (tabIndex >= 0 && infoButtons[tabIndex]) {
+            const targetButton = infoButtons[tabIndex];
+            const rect = targetButton.getBoundingClientRect();
+            const buttonCenter = {
+              x: rect.left + rect.width / 2,
+              y: rect.top + rect.height / 2
+            };
+            setButtonPosition(buttonCenter);
+          } else {
+            // Fallback to center if button not found
+            setButtonPosition(null);
+          }
+          
+          setIsOpen(true);
+        }, 100);
+
+        return () => clearTimeout(timer);
+      }
     }
   }, [isActive, hasBeenVisited, isOpen, tabId]);
 
-  const showModal = useCallback(() => {
+  const showModal = useCallback((position?: { x: number; y: number }) => {
+    // Prevent triggering if already open
+    if (isOpen) return;
+    
+    if (position) {
+      setButtonPosition(position);
+    }
     setIsOpen(true);
-  }, []);
+  }, [isOpen]);
 
   const hideModal = useCallback(() => {
     setIsOpen(false);
@@ -61,178 +106,163 @@ export function useInfoModal(tabId: string, isActive: boolean = false) {
     isOpen,
     hasBeenVisited,
     showModal,
-    hideModal
+    hideModal,
+    buttonPosition
   };
 }
 
 // Content definitions for each tab
 export const tabInfoContent: Record<string, InfoModalContent> = {
   patientSelection: {
-    title: "Welcome to ClarityGR",
-    subtitle: "Your AI-powered medical records analysis platform",
+    title: "Welcome to the AI-Powered Medical Report Generator",
+    subtitle: "Your AI Assistant to turn unstructured medical sources into comprehensive reports",
     sections: [
+
+      {
+        title: "What is this platform?",
+        icon: Eye,
+        description: "This platform is designed to help medical professionals quickly generate comprehensive reports from unstructured medical documents. By using advanced AI as an ally, it extracts key information and organizes it into structured formats for easy review and analysis.",
+      },
+
+      {title: "What you can do here",
+        icon: Upload,
+        numbered: true,
+        points: [
+          "Explore different types of unstructured medical sources",
+          "Select documents to process and supervise the processing pipeline",
+          "Define medical entities and relationships for accurate information extraction",
+          "Generate comprehensive MDT reports according to your needs", 
+          "Compare generated reports with Ground Truth documents to ensure accuracy and completeness"
+          
+    ] },
+
       {
         title: "Getting Started",
         icon: UserPlus,
+        description: "Start by selecting an existing patient from the list. Then:",
         points: [
-          "Select an existing patient from the list below to view their documents and reports",
-          "Create a new patient by uploading their first medical document",
-          "The platform will automatically extract and organize patient information",
-          "Each patient has their own secure workspace for documents and reports"
+          "Explore unprocessed available documents in the Documents tab",
+          "Generate comprehensive reports in the Reports tab",
+          "Monitor system performance and processing metrics in the Observability tab"
         ]
       },
       {
-        title: "Patient Management",
-        icon: Users,
-        points: [
-          "Search patients by ID using the search bar",
-          "View summary information including document and report counts",
-          "Last activity timestamps help track recent work",
-          "Patient data is organized chronologically for easy access"
-        ]
-      },
-      {
-        title: "What Happens Next",
+        title: "Key Features",
         icon: Activity,
+        description: "This platform has a lot to offer! Here are some of the key features to help you get the most out of it:",
         points: [
-          "Upload medical documents to the Documents tab",
-          "AI will process and extract medical entities automatically",
-          "Generate comprehensive MDT reports in the Reports tab",
-          "Monitor system performance in the Observability tab"
+          "Customizable report templates to fit your specific needs. Easily adjust the structure and content of generated reports to match your requirements.",
+          "AI-powered entity extraction that identifies key medical information such as diagnoses, medications, procedures, and more.",
+          "Different LLM models to choose from, allowing you to select the one that best fits your use case and preferences.",
+          "Ground Truth comparison to validate the accuracy and completeness of generated reports against original source documents."
         ]
       }
     ],
     tips: [
-      "Start by selecting an existing patient or upload a document to create a new patient",
-      "Patient IDs are automatically detected from uploaded documents",
-      "Use the search function to quickly find specific patients",
-      "Each patient's workspace is completely isolated and secure"
+      "Select a patient to get started and explore the platform's capabilities",
+      "Use the info buttons in each tab to learn more about specific features and workflows",
+      "Configure your report templates to tailor the output according to your needs",
+      "Check the fully detailed PDF reports and test them against yous Ground Truth documents"
     ]
   },
   documents: {
     title: "Documents Management",
-    subtitle: "Upload, process, and manage patient medical records",
+    subtitle: "Select, process, and manage patient medical documents",
     sections: [
       {
         title: "What you can do here",
         icon: FileText,
-        points: [
-          "Upload medical documents in various formats (PDF, DOC, images)",
-          "View document processing status and extracted patient information",
-          "Monitor document parsing and entity extraction progress",
-          "Access source documents and their processed versions"
-        ]
+        description: "This section will allow you to manage the patient's medical documents easily. You can explore unprocessed documents, initiate the processing pipeline and review the results before you create new reports.",
+
       },
       {
         title: "Document Processing Pipeline",
         icon: Activity,
+        numbered: true,
+        description: "The document processing pipeline is used to extract structured information from unstructured medical documents:",
         points: [
-          "Documents are automatically processed using AI to extract medical entities",
-          "Patient IDs are automatically detected and extracted from uploaded documents",
-          "Text normalization ensures consistent format across all document types",
-          "Entity extraction identifies key medical information like diagnoses, medications, and procedures"
+          "Unstructured documents for the patient are listed in the 'Incoming Documents' tab. These can include various types of medical records such as clinical notes, lab reports, imaging reports, and more.",
+          "The selected documents are processed through a series of steps including text normalization, document related entity extraction, and relationship identification to convert them into structured data formats.",
+          "Once processed, the extracted information is available in the 'Processed Documents' tab, where you can review the results",
         ]
       },
       {
         title: "Key Features",
         icon: Stethoscope,
         points: [
-          "Drag & drop multiple files for batch processing",
-          "Real-time processing status updates",
-          "Automatic patient ID detection and assignment",
-          "Support for various medical document formats"
+          "Select specific documents to process or re-process as needed",
+          "Real-time monitoring of processing status and progress",
+          "Review extracted information before generating reports",
+          "Supports a wide range of document types and formats for comprehensive coverage"
         ]
       }
     ],
-    tips: [
-      "Upload documents with clear patient information for better automatic ID detection",
-      "Supported formats include PDF, Word documents, and common image formats",
-      "Processing time depends on document complexity and length",
-      "Check the processing status to ensure all information was extracted correctly"
-    ]
+
   },
   reports: {
     title: "Medical Reports & Analytics",
     subtitle: "Generate comprehensive medical reports and analyze patient data",
     sections: [
       {
-        title: "Report Generation",
+        title: "What is an MDT Report?",
         icon: BarChart3,
+        description: "An MDT (Multidisciplinary Team) report is a comprehensive summary of a patient's medical history, diagnoses, treatments, and outcomes. It is designed to facilitate communication and collaboration among healthcare professionals by providing a structured overview of the patient's case.",
+      },
+
+      {
+        title: "Customizable Report Templates",
+        icon: Pencil,
+        description: "This MDT reports can be customized to your team's needs using our platform by creating your own medical entity templates. Define the description, filters and extraction rules for each entity to ensure your generated reports include the most relevant information according to your needs.",
+      },
+
+      {
+        title: "What you can do here",
+        icon: FileText,
         points: [
-          "Generate comprehensive MDT (Multidisciplinary Team) reports",
-          "Create standardized medical summaries from processed documents",
-          "Export reports in various formats for sharing with medical teams",
-          "Track report generation progress with real-time updates"
+          "Create your own medical entity templates to customize the structure and content of generated reports",
+          "Create comprehensive MDT reports tailored to your specific needs and preferences",
+          "Download generated reports in PDF format for easy sharing and review",
         ]
       },
       {
-        title: "Medical Intelligence",
-        icon: TrendingUp,
+        title: "How to create a report",
+        icon: Users,
+        numbered: true,
         points: [
-          "AI-powered analysis of patient medical history",
-          "Automatic identification of key medical trends and patterns",
-          "Integration of data from multiple document sources",
-          "Structured presentation of diagnoses, treatments, and outcomes"
-        ]
-      },
-      {
-        title: "Team Collaboration",
-        icon: Activity,
-        points: [
-          "Reports designed for multidisciplinary medical team reviews",
-          "Standardized format ensures consistency across cases",
-          "Easy sharing and distribution of medical summaries",
-          "Version tracking for report updates and revisions"
-        ]
-      }
+          "Start by defining your medical entity template and set it to  'Active'. This will allow you to customize the entities in your generated reports.",
+          "Once you have your templates set up, click on 'Generate Report'. The platform will use the processed documents and your defined templates to create a comprehensive MDT report using AI.",
+          "After the report is generated, you can review it directly in the platform or download it as a PDF for easy sharing with your medical team."
+        ]}
     ],
-    tips: [
-      "Ensure documents are fully processed before generating reports",
-      "Reports include all available medical entities from uploaded documents",
-      "Generated reports can be exported and shared with medical teams",
-      "Check settings to customize report templates and preferences"
-    ]
-  },
+      tips: [
+        "Check which template is active before generating a report to ensure it includes the entities you need",
+        "Use the PDF download option to share reports with your team or for offline review",
+        "Customize your templates to tailor the generated reports according to your specific requirements",
+      ]},
   observability: {
     title: "System Observability & Monitoring",
-    subtitle: "Monitor platform performance, track processing metrics, and view system health",
+    subtitle: "Monitor platform performance, track processing metrics, and view report details.",
     sections: [
       {
-        title: "Performance Monitoring",
-        icon: Activity,
+        title: "What you can do here",
+        icon: FileText,
+        description: "Keep an eye on the performance of the document processing pipeline and report generation:",
         points: [
-          "Real-time tracking of document processing performance",
-          "Monitor AI model response times and accuracy metrics",
-          "View system resource utilization and bottlenecks",
-          "Track processing queue status and throughput"
-        ]
-      },
-      {
-        title: "Health Diagnostics",
-        icon: Database,
-        points: [
-          "Monitor backend service availability and health",
-          "Check database connection status and performance",
-          "View API endpoint response times and error rates",
-          "Track system dependencies and integrations"
+          "Review all the details of the generated reports",
+          "Select Ground Truth documents to compare with the generated reports and validate their accuracy and completeness",
+          "Allow AI to analyze the differences between the generated report and the Ground Truth document to identify potential gaps or missing information in the generated report"
         ]
       },
       {
         title: "Analytics & Insights",
         icon: TrendingUp,
         points: [
-          "Usage analytics and processing statistics",
-          "Error tracking and debugging information",
-          "Performance trends and capacity planning data",
-          "Quality metrics for AI model outputs"
+          "F1 Score",
+          "LLM Performance Metrics",
+          "Matched entities and relationships",
+          "Comparison between extracted information and Ground Truth documents"
         ]
       }
     ],
-    tips: [
-      "Use this section to troubleshoot processing issues",
-      "Monitor system performance during high-volume processing",
-      "Check health metrics if documents are processing slowly",
-      "Analytics help optimize workflow efficiency"
-    ]
   }
 };

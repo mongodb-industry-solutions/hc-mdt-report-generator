@@ -343,7 +343,7 @@ function AppContent() {
                         
                         {/* Info Button - positioned inline next to the tab button */}
                         <InfoButton
-                          onClick={item.infoModal.showModal}
+                          onClick={(position) => item.infoModal.showModal(position)}
                           className="flex-shrink-0"
                           isActive={currentView === item.id}
                         />
@@ -466,16 +466,19 @@ function AppContent() {
                 isOpen={documentsInfo.isOpen}
                 onClose={documentsInfo.hideModal}
                 content={tabInfoContent.documents}
+                buttonPosition={documentsInfo.buttonPosition}
               />
               <InfoModal
                 isOpen={reportsInfo.isOpen}
                 onClose={reportsInfo.hideModal}
                 content={tabInfoContent.reports}
+                buttonPosition={reportsInfo.buttonPosition}
               />
               <InfoModal
                 isOpen={observabilityInfo.isOpen}
                 onClose={observabilityInfo.hideModal}
                 content={tabInfoContent.observability}
+                buttonPosition={observabilityInfo.buttonPosition}
               />
             </>
           )}
