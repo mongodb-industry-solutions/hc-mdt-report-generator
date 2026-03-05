@@ -176,6 +176,7 @@ export default function Observability({
       console.log('Checking GT availability...');
       const availability = await apiService.checkGTAvailability(generation.patient_id);
       console.log('GT availability result:', availability);
+      console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
       
       
       if (!availability.available) {
