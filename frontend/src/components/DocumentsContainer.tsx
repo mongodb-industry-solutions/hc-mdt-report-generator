@@ -165,6 +165,7 @@ export default function DocumentsContainer({
         <UnprocessedDocumentsList
           patientId={patientId}
           onProcessingComplete={handleProcessingComplete}
+          onNavigateToProcessed={() => setActiveTab('processed')}
           onDocumentUploaded={onDocumentUploaded}
           onDocumentStatusUpdate={onDocumentStatusUpdate}
           onPatientIdChange={onPatientIdChange}

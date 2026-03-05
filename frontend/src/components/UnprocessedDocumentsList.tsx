@@ -40,6 +40,7 @@ interface UnprocessedDocumentsListProps {
   onDocumentUploaded: (document: PatientDocument) => void;
   onDocumentStatusUpdate: (updatedDocument: PatientDocument) => void;
   onPatientIdChange?: (newPatientId: string) => void;
+  onNavigateToProcessed?: () => void;
 }
 
 // Get file icon based on type
@@ -80,7 +81,8 @@ export default function UnprocessedDocumentsList({
   onProcessingComplete,
   onDocumentUploaded, 
   onDocumentStatusUpdate, 
-  onPatientIdChange 
+  onPatientIdChange,
+  onNavigateToProcessed
 }: UnprocessedDocumentsListProps) {
   const { t } = useI18n();
   
@@ -95,7 +97,42 @@ export default function UnprocessedDocumentsList({
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
+  const [isSuccessBannerAnimating, setIsSuccessBannerAnimating] = useState(true);
+  const [isSuccessBannerClosing, setIsSuccessBannerClosing] = useState(false);
   const pageSize = 20;
+
+  // Handle success banner open animation
+  useEffect(() => {
+    if (showSuccessBanner && !isSuccessBannerClosing) {
+      // Force animation to restart from small state
+      setIsSuccessBannerAnimating(true);
+      // Use requestAnimationFrame to ensure DOM update happens first
+      const frame = requestAnimationFrame(() => {
+        setTimeout(() => setIsSuccessBannerAnimating(false), 200);
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [showSuccessBanner]);
+  
+  // Handle success banner close animation separately
+  useEffect(() => {
+    if (isSuccessBannerClosing) {
+      setIsSuccessBannerAnimating(true);
+    }
+  }, [isSuccessBannerClosing]);
+
+  // Function to handle banner close with zoom-out animation
+  const handleSuccessBannerClose = () => {
+    setIsSuccessBannerClosing(true);
+    setIsSuccessBannerAnimating(true);
+    
+    // Wait for closing animation then actually close
+    setTimeout(() => {
+      setIsSuccessBannerClosing(false);
+      setShowSuccessBanner(false);
+    }, 700);
+  };
 
   // Fetch documents
   const fetchDocuments = useCallback(async () => {
@@ -232,15 +269,25 @@ export default function UnprocessedDocumentsList({
         const allDone = response.completed + response.failed === documentIds.length;
         
         if (allDone || polls >= maxPolls) {
-          setIsProcessing(false);
+          // Show completed pipeline for 2 seconds before hiding
+          setTimeout(() => {
+            setIsProcessing(false);
+          }, 2000);
           setSelectedIds(new Set());
           
           // Refresh the document list
           fetchDocuments();
           
-          // Notify parent that processing is complete
-          if (onProcessingComplete) {
-            onProcessingComplete();
+          // Show success banner for completed processing
+          if (allDone && response.completed > 0) {
+            // Wait 2 seconds to let users see 100% completion first
+            setTimeout(() => {
+              setShowSuccessBanner(true);
+              // Hide banner after 5 additional seconds
+              setTimeout(() => {
+                handleSuccessBannerClose();
+              }, 5000);
+            }, 2000);
           }
         } else {
           polls++;
@@ -338,6 +385,44 @@ export default function UnprocessedDocumentsList({
 
   return (
     <div className="space-y-6 overflow-x-hidden w-full max-w-full">
+      {/* Success Completion Banner */}
+      {(showSuccessBanner || isSuccessBannerClosing) && (
+        <div 
+          className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-xl shadow-lg border border-green-400 transition-all duration-700 ease-out"
+          style={{
+            transform: (isSuccessBannerAnimating || isSuccessBannerClosing) ? 'scale(0.1)' : 'scale(1)',
+            opacity: (isSuccessBannerAnimating || isSuccessBannerClosing) ? 0 : 1
+          }}
+        >
+          <div className="flex items-center space-x-4">
+            <div className="flex-shrink-0">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold mb-1">Great! All files processed successfully</h3>
+              <p className="text-green-100 text-sm">Your documents have been extracted and are ready for review. Click the arrow to view processed documents.</p>
+            </div>
+            <div className="flex-shrink-0">
+              <button
+                onClick={() => {
+                  handleSuccessBannerClose();
+                  // Use dedicated navigation function to avoid page reload
+                  if (onNavigateToProcessed) {
+                    onNavigateToProcessed();
+                  } else if (onProcessingComplete) {
+                    onProcessingComplete();
+                  }
+                }}
+                className="p-2 rounded-full hover:bg-white/20 transition-all duration-300 cursor-pointer transform hover:scale-110 active:scale-95"
+                title="Go to Processed Documents"
+              >
+                <ArrowRight className="w-6 h-6 text-white" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Professional Action Bar */}
       <div className="bg-gradient-to-r from-white via-slate-50/30 to-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
         {/* Premium Header Section */}
@@ -404,9 +489,7 @@ export default function UnprocessedDocumentsList({
                     </>
                   ) : (
                     <>
-                      <div className="w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-sm flex items-center justify-center">
-                        <Zap className="w-2.5 h-2.5 text-white" />
-                      </div>
+                      <Zap className="w-4 h-4 white-text" />
                       <span>Process Selected ({selectedIds.size})</span>
                     </>
                   )}
