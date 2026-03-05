@@ -1,8 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { apiService } from '../services/api';
-import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2, User } from 'lucide-react';
+import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2, User, Eye } from 'lucide-react';
 import { GroundTruthEntity } from '../types';
 import { useI18n } from '../i18n/context';
+import { GTViewer } from './GTViewer';
+
+type EvaluationProgress = {
+  status: string;
+  progress: number;
+  message: string;
+};
 
 type GenerationItem = {
   uuid: string;
@@ -68,6 +75,11 @@ export default function Observability({
 
   // Evaluation flow state - only keep what's needed for progress tracking
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [evaluationProgress, setEvaluationProgress] = useState<EvaluationProgress | null>(null);
+
+  // GT Viewer state
+  const [gtViewerOpen, setGtViewerOpen] = useState(false);
+  const [gtViewerPatientId, setGtViewerPatientId] = useState<string>('');
 
   useEffect(() => {
     loadFilters();
@@ -115,7 +127,7 @@ export default function Observability({
     return generation.report?.uuid || null;
   };
 
-  // Evaluation handlers
+  // Evaluation handlers - Modified to use auto-load GT workflow
   const handleStartEvaluation = async (generation: GenerationItem) => {
     const reportUuid = getReportUuid(generation);
     if (!reportUuid) {
@@ -134,17 +146,113 @@ export default function Observability({
         if (gtData.status === 'found' && gtData.ground_truth?.entities) {
           onShowGTVerify?.(generation, gtData.ground_truth.entities);
         } else {
-          // GT not found (shouldn't happen), show upload
-          onShowGTUpload?.(generation);
+          // GT not found (shouldn't happen), try auto-load
+          await handleAutoLoadGT(generation, reportUuid);
         }
       } catch (e) {
         console.error('Failed to fetch existing GT:', e);
-        // Fallback to upload
-        onShowGTUpload?.(generation);
+        // Fallback to auto-load  
+        await handleAutoLoadGT(generation, reportUuid);
       }
     } else {
-      // No GT → Show upload dialog
-      onShowGTUpload?.(generation);
+      // No GT → Try auto-load from public folder
+      await handleAutoLoadGT(generation, reportUuid);
+    }
+  };
+
+  // New function to handle auto-load GT workflow
+  const handleAutoLoadGT = async (generation: GenerationItem, reportUuid: string) => {
+    try {
+      console.log('Starting handleAutoLoadGT for:', { 
+        patientId: generation.patient_id, 
+        reportUuid,
+        generation 
+      });
+      
+      setIsEvaluating(true);
+      setEvaluationProgress({ status: 'STARTED', progress: 0, message: 'Checking for ground truth file...' });
+      
+      // Check if GT file is available
+      console.log('Checking GT availability...');
+      const availability = await apiService.checkGTAvailability(generation.patient_id);
+      console.log('GT availability result:', availability);
+      
+      if (!availability.available) {
+        console.error('GT not available:', availability);
+        setIsEvaluating(false);
+        alert(`No ground truth file found for patient ${generation.patient_id}. Expected file: GT_${generation.patient_id}.pdf in public folder.`);
+        return;
+      }
+
+      setEvaluationProgress({ status: 'LOADING_FILE', progress: 10, message: `Found GT file: ${availability.filename}` });
+      console.log('GT file available, starting auto-load...');
+
+      // Auto-load GT file
+      const gtResult = await apiService.autoLoadGroundTruth(
+        generation.patient_id,
+        reportUuid,
+        'bedrock',
+        (progress) => {
+          console.log('GT Auto-load progress update:', progress);
+          setEvaluationProgress(progress);
+        }
+      );
+
+      console.log('GT Auto-load completed with final result:', gtResult);
+
+      if (gtResult?.status === 'COMPLETED') {
+        console.log('GT loaded successfully, starting evaluation...');
+        // GT loaded successfully, now run evaluation
+        setEvaluationProgress({ status: 'STARTED', progress: 0, message: 'Starting evaluation...' });
+        
+        const evalResult = await apiService.runEvaluation(
+          generation.patient_id,
+          reportUuid,
+          (progress) => {
+            console.log('Evaluation progress update:', progress);
+            setEvaluationProgress(progress);
+          }
+        );
+
+        console.log('Evaluation completed with result:', evalResult);
+
+        if (evalResult?.status === 'COMPLETED') {
+          console.log('Evaluation successful, refreshing data...');
+          // Refresh data to show updated status
+          await fetchData();
+          setIsEvaluating(false);
+          
+          // Automatically show results
+          onShowEvalResults?.(generation);
+        } else {
+          throw new Error(`Evaluation failed with status: ${evalResult?.status}. Message: ${evalResult?.message || 'Unknown evaluation error'}`);
+        }
+      } else {
+        console.error('GT Auto-load failed with result:', gtResult);
+        // More detailed error for GT loading failure
+        const errorMsg = gtResult?.message || 'Unknown auto-load error';
+        const statusInfo = gtResult?.status || 'No status returned';
+        throw new Error(`Auto-load GT failed. Status: ${statusInfo}. Message: ${errorMsg}`);
+      }
+
+    } catch (error) {
+      console.error('Auto-load GT and evaluation process failed:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        full: error
+      });
+      
+      setIsEvaluating(false);
+      alert(`Failed to auto-load GT and run evaluation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  // GT Viewer handler - simplified to use current patient
+  const handleViewGT = () => {
+    if (patientId) {
+      setGtViewerPatientId(patientId);
+      setGtViewerOpen(true);
     }
   };
 
@@ -152,8 +260,8 @@ export default function Observability({
   const distinctHashes = useMemo(() => hashes, [hashes]);
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-4">
+    <div className="card h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <h2 className="text-lg font-semibold">{t.observability.title}</h2>
         <div className="flex items-center gap-3">
           {patientId && (
@@ -171,8 +279,22 @@ export default function Observability({
         </div>
       </div>
 
+      {/* View GT Button */}
+      {patientId && (
+        <div className="mb-4">
+          <button
+            onClick={handleViewGT}
+            className="inline-flex items-center px-4 py-2 text-sm rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-800 transition-colors font-medium"
+            title={`View Ground Truth PDF for Patient ${patientId}`}
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            View Ground Truth PDF
+          </button>
+        </div>
+      )}
+
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4 shrink-0">
         <div className="space-y-1">
           <label className="text-xs text-gray-500">{t.observability.filters.startTime}</label>
           <div className="flex items-center gap-2">
@@ -241,7 +363,7 @@ export default function Observability({
       </div>
 
       {/* Table */}
-      <div className="overflow-auto rounded-lg border border-gray-200">
+      <div className="flex-1 overflow-auto rounded-lg border border-gray-200 min-h-0">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -258,7 +380,7 @@ export default function Observability({
               <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">{t.observability.table.evaluate}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 bg-white border-b border-gray-200">
             {loading ? (
               <tr>
                 <td colSpan={11} className="px-4 py-8 text-center text-gray-500">{t.observability.table.loading}</td>
@@ -318,11 +440,34 @@ export default function Observability({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 text-white">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">{t.observability.evaluation.runningTitle}</h3>
-            <p className="text-lg">{t.observability.evaluation.runningDescription}</p>
+            <h3 className="text-xl font-semibold mb-2">
+              {evaluationProgress?.status === 'LOADING_FILE' ? 'Loading Ground Truth...' :
+               evaluationProgress?.status === 'OCR_RUNNING' ? 'Running OCR...' :
+               evaluationProgress?.status === 'EXTRACTING_ENTITIES' ? 'Extracting Entities...' :
+               evaluationProgress?.status === 'EVALUATING' ? 'Running Evaluation...' :
+               t.observability.evaluation.runningTitle}
+            </h3>
+            <p className="text-lg mb-2">
+              {evaluationProgress?.message || t.observability.evaluation.runningDescription}
+            </p>
+            {evaluationProgress?.progress !== undefined && (
+              <div className="w-64 bg-gray-700 rounded-full h-2 mx-auto">
+                <div 
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${evaluationProgress.progress}%` }}
+                ></div>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* GT Viewer Modal */}
+      <GTViewer
+        patientId={gtViewerPatientId}
+        isOpen={gtViewerOpen}
+        onClose={() => setGtViewerOpen(false)}
+      />
     </div>
   );
 }

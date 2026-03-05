@@ -305,7 +305,7 @@ function AppContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white overflow-x-hidden max-w-[100vw]">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white overflow-x-hidden max-w-[100vw] flex flex-col">
       {disclaimerAccepted && (
         <>
           {/* Fixed Header */}
@@ -402,10 +402,10 @@ function AppContent() {
           </header>
 
           {/* Header Spacer - ensures content starts below fixed header */}
-          <div className="h-64 lg:h-56"></div>
+          <div className="h-64 lg:h-56 shrink-0"></div>
           
           {/* Main Layout */}
-          <div className={`flex min-h-screen ${!patientId ? '' : ''}`}>
+          <div className={`flex flex-1 min-h-0 ${!patientId ? '' : ''}`}>
             {/* Left Sidebar Navigation - Only show when patient is selected */}
             {patientId && (
               <div className={`fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ${
@@ -490,9 +490,9 @@ function AppContent() {
               )}
 
               {/* Standard documents/reports layout */}
-              <div className="flex flex-col lg:flex-row gap-6 overflow-hidden w-full">
+              <div className="flex flex-col lg:flex-row gap-6 overflow-hidden w-full h-full">
               {/* Main Content */}
-              <div className="flex-1 min-w-0 overflow-hidden">
+              <div className="flex-1 min-w-0 overflow-hidden h-full">
                   {/* Content */}
                   {!patientId ? (
                     /* Show patient selection when no patient is selected */

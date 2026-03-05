@@ -804,6 +804,81 @@ class ApiService {
   }
 
   /**
+   * Check if ground truth file is available for patient in public folder
+   */
+  async checkGTAvailability(patientId: string): Promise<{
+    available: boolean;
+    filename: string | null;
+    path: string | null;
+  }> {
+    const response = await this.api.get(`/patients/${patientId}/ground-truth/available`);
+    return response.data;
+  }
+
+  /**
+   * Auto-load ground truth from public folder and extract entities with progress updates
+   */
+  async autoLoadGroundTruth(
+    patientId: string,
+    reportUuid: string,
+    ocrEngine: 'bedrock' | 'easyocr' | 'mistral' = 'bedrock',
+    onProgress?: (data: GTUploadProgress) => void
+  ): Promise<GTUploadProgress | null> {
+    
+    const url = `${this.api.defaults.baseURL}/patients/${patientId}/reports/${reportUuid}/ground-truth/auto-load?ocr_engine=${ocrEngine}`;
+    console.log('Auto-load GT URL:', url); // Debug logging
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    console.log('Auto-load GT response status:', response.status); // Debug logging
+    console.log('Auto-load GT response headers:', response.headers); // Debug logging
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Auto-load GT error response:', errorText); // Debug logging
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    if (!response.body) throw new Error('No response body');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let lastData: GTUploadProgress | null = null;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        console.log('Auto-load GT chunk received:', chunk); // Debug logging
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6)) as GTUploadProgress;
+              console.log('Auto-load GT progress data:', data); // Debug logging
+              lastData = data;
+              onProgress?.(data);
+            } catch (e) {
+              console.error('Failed to parse SSE data:', e, 'Line:', line); // Debug logging
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    console.log('Auto-load GT final result:', lastData); // Debug logging
+    return lastData;
+  }
+
+  /**
    * Run evaluation comparing generated entities against ground truth
    */
   async runEvaluation(
