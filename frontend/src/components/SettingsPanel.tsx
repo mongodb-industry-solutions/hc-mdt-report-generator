@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Settings, Server, BrainCircuit, SlidersHorizontal, ListPlus, Pencil, AlertTriangle, Trash2, Check, Plus, ChevronDown, RefreshCw } from 'lucide-react';
+import { X, Settings, Server, BrainCircuit, SlidersHorizontal, ListPlus, Pencil, AlertTriangle, Trash2, Check, Plus, ChevronDown } from 'lucide-react';
 import { LLMModel } from '../types';
 import { llmService } from '../services/llmService';
 import { apiService } from '../services/api';
@@ -25,17 +25,11 @@ export default function SettingsPanel({ apiBaseUrl, onApiBaseUrlChange, onClose 
   // Tabs
   const [activeTab, setActiveTab] = useState<'general' | 'models'>('general');
 
-
-  
   // Model management form state (Add/Edit)
   const [isEditingExisting, setIsEditingExisting] = useState<boolean>(false);
   const [matchId, setMatchId] = useState<string>('');
   const [matchName, setMatchName] = useState<string>('');
   const [isModelFormCollapsed, setIsModelFormCollapsed] = useState<boolean>(true);
-  
-  // Ollama sync state
-  const [ollamaSyncStatus, setOllamaSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
-  const [ollamaSyncMessage, setOllamaSyncMessage] = useState<string>('');
   
   const [modelForm, setModelForm] = useState<LLMModel>({
     id: '',
@@ -157,40 +151,6 @@ export default function SettingsPanel({ apiBaseUrl, onApiBaseUrlChange, onClose 
       console.error('Error saving model:', e);
       setModelSaveStatus('error');
       setTimeout(() => setModelSaveStatus('idle'), 1600);
-    }
-  };
-  
-  // Sync models from Ollama
-  const syncOllamaModels = async () => {
-    setOllamaSyncStatus('syncing');
-    setOllamaSyncMessage('Connecting to Ollama...');
-    try {
-      const response = await apiService.api.post('/settings/sync-ollama-models');
-      const data = response.data;
-      
-      if (data.success) {
-        // Reload models after sync
-        await llmService.loadModelsFromAPI();
-        const allModels = llmService.getAllModels();
-        setModels(allModels);
-        setModelsByProvider(llmService.getModelsByProvider());
-        
-        setOllamaSyncMessage(`✅ Synced ${data.synced_models} models from Ollama`);
-        setOllamaSyncStatus('success');
-        setTimeout(() => {
-          setOllamaSyncStatus('idle');
-          setOllamaSyncMessage('');
-        }, 3000);
-      } else {
-        setOllamaSyncMessage(data.error || 'Failed to sync');
-        setOllamaSyncStatus('error');
-        setTimeout(() => setOllamaSyncStatus('idle'), 4000);
-      }
-    } catch (e: any) {
-      console.error('Error syncing Ollama models:', e);
-      setOllamaSyncMessage(e.message || 'Connection failed');
-      setOllamaSyncStatus('error');
-      setTimeout(() => setOllamaSyncStatus('idle'), 4000);
     }
   };
   
@@ -430,33 +390,12 @@ export default function SettingsPanel({ apiBaseUrl, onApiBaseUrlChange, onClose 
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-gray-900">Manage LLM Models</h3>
               <div className="flex items-center space-x-2">
-                <button 
-                  type="button" 
-                  onClick={syncOllamaModels} 
-                  disabled={ollamaSyncStatus === 'syncing'}
-                  className={`btn-secondary inline-flex items-center space-x-2 ${ollamaSyncStatus === 'syncing' ? 'opacity-75 cursor-wait' : ''}`}
-                  title="Sync available models from Ollama"
-                >
-                  <RefreshCw className={`w-4 h-4 ${ollamaSyncStatus === 'syncing' ? 'animate-spin' : ''}`} />
-                  <span>{ollamaSyncStatus === 'syncing' ? 'Syncing...' : 'Sync Ollama'}</span>
-                </button>
                 <button type="button" onClick={() => { startAddNewModel(); setIsModelFormCollapsed(false); }} className="btn-secondary inline-flex items-center space-x-2">
                   <ListPlus className="w-4 h-4" />
                   <span>New Model</span>
                 </button>
               </div>
             </div>
-            
-            {/* Ollama sync status message */}
-            {ollamaSyncMessage && (
-              <div className={`text-sm px-3 py-2 rounded ${
-                ollamaSyncStatus === 'success' ? 'bg-green-50 text-green-700' : 
-                ollamaSyncStatus === 'error' ? 'bg-red-50 text-red-700' : 
-                'bg-blue-50 text-blue-700'
-              }`}>
-                {ollamaSyncMessage}
-              </div>
-            )}
             
             {/* Compact list of existing models */}
             <div className="max-h-40 overflow-auto border border-gray-200 rounded-md">

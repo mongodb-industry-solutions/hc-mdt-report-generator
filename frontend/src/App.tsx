@@ -99,35 +99,13 @@ function AppContent() {
     }
   }, [patientId]);
 
-  // Auto-refresh reports when switching to reports tab + first-time settings popup
+  // Auto-refresh reports when switching to reports tab
   useEffect(() => {
     if (currentView === 'reports' && patientId) {
       // Refresh only the reports data when switching to reports tab
       refreshReports();
-
-      // Show Settings on first visit to Reports in this browser tab
-      try {
-        const openedKey = 'claritygr:settings_opened';
-        if (!sessionStorage.getItem(openedKey)) {
-          setShowSettings(true);
-          sessionStorage.setItem(openedKey, 'true');
-        }
-      } catch (e) {
-        // Ignore sessionStorage errors (e.g., privacy mode)
-      }
     }
   }, [currentView, patientId]);
-
-  // Mark settings as opened in this browser tab whenever it is shown
-  useEffect(() => {
-    if (showSettings) {
-      try {
-        sessionStorage.setItem('claritygr:settings_opened', 'true');
-      } catch (e) {
-        // Ignore sessionStorage errors
-      }
-    }
-  }, [showSettings]);
 
   const loadPatientData = async () => {
     setIsLoading(true);
@@ -333,8 +311,18 @@ function AppContent() {
           {/* Fixed Header */}
           <header className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md shadow-lg border-b border-gray-200">
             {/* Professional Header with Cobranded Logo - Full Width */}
-            <div className="bg-gradient-to-r from-navy-800 to-navy-900 text-white px-6 py-4 border-b-2 border-mongodb-green">
-              <div className="flex items-center justify-between relative">
+            <div 
+              className="text-white px-6 py-8 border-b-2 border-mongodb-green relative"
+              style={{
+                backgroundImage: `url('/HeaderBackground.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            >
+              {/* Overlay for better text readability */}
+              <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+              <div className="flex items-center justify-between relative z-10">
                 {/* Empty div for layout balance */}
                 <div className="flex-1"></div>
                 
@@ -414,13 +402,13 @@ function AppContent() {
           </header>
 
           {/* Header Spacer - ensures content starts below fixed header */}
-          <div className="h-56 lg:h-48"></div>
+          <div className="h-64 lg:h-56"></div>
           
           {/* Main Layout */}
           <div className={`flex min-h-screen ${!patientId ? '' : ''}`}>
             {/* Left Sidebar Navigation - Only show when patient is selected */}
             {patientId && (
-              <div className={`fixed left-0 top-56 lg:top-48 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ${
+              <div className={`fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ${
                 isSidebarCollapsed ? 'w-20' : 'w-80'
               }`}>
                 {/* Sidebar Header with Title and Toggle */}

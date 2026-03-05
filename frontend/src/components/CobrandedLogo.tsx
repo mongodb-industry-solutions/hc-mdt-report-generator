@@ -42,18 +42,29 @@ const MongoDBHealthcareLogo: React.FC<MongoDBHealthcareLogoProps> = ({
         aria-label="MongoDB Healthcare"
       >
         <title>MongoDB Healthcare</title>
-        {/* MongoDB Leaf Icon */}
-        <g transform="translate(8,12)">
-          <path d="M26 114 C18 86, 18 58, 28 36 C38 16, 54 6, 66 4 C58 18, 52 36, 50 52 C48 70, 52 90, 62 114 Z" fill="#00ED64" />
-          <path d="M58 28 C56 54, 58 92, 66 116" stroke="#8CEBB0" strokeWidth="4" fill="none" strokeLinecap="round" />
+        
+        <defs>
+          <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.8" floodColor="#000000"/>
+          </filter>
+          <filter id="iconShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="1" stdDeviation="3" floodOpacity="0.6" floodColor="#000000"/>
+          </filter>
+        </defs>
+        
+        {/* Hospital Icon */}
+        <g transform="translate(8, 10)">
+          <image href="/General_INDUSTRY_Hospital_inverse3x.png" width="100" height="100" filter="url(#iconShadow)"/>
         </g>
+        
         {/* MongoDB Text */}
-        <g fontFamily="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" fontWeight="800" fontSize="40">
-          <text x="110" y="68" fill="#FFFFFF">MongoDB</text>
+        <g fontFamily="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" fontWeight="700" fontSize="38">
+          <text x="140" y="65" fill="#FFFFFF" filter="url(#textShadow)" letterSpacing="0.5px">MongoDB Healthcare</text>
         </g>
+        
         {/* Healthcare Text */}
-        <g fontFamily="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" fontWeight="700" fontSize="34">
-          <text x="110" y="120" fill="#00ED64">MDT Report Generator</text>
+        <g fontFamily="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" fontWeight="500" fontSize="26">
+          <text x="140" y="105" fill="#00ED64" letterSpacing="1px" opacity="0.95" filter="url(#textShadow)">AI-Powered Medical Report Generator</text>
         </g>
       </svg>
     </div>
