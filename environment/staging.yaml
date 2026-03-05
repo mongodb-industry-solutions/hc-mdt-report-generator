@@ -3,6 +3,7 @@ env:
   # AWS region for IRSA (no credentials needed)
   AWS_REGION: us-east-1
   # Backend API URL for frontend to connect to backend health check - get <service-name> using kubectl get services
+  FRONTEND_URL: http://mdt-report-generator-frontend-web-app:80
   BACKEND_URL: http://mdt-report-generator-backend-web-app:80   # or http://localhost:8000 if multicontainer pod is setup and backend is running on 8000
   LLM_PROVIDER: bedrock
   GPT_OPEN_TIMEOUT: 3000.0
