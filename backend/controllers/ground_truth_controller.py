@@ -14,6 +14,8 @@ import json
 import asyncio
 import logging
 import base64
+import os
+import aiohttp
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional, List, AsyncGenerator
@@ -668,25 +670,41 @@ async def check_gt_availability(patient_id: str):
         # Construct expected GT filename
         gt_filename = f"GT_{patient_id}.pdf"
         
-        # Check in public GT folder relative to project root
-        project_root = Path(__file__).parent.parent.parent
-        gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
-
-        logger.info(f"Checking GT availability for patient {patient_id}")
-        logger.info(f"Expected GT file path: {gt_file_path}")
+        # Try to access GT file via HTTP (for Kanopy deployment) or filesystem (for local dev)
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+        gt_url = f"{frontend_url}/gt/{gt_filename}"
         
-        if gt_file_path.exists():
-            return {
-                "available": True,
-                "filename": gt_filename,
-                "path": str(gt_file_path)
-            }
-        else:
-            return {
-                "available": False,
-                "filename": None,
-                "path": None
-            }
+        logger.info(f"Checking GT availability for patient {patient_id}")
+        logger.info(f"Trying GT URL: {gt_url}")
+        
+        try:
+            # Try HTTP access first (for production deployment)
+            async with aiohttp.ClientSession() as session:
+                async with session.head(gt_url) as response:
+                    if response.status == 200:
+                        return {
+                            "available": True,
+                            "filename": gt_filename,
+                            "url": gt_url
+                        }
+        except Exception as http_error:
+            logger.info(f"HTTP access failed: {http_error}, trying filesystem...")
+            
+            # Fallback to filesystem access (for local development)
+            project_root = Path(__file__).parent.parent.parent
+            gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
+            
+            if gt_file_path.exists():
+                return {
+                    "available": True,
+                    "filename": gt_filename,
+                    "path": str(gt_file_path)
+                }
+        
+        return {
+            "available": False,
+            "filename": None
+        }
             
     except Exception as e:
         logger.error(f"Failed to check GT availability for patient {patient_id}: {e}")
@@ -734,31 +752,47 @@ async def auto_load_ground_truth(
                 yield _sse_event("FAILED", 0, f"Report {report_uuid} not found for patient {patient_id}")
                 return
             
-            # Check if GT file exists
-            gt_filename = f"GT_{patient_id}.pdf"
-            project_root = Path(__file__).parent.parent.parent
-            gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
-            
-            # Debug logging for path resolution
-            logger.info(f"Auto-load GT: Looking for file {gt_filename}")
-            logger.info(f"Project root calculated as: {project_root}")  
-            logger.info(f"Full GT file path: {gt_file_path}")
-            logger.info(f"GT file exists: {gt_file_path.exists()}")
-            
-            if not gt_file_path.exists():
-                yield _sse_event("FAILED", 0, f"No GT file found for patient {patient_id}. Expected: {gt_filename} at {gt_file_path}")
+            # Check if GT file is available via HTTP or filesystem
+            availability = await check_gt_availability(patient_id)
+            if not availability["available"]:
+                yield _sse_event("FAILED", 0, f"No GT file found for patient {patient_id}. Expected: GT_{patient_id}.pdf")
                 return
                 
-            yield _sse_event("LOADING_FILE", 10, f"Found GT file: {gt_filename}")
+            yield _sse_event("LOADING_FILE", 10, "Loading ground truth PDF...")
             
-            # Read the GT file
+            # Load the GT PDF content
+            gt_filename = f"GT_{patient_id}.pdf"
+            
             try:
-                with open(gt_file_path, "rb") as f:
-                    pdf_data = f.read()
-                yield _sse_event("LOADING_FILE", 20, "GT file loaded successfully")
-            except Exception as e:
-                yield _sse_event("FAILED", 20, f"Failed to read GT file: {str(e)}")
-                return
+                # Try to download via HTTP first (for production)
+                frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+                gt_url = f"{frontend_url}/gt/{gt_filename}"
+                
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(gt_url) as response:
+                        if response.status == 200:
+                            pdf_data = await response.read()
+                            yield _sse_event("LOADING_FILE", 20, "GT file loaded successfully via HTTP")
+                        else:
+                            raise Exception(f"HTTP download failed: {response.status}")
+            except Exception as http_error:
+                logger.info(f"HTTP download failed: {http_error}, trying filesystem...")
+                
+                # Fallback to filesystem (for local development)
+                project_root = Path(__file__).parent.parent.parent
+                gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
+                
+                if not gt_file_path.exists():
+                    yield _sse_event("FAILED", 20, f"Ground truth file not found: {gt_filename}")
+                    return
+                    
+                try:
+                    with open(gt_file_path, "rb") as f:
+                        pdf_data = f.read()
+                    yield _sse_event("LOADING_FILE", 20, "GT file loaded successfully via filesystem")
+                except Exception as e:
+                    yield _sse_event("FAILED", 20, f"Failed to read GT file: {str(e)}")
+                    return
             
             # Delete existing GT for this report (same logic as manual upload)
             existing_gt = gt_repo.get_latest_by_report(report_uuid)
@@ -842,27 +876,53 @@ async def view_gt_pdf(patient_id: str):
     try:
         # Check if GT file exists
         gt_filename = f"GT_{patient_id}.pdf"
-        project_root = Path(__file__).parent.parent.parent
-        gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
         
-        logger.info(f"Looking for GT PDF: {gt_file_path}")
+        # Try HTTP access first (for production)
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+        gt_url = f"{frontend_url}/gt/{gt_filename}"
         
-        if not gt_file_path.exists():
-            raise HTTPException(
-                status_code=404, 
-                detail=f"Ground truth PDF not found for patient {patient_id}. Expected: {gt_filename}"
+        logger.info(f"Looking for GT PDF via URL: {gt_url}")
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(gt_url) as response:
+                    if response.status == 200:
+                        pdf_content = await response.read()
+                        return Response(
+                            content=pdf_content,
+                            media_type="application/pdf",
+                            headers={
+                                "Content-Disposition": f"inline; filename={gt_filename}",
+                                "Cache-Control": "public, max-age=3600"
+                            }
+                        )
+                    else:
+                        raise Exception(f"HTTP download failed: {response.status}")
+        except Exception as http_error:
+            logger.info(f"HTTP access failed: {http_error}, trying filesystem...")
+            
+            # Fallback to filesystem (for local development)
+            project_root = Path(__file__).parent.parent.parent
+            gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
+            
+            logger.info(f"Looking for GT PDF at: {gt_file_path}")
+            
+            if not gt_file_path.exists():
+                raise HTTPException(
+                    status_code=404, 
+                    detail=f"Ground truth PDF not found for patient {patient_id}. Expected: {gt_filename}"
+                )
+            
+            # Return the PDF file
+            return FileResponse(
+                path=str(gt_file_path),
+                media_type="application/pdf",
+                filename=gt_filename,
+                headers={
+                    "Content-Disposition": f"inline; filename={gt_filename}",
+                    "Cache-Control": "public, max-age=3600"
+                }
             )
-        
-        # Return the PDF file
-        return FileResponse(
-            path=str(gt_file_path),
-            media_type="application/pdf",
-            filename=gt_filename,
-            headers={
-                "Content-Disposition": f"inline; filename={gt_filename}",
-                "Cache-Control": "public, max-age=3600"
-            }
-        )
         
     except HTTPException:
         raise
