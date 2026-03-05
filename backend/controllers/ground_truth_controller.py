@@ -671,6 +671,9 @@ async def check_gt_availability(patient_id: str):
         # Check in public GT folder relative to project root
         project_root = Path(__file__).parent.parent.parent
         gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
+
+        logger.info(f"Checking GT availability for patient {patient_id}")
+        logger.info(f"Expected GT file path: {gt_file_path}")
         
         if gt_file_path.exists():
             return {

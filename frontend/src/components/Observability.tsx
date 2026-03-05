@@ -177,6 +177,7 @@ export default function Observability({
       const availability = await apiService.checkGTAvailability(generation.patient_id);
       console.log('GT availability result:', availability);
       
+      
       if (!availability.available) {
         console.error('GT not available:', availability);
         setIsEvaluating(false);
