@@ -7,6 +7,9 @@ import ReportsList from './components/ReportsList';
 import ReportViewer from './components/ReportViewer';
 import SettingsPanel from './components/SettingsPanel';
 import Observability from './components/Observability';
+import GTUploadDialog from './components/GTUploadDialog';
+import GTVerifyDialog from './components/GTVerifyDialog';
+import EvaluationResultsDialog from './components/EvaluationResultsDialog';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import PatientsDialog from './components/PatientsDialog';
 import DisclaimerModal from './components/DisclaimerModal';
@@ -15,7 +18,7 @@ import InfoModal from './components/InfoModal';
 import InfoButton from './components/InfoButton';
 import { I18nProvider, useI18n } from './i18n/context';
 import { apiService, getApiBaseURL } from './services/api';
-import { PatientDocument, Report, ReportGenerationProgress } from './types';
+import { PatientDocument, Report, ReportGenerationProgress, GroundTruthEntity } from './types';
 import { useInfoModal, tabInfoContent } from './hooks/useInfoModal';
 
 function AppContent() {
@@ -42,6 +45,14 @@ function AppContent() {
   // Report generation state - moved here to persist across tab switches
   const [isGeneratingReport, setIsGeneratingReport] = useState<boolean>(false);
   const [reportGenerationProgress, setReportGenerationProgress] = useState<ReportGenerationProgress | null>(null);
+
+  // GT and Evaluation modal states
+  const [showGTUpload, setShowGTUpload] = useState<boolean>(false);
+  const [showGTVerify, setShowGTVerify] = useState<boolean>(false);
+  const [showEvalResults, setShowEvalResults] = useState<boolean>(false);
+  const [selectedGeneration, setSelectedGeneration] = useState<any>(null);
+  const [extractedEntities, setExtractedEntities] = useState<GroundTruthEntity[]>([]);
+  const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
 
   // Info modal states for each tab
   const documentsInfo = useInfoModal('documents', currentView === 'documents' && !!patientId);
@@ -235,6 +246,78 @@ function AppContent() {
   const handleReportGenerationError = () => {
     setIsGeneratingReport(false);
     setReportGenerationProgress(null);
+  };
+
+  // GT Modal handlers
+  const handleShowGTUpload = (generation: any) => {
+    setSelectedGeneration(generation);
+    setShowGTUpload(true);
+  };
+
+  const handleShowGTVerify = (generation: any, entities: GroundTruthEntity[]) => {
+    setSelectedGeneration(generation);
+    setExtractedEntities(entities);
+    setShowGTVerify(true);
+  };
+
+  const handleShowEvalResults = (generation: any) => {
+    setSelectedGeneration(generation);
+    setShowEvalResults(true);
+  };
+
+  const handleGTUploadComplete = (entities: GroundTruthEntity[]) => {
+    setExtractedEntities(entities);
+    setShowGTUpload(false);
+    setShowGTVerify(true);
+  };
+
+  const handleGTSave = () => {
+    // Entities saved, stay on verify dialog
+  };
+
+  const handleRunEvaluation = async () => {
+    if (!selectedGeneration) return;
+    const reportUuid = selectedGeneration.report?.uuid;
+    if (!reportUuid) {
+      alert('Report UUID not found');
+      return;
+    }
+
+    setShowGTVerify(false);
+    setIsEvaluating(true);
+
+    try {
+      await apiService.runEvaluation(
+        selectedGeneration.patient_id,
+        reportUuid,
+        (data) => {
+          if (data.status === 'FAILED') {
+            alert(`Evaluation failed: ${data.message}`);
+            setIsEvaluating(false);
+          }
+        }
+      );
+      setIsEvaluating(false);
+      setShowEvalResults(true);
+      // Note: Observability data refresh would need to be handled separately if needed
+    } catch (e: any) {
+      console.error('Evaluation failed:', e);
+      alert(`Evaluation failed: ${e.message || 'Unknown error'}`);
+      setIsEvaluating(false);
+    }
+  };
+
+  const handleReEvaluate = () => {
+    setShowEvalResults(false);
+    handleRunEvaluation();
+  };
+
+  const handleCloseGTDialogs = () => {
+    setShowGTUpload(false);
+    setShowGTVerify(false);
+    setShowEvalResults(false);
+    setSelectedGeneration(null);
+    setExtractedEntities([]);
   };
 
   const navigation = [
@@ -463,7 +546,12 @@ function AppContent() {
                       )}
 
                       {currentView === 'observability' && (
-                        <Observability />
+                        <Observability 
+                          patientId={patientId} 
+                          onShowGTUpload={handleShowGTUpload}
+                          onShowGTVerify={handleShowGTVerify}
+                          onShowEvalResults={handleShowEvalResults}
+                        />
                       )}
                     </>
                   )}
@@ -497,6 +585,52 @@ function AppContent() {
               onApiBaseUrlChange={setApiBaseUrl}
               onClose={() => setShowSettings(false)}
             />
+          )}
+
+          {/* GT Upload Dialog */}
+          {showGTUpload && selectedGeneration && (
+            <GTUploadDialog
+              isOpen={showGTUpload}
+              onClose={handleCloseGTDialogs}
+              patientId={selectedGeneration.patient_id}
+              reportUuid={selectedGeneration.report?.uuid}
+              onComplete={handleGTUploadComplete}
+            />
+          )}
+
+          {/* GT Verify Dialog */}
+          {showGTVerify && selectedGeneration && (
+            <GTVerifyDialog
+              isOpen={showGTVerify}
+              onClose={handleCloseGTDialogs}
+              patientId={selectedGeneration.patient_id}
+              reportUuid={selectedGeneration.report?.uuid}
+              initialEntities={extractedEntities}
+              onSave={handleGTSave}
+              onRunEvaluation={handleRunEvaluation}
+            />
+          )}
+
+          {/* Evaluation Results Dialog */}
+          {showEvalResults && selectedGeneration && (
+            <EvaluationResultsDialog
+              isOpen={showEvalResults}
+              onClose={handleCloseGTDialogs}
+              patientId={selectedGeneration.patient_id}
+              reportUuid={selectedGeneration.report?.uuid}
+              onReEvaluate={handleReEvaluate}
+            />
+          )}
+
+          {/* Evaluation Progress Overlay */}
+          {isEvaluating && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 text-white">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                <h3 className="text-xl font-semibold mb-2">Running Evaluation</h3>
+                <p className="text-lg">Please wait while we evaluate the entities...</p>
+              </div>
+            </div>
           )}
 
           {showPatientsDialog && (

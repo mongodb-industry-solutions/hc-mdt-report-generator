@@ -1,9 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { apiService } from '../services/api';
-import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2 } from 'lucide-react';
-import GTUploadDialog from './GTUploadDialog';
-import GTVerifyDialog from './GTVerifyDialog';
-import EvaluationResultsDialog from './EvaluationResultsDialog';
+import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2, User } from 'lucide-react';
 import { GroundTruthEntity } from '../types';
 import { useI18n } from '../i18n/context';
 
@@ -46,7 +43,19 @@ function formatElapsed(seconds: number) {
   return `${s}s`;
 }
 
-export default function Observability() {
+interface ObservabilityProps {
+  patientId?: string;
+  onShowGTUpload?: (generationItem: GenerationItem) => void;
+  onShowGTVerify?: (generationItem: GenerationItem, entities: GroundTruthEntity[]) => void;
+  onShowEvalResults?: (generationItem: GenerationItem) => void;
+}
+
+export default function Observability({ 
+  patientId, 
+  onShowGTUpload, 
+  onShowGTVerify, 
+  onShowEvalResults 
+}: ObservabilityProps) {
   const { t } = useI18n();
   const [items, setItems] = useState<GenerationItem[]>([]);
   const [llms, setLlms] = useState<string[]>([]);
@@ -57,12 +66,7 @@ export default function Observability() {
   const [end, setEnd] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Evaluation flow state
-  const [selectedGeneration, setSelectedGeneration] = useState<GenerationItem | null>(null);
-  const [showGTUpload, setShowGTUpload] = useState(false);
-  const [showGTVerify, setShowGTVerify] = useState(false);
-  const [showEvalResults, setShowEvalResults] = useState(false);
-  const [extractedEntities, setExtractedEntities] = useState<GroundTruthEntity[]>([]);
+  // Evaluation flow state - only keep what's needed for progress tracking
   const [isEvaluating, setIsEvaluating] = useState(false);
 
   useEffect(() => {
@@ -76,7 +80,7 @@ export default function Observability() {
 
   useEffect(() => {
     fetchData();
-  }, [selectedLLM, selectedHash, start, end]);
+  }, [selectedLLM, selectedHash, start, end, patientId]);
 
   const loadFilters = async () => {
     try {
@@ -96,6 +100,7 @@ export default function Observability() {
       if (end) params.end = end;
       if (selectedLLM) params.model_llm = selectedLLM;
       if (selectedHash) params.filenames_hash = selectedHash;
+      if (patientId) params.patient_id = patientId;
       const { items } = await apiService.getGenerations(params);
       setItems(items as GenerationItem[]);
     } catch (e) {
@@ -117,88 +122,30 @@ export default function Observability() {
       alert('Report UUID not found in this generation record');
       return;
     }
-    setSelectedGeneration(generation);
     
     // Route based on what data already exists
     if (generation.evaluation_status === 'COMPLETED') {
       // Evaluation exists → Show results directly
-      setShowEvalResults(true);
+      onShowEvalResults?.(generation);
     } else if (generation.gt_status === 'COMPLETED') {
       // GT exists but no evaluation → Fetch GT entities and show verify dialog
       try {
         const gtData = await apiService.getGroundTruth(generation.patient_id, reportUuid);
         if (gtData.status === 'found' && gtData.ground_truth?.entities) {
-          setExtractedEntities(gtData.ground_truth.entities);
-          setShowGTVerify(true);
+          onShowGTVerify?.(generation, gtData.ground_truth.entities);
         } else {
           // GT not found (shouldn't happen), show upload
-          setShowGTUpload(true);
+          onShowGTUpload?.(generation);
         }
       } catch (e) {
         console.error('Failed to fetch existing GT:', e);
         // Fallback to upload
-        setShowGTUpload(true);
+        onShowGTUpload?.(generation);
       }
     } else {
       // No GT → Show upload dialog
-      setShowGTUpload(true);
+      onShowGTUpload?.(generation);
     }
-  };
-
-  const handleGTUploadComplete = (entities: GroundTruthEntity[]) => {
-    setExtractedEntities(entities);
-    setShowGTUpload(false);
-    setShowGTVerify(true);
-  };
-
-  const handleGTSave = () => {
-    // Entities saved, stay on verify dialog
-  };
-
-  const handleRunEvaluation = async () => {
-    if (!selectedGeneration) return;
-    const reportUuid = getReportUuid(selectedGeneration);
-    if (!reportUuid) {
-      alert('Report UUID not found');
-      return;
-    }
-
-    setShowGTVerify(false);
-    setIsEvaluating(true);
-
-    try {
-      // LLM provider is determined by backend from LLM_PROVIDER env var
-      await apiService.runEvaluation(
-        selectedGeneration.patient_id,
-        reportUuid,
-        (data) => {
-          if (data.status === 'FAILED') {
-            alert(`Evaluation failed: ${data.message}`);
-            setIsEvaluating(false);
-          }
-        }
-      );
-      setIsEvaluating(false);
-      setShowEvalResults(true);
-      fetchData(); // Refresh to show updated evaluation status
-    } catch (e: any) {
-      console.error('Evaluation failed:', e);
-      alert(`Evaluation failed: ${e.message || 'Unknown error'}`);
-      setIsEvaluating(false);
-    }
-  };
-
-  const handleReEvaluate = () => {
-    setShowEvalResults(false);
-    handleRunEvaluation();
-  };
-
-  const handleCloseAllDialogs = () => {
-    setShowGTUpload(false);
-    setShowGTVerify(false);
-    setShowEvalResults(false);
-    setSelectedGeneration(null);
-    setExtractedEntities([]);
   };
 
   const distinctLLMs = useMemo(() => llms, [llms]);
@@ -208,12 +155,20 @@ export default function Observability() {
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">{t.observability.title}</h2>
-        <button
-          onClick={fetchData}
-          className="inline-flex items-center px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
-        >
-          <RefreshCw className="w-4 h-4 mr-2" /> {t.observability.refresh}
-        </button>
+        <div className="flex items-center gap-3">
+          {patientId && (
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+              <User className="w-4 h-4 mr-1.5" />
+              Patient: {patientId}
+            </div>
+          )}
+          <button
+            onClick={fetchData}
+            className="inline-flex items-center px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" /> {t.observability.refresh}
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -357,41 +312,6 @@ export default function Observability() {
           </tbody>
         </table>
       </div>
-
-      {/* GT Upload Dialog */}
-      {showGTUpload && selectedGeneration && getReportUuid(selectedGeneration) && (
-        <GTUploadDialog
-          isOpen={showGTUpload}
-          onClose={handleCloseAllDialogs}
-          patientId={selectedGeneration.patient_id}
-          reportUuid={getReportUuid(selectedGeneration)!}
-          onComplete={handleGTUploadComplete}
-        />
-      )}
-
-      {/* GT Verify Dialog */}
-      {showGTVerify && selectedGeneration && getReportUuid(selectedGeneration) && (
-        <GTVerifyDialog
-          isOpen={showGTVerify}
-          onClose={handleCloseAllDialogs}
-          patientId={selectedGeneration.patient_id}
-          reportUuid={getReportUuid(selectedGeneration)!}
-          initialEntities={extractedEntities}
-          onSave={handleGTSave}
-          onRunEvaluation={handleRunEvaluation}
-        />
-      )}
-
-      {/* Evaluation Results Dialog */}
-      {showEvalResults && selectedGeneration && getReportUuid(selectedGeneration) && (
-        <EvaluationResultsDialog
-          isOpen={showEvalResults}
-          onClose={handleCloseAllDialogs}
-          patientId={selectedGeneration.patient_id}
-          reportUuid={getReportUuid(selectedGeneration)!}
-          onReEvaluate={handleReEvaluate}
-        />
-      )}
 
       {/* Evaluation Progress Overlay */}
       {isEvaluating && (
