@@ -329,7 +329,7 @@ function AppContent() {
                 {/* MongoDB Healthcare Logo - Center */}
                 <div className="flex-1 flex justify-center">
                   <div className="transform scale-150">
-                    <MongoDBHealthcareLogo size="lg" />
+                    <MongoDBHealthcareLogo size="xl" />
                   </div>
                 </div>
                 
@@ -402,13 +402,13 @@ function AppContent() {
           </header>
 
           {/* Header Spacer - ensures content starts below fixed header */}
-          <div className="h-64 lg:h-56 shrink-0"></div>
+          <div className="h-68 lg:h-60 shrink-0"></div>
           
           {/* Main Layout */}
           <div className={`flex flex-1 min-h-0 ${!patientId ? '' : ''}`}>
             {/* Left Sidebar Navigation - Only show when patient is selected */}
             {patientId && (
-              <div className={`fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ${
+              <div className={`fixed left-0 top-68 lg:top-60 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ${
                 isSidebarCollapsed ? 'w-20' : 'w-80'
               }`}>
                 {/* Sidebar Header with Title and Toggle */}
@@ -558,7 +558,7 @@ function AppContent() {
               ></div>
               
               {/* Modal Content */}
-              <div className="relative w-[50vw] h-[95vh] max-w-none">
+              <div className="relative w-[70vw] h-[95vh] max-w-none">
                 <ReportViewer
                   report={selectedReport}
                   onClose={() => setShowReportViewer(false)}

@@ -502,7 +502,7 @@ export default function ReportsList({
                 <div className="flex items-center space-x-2 ml-4">
                   <button
                     onClick={() => onViewReport(report)}
-                    className="btn-outline flex items-center space-x-1"
+                    className="btn-success flex items-center space-x-1"
                     disabled={report.status !== 'COMPLETED'}
                   >
                     <Eye className="w-4 h-4" />

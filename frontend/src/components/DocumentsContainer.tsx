@@ -77,7 +77,7 @@ export default function DocumentsContainer({
     },
     {
       id: 'processed' as DocumentTab,
-      label: 'Processed',
+      label: 'Pre-processed',
       sublabel: 'Ready for reports',
       icon: Archive,
       count: documents.length,

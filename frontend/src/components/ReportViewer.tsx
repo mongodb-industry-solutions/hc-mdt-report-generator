@@ -713,48 +713,48 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
     switch (category) {
       case 'Patient Information':
         return isActive
-          ? 'border-blue-500 text-blue-600 bg-blue-50'
-          : 'border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300';
+          ? 'border-blue-500 text-blue-700 bg-blue-100'
+          : 'border-blue-300 text-blue-600 bg-blue-50 hover:text-blue-700 hover:bg-blue-100 hover:border-blue-400';
       case 'Clinical Summary':
         return isActive
-          ? 'border-green-500 text-green-600 bg-green-50'
-          : 'border-transparent text-gray-500 hover:text-green-600 hover:border-green-300';
+          ? 'border-green-500 text-green-700 bg-green-100'
+          : 'border-green-300 text-green-600 bg-green-50 hover:text-green-700 hover:bg-green-100 hover:border-green-400';
       case 'General Health and Functional Status':
         return isActive
-          ? 'border-teal-500 text-teal-600 bg-teal-50'
-          : 'border-transparent text-gray-500 hover:text-teal-600 hover:border-teal-300';
+          ? 'border-teal-500 text-teal-700 bg-teal-100'
+          : 'border-teal-300 text-teal-600 bg-teal-50 hover:text-teal-700 hover:bg-teal-100 hover:border-teal-400';
       case 'Laboratory and Exploration Results':
         return isActive
-          ? 'border-cyan-500 text-cyan-600 bg-cyan-50'
-          : 'border-transparent text-gray-500 hover:text-cyan-600 hover:border-cyan-300';
+          ? 'border-cyan-500 text-cyan-700 bg-cyan-100'
+          : 'border-cyan-300 text-cyan-600 bg-cyan-50 hover:text-cyan-700 hover:bg-cyan-100 hover:border-cyan-400';
       case 'Medical Diagnoses':
         return isActive
-          ? 'border-rose-500 text-rose-600 bg-rose-50'
-          : 'border-transparent text-gray-500 hover:text-rose-600 hover:border-rose-300';
+          ? 'border-rose-500 text-rose-700 bg-rose-100'
+          : 'border-rose-300 text-rose-600 bg-rose-50 hover:text-rose-700 hover:bg-rose-100 hover:border-rose-400';
       case 'Psychological and Social Factors':
         return isActive
-          ? 'border-indigo-500 text-indigo-600 bg-indigo-50'
-          : 'border-transparent text-gray-500 hover:text-indigo-600 hover:border-indigo-300';
+          ? 'border-indigo-500 text-indigo-700 bg-indigo-100'
+          : 'border-indigo-300 text-indigo-600 bg-indigo-50 hover:text-indigo-700 hover:bg-indigo-100 hover:border-indigo-400';
       case 'Patient and Tumor Characteristics':
         return isActive
-          ? 'border-purple-500 text-purple-600 bg-purple-50'
-          : 'border-transparent text-gray-500 hover:text-purple-600 hover:border-purple-300';
+          ? 'border-purple-500 text-purple-700 bg-purple-100'
+          : 'border-purple-300 text-purple-600 bg-purple-50 hover:text-purple-700 hover:bg-purple-100 hover:border-purple-400';
       case 'Presentation Reason':
         return isActive
-          ? 'border-orange-500 text-orange-600 bg-orange-50'
-          : 'border-transparent text-gray-500 hover:text-orange-600 hover:border-orange-300';
+          ? 'border-orange-500 text-orange-700 bg-orange-100'
+          : 'border-orange-300 text-orange-600 bg-orange-50 hover:text-orange-700 hover:bg-orange-100 hover:border-orange-400';
       case 'MDT Recommendation (EXPERIMENTAL - Medical validation required)':
         return isActive
-          ? 'border-amber-500 text-amber-600 bg-amber-50'
-          : 'border-transparent text-gray-500 hover:text-amber-600 hover:border-amber-300';
+          ? 'border-amber-500 text-amber-700 bg-amber-100'
+          : 'border-amber-300 text-amber-600 bg-amber-50 hover:text-amber-700 hover:bg-amber-100 hover:border-amber-400';
       case 'DRAFT System Recommendation':
         return isActive
-          ? 'border-red-500 text-red-600 bg-red-50'
-          : 'border-transparent text-gray-500 hover:text-red-600 hover:border-red-300';
+          ? 'border-red-500 text-red-700 bg-red-100'
+          : 'border-red-300 text-red-600 bg-red-50 hover:text-red-700 hover:bg-red-100 hover:border-red-400';
       default:
         return isActive
-          ? 'border-gray-500 text-gray-600 bg-gray-50'
-          : 'border-transparent text-gray-500 hover:text-gray-600 hover:border-gray-300';
+          ? 'border-gray-500 text-gray-700 bg-gray-100'
+          : 'border-gray-300 text-gray-600 bg-gray-50 hover:text-gray-700 hover:bg-gray-100 hover:border-gray-400';
     }
   };
 
@@ -798,13 +798,13 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
       </div>
 
       {/* Disclaimer */}
-      <div className="max-h-96 overflow-y-auto border-b border-gray-200">
+      {/* <div className="max-h-96 overflow-y-auto border-b border-gray-200">
         <ReportDisclaimer 
           reportDate={new Date(report.created_at).toLocaleString()}
           aiModel="AI Large Language Model (AWS Bedrock/Mistral)"
           version="Proof of Concept v1.0"
         />
-      </div>
+      </div> */}
 
       {/* Summary */}
       <div className="p-4 bg-gray-50 border-b border-gray-200">
@@ -845,101 +845,114 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 overflow-x-auto">
-        {availableCategories.map((category) => {
-          const Icon = getCategoryIcon(category);
-          const foundCount = organizedEntities[category]?.length || 0;
-          const notFoundCount = organizedNotFound[category]?.length || 0;
-          const isActive = activeTab === category;
-          return (
-            <button
-              key={category}
-              onClick={() => setActiveTab(category)}
-              className={`
-                flex items-center space-x-2 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200
-                whitespace-nowrap ${getCategoryColor(category, isActive)}
-              `}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{category}</span>
-              <div className="flex items-center space-x-1">
-                <span className={`
-                  px-2 py-1 rounded-full text-xs font-medium
-                  ${isActive
-                    ? 'bg-white text-green-600 shadow-sm'
-                    : 'bg-green-100 text-green-600'
-                  }
-                `}>
-                  {foundCount}
-                </span>
-                {notFoundCount > 0 && (
-                  <span className={`
-                    px-2 py-1 rounded-full text-xs font-medium
-                    ${isActive
-                      ? 'bg-white text-orange-600 shadow-sm'
-                      : 'bg-orange-100 text-orange-600'
-                    }
-                  `}>
-                    {notFoundCount}
-                  </span>
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
-        {currentTabEntities.length > 0 || currentTabNotFound.length > 0 ? (
-          <div className="space-y-3">
-            {/* Found Entities Section */}
-            {currentTabEntities.length > 0 && (
-              <div className="space-y-1">
-                {currentTabEntities.map((entity: ReportEntity, index: number) => (
-                  <EntityCard
-                    key={`found-${index}`}
-                    entity={entity}
-                    category={activeTab}
-                    onViewSource={handleViewSource}
-                  />
-                ))}
-              </div>
-            )}
-            
-            {/* Not Found Entities Section */}
-            {currentTabNotFound.length > 0 && (
-              <div className="space-y-1">
-                {/* Separator if there are both found and not-found entities */}
-                {currentTabEntities.length > 0 && (
-                  <div className="flex items-center py-3">
-                    <div className="flex-1 border-t border-gray-200"></div>
-                    <div className="px-3 text-xs font-medium text-gray-500 bg-gray-50 rounded-full">
-                      Expected but not found
+      {/* Main Content Area - Flex layout with sidebar and content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar - Entity Categories */}
+        <div className="w-80 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+          <div className="p-4">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Entity Categories</h3>
+            <div className="space-y-1">
+              {availableCategories.map((category) => {
+                const Icon = getCategoryIcon(category);
+                const foundCount = organizedEntities[category]?.length || 0;
+                const notFoundCount = organizedNotFound[category]?.length || 0;
+                const isActive = activeTab === category;
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setActiveTab(category)}
+                    className={`
+                      w-full flex items-start space-x-3 p-3 text-sm font-medium rounded-lg transition-all duration-200 border
+                      ${getCategoryColor(category, isActive)}
+                    `}
+                  >
+                    <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 text-left">
+                      <div className="font-medium">{category}</div>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className={`
+                          px-2 py-1 rounded-full text-xs font-medium
+                          ${isActive
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-green-50 text-green-600'
+                          }
+                        `}>
+                          {foundCount} found
+                        </span>
+                        {notFoundCount > 0 && (
+                          <span className={`
+                            px-2 py-1 rounded-full text-xs font-medium
+                            ${isActive
+                              ? 'bg-orange-100 text-orange-700'
+                              : 'bg-orange-50 text-orange-600'
+                            }
+                          `}>
+                            {notFoundCount} missing
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1 border-t border-gray-200"></div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="w-full">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{activeTab}</h2>
+            {currentTabEntities.length > 0 || currentTabNotFound.length > 0 ? (
+              <div className="space-y-3">
+                {/* Found Entities Section */}
+                {currentTabEntities.length > 0 && (
+                  <div className="space-y-1">
+                    {currentTabEntities.map((entity: ReportEntity, index: number) => (
+                      <EntityCard
+                        key={`found-${index}`}
+                        entity={entity}
+                        category={activeTab}
+                        onViewSource={handleViewSource}
+                      />
+                    ))}
                   </div>
                 )}
                 
-                {currentTabNotFound.map((entityName: string, index: number) => (
-                  <NotFoundEntityCard
-                    key={`not-found-${index}`}
-                    entityName={entityName}
-                    category={activeTab}
-                  />
-                ))}
+                {/* Not Found Entities Section */}
+                {currentTabNotFound.length > 0 && (
+                  <div className="space-y-1">
+                    {/* Separator if there are both found and not-found entities */}
+                    {currentTabEntities.length > 0 && (
+                      <div className="flex items-center py-3">
+                        <div className="flex-1 border-t border-gray-200"></div>
+                        <div className="px-3 text-xs font-medium text-gray-500 bg-gray-50 rounded-full">
+                          Expected but not found
+                        </div>
+                        <div className="flex-1 border-t border-gray-200"></div>
+                      </div>
+                    )}
+                    
+                    {currentTabNotFound.map((entityName: string, index: number) => (
+                      <NotFoundEntityCard
+                        key={`not-found-${index}`}
+                        entityName={entityName}
+                        category={activeTab}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-gray-400 mb-2">
+                  <FileText className="w-8 h-8 mx-auto" />
+                </div>
+                <p className="text-gray-500">No entities found for this category.</p>
               </div>
             )}
           </div>
-        ) : (
-          <div className="text-center py-8">
-            <div className="text-gray-400 mb-2">
-              <FileText className="w-8 h-8 mx-auto" />
-            </div>
-            <p className="text-gray-500">No entities found for this category.</p>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Source Viewer Modal */}

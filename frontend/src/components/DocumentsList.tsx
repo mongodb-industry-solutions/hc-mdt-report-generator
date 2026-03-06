@@ -102,7 +102,7 @@ export default function DocumentsList({ documents, onRefresh, patientId, onDocum
                 <div className="space-y-1">
                   <div className="flex items-center space-x-3">
                     <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent tracking-tight">
-                      Processed Documents
+                      Pre-processed Documents
                     </h2>
                     {documents.length > 0 && (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border border-emerald-200/50">
@@ -112,7 +112,7 @@ export default function DocumentsList({ documents, onRefresh, patientId, onDocum
                   </div>
                   <p className="text-sm text-slate-600 font-medium">
                     {documents.length === 0 
-                      ? `No processed documents for ${patientId}` 
+                      ? `No pre-processed documents for ${patientId}` 
                       : `${documents.length} ${t.documents.documentsFor} ${patientId} - ready for report generation`
                     }
                   </p>

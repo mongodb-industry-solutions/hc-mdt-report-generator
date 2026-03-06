@@ -767,6 +767,9 @@ async def auto_load_ground_truth(
     
     async def generate_progress() -> AsyncGenerator[str, None]:
         try:
+            # Check demo mode
+            demo_mode = os.getenv('DEMO_MODE', 'false').lower() == 'true'
+            
             # Validate report exists and belongs to patient
             yield _sse_event("STARTED", 0, "Starting auto-load ground truth process...")
             
@@ -774,6 +777,45 @@ async def auto_load_ground_truth(
             if not report or report.patient_id != patient_id:
                 yield _sse_event("FAILED", 0, f"Report {report_uuid} not found for patient {patient_id}")
                 return
+            
+            # Demo Mode: Skip file processing, use existing GT data
+            if demo_mode:
+                yield _sse_event("LOADING_FILE", 20, "Demo mode: Checking for existing ground truth data...")
+                
+                # Check if GT already exists in database for this patient
+                existing_gt = None
+                try:
+                    # Look for existing GT for this patient
+                    existing_gt = gt_repo.get_latest_by_patient(patient_id)
+                    if existing_gt:
+                        logger.info(f"Demo mode: Found existing GT for patient {patient_id}: {existing_gt.uuid}")
+                except Exception as e:
+                    logger.warning(f"Demo mode: Error checking for existing GT: {e}")
+                
+                if existing_gt:
+                    # Reuse existing GT data for this report
+                    yield _sse_event("LOADING_FILE", 50, f"Demo mode: Reusing existing GT data ({len(existing_gt.entities)} entities)")
+                    
+                    # Create a new GT record for this specific report using existing entity data
+                    new_ground_truth = GroundTruth(
+                        patient_id=patient_id,
+                        report_uuid=report_uuid,
+                        original_pdf=existing_gt.original_pdf,  # Reuse PDF data
+                        ocr_text=existing_gt.ocr_text,  # Reuse OCR text
+                        entities=existing_gt.entities,  # Reuse extracted entities
+                        ocr_engine=existing_gt.ocr_engine,
+                        status="COMPLETED",
+                        created_at=datetime.now(timezone.utc)
+                    )
+                    
+                    # Save the reused GT for this specific report
+                    gt_repo.create(new_ground_truth)
+                    
+                    yield _sse_event("COMPLETED", 100, f"Demo mode: Ground truth reused successfully! Using {len(existing_gt.entities)} pre-extracted entities")
+                    return
+                else:
+                    yield _sse_event("FAILED", 20, f"Demo mode: No pre-existing ground truth found for patient {patient_id}. Please ensure GT data is pre-loaded in the database.")
+                    return
             
             # Check if GT file is available via HTTP or filesystem
             availability = await check_gt_availability(patient_id)

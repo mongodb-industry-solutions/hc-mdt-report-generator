@@ -49,6 +49,9 @@ export default function SettingsPanel({ apiBaseUrl, onApiBaseUrlChange, onClose 
   const [confirmPhrase, setConfirmPhrase] = useState<string>('');
   const [masterDeleteStatus, setMasterDeleteStatus] = useState<'idle' | 'working' | 'done' | 'error'>('idle');
   
+  // Demo mode state
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+  
   // Load models on component mount
   useEffect(() => {
     const loadModels = async () => {
@@ -77,6 +80,20 @@ export default function SettingsPanel({ apiBaseUrl, onApiBaseUrlChange, onClose 
     };
     
     loadModels();
+  }, []);
+
+  // Load demo mode status
+  useEffect(() => {
+    const loadDemoMode = async () => {
+      try {
+        const { demo_mode } = await apiService.getDemoMode();
+        setIsDemoMode(demo_mode);
+      } catch (error) {
+        console.error('Failed to load demo mode status:', error);
+        setIsDemoMode(false);
+      }
+    };
+    loadDemoMode();
   }, []);
 
 
@@ -344,7 +361,13 @@ export default function SettingsPanel({ apiBaseUrl, onApiBaseUrlChange, onClose 
             <button
               type="button"
               onClick={() => { setShowMasterDelete(true); setConfirmPhrase(''); setMasterDeleteStatus('idle'); }}
-              className="inline-flex items-center space-x-2 text-red-700 hover:text-red-900 hover:bg-red-100 border border-red-300 px-3 py-2 rounded-md"
+              disabled={isDemoMode}
+              className={`inline-flex items-center space-x-2 border px-3 py-2 rounded-md ${
+                isDemoMode
+                  ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                  : 'text-red-700 hover:text-red-900 hover:bg-red-100 border-red-300'
+              }`}
+              title={isDemoMode ? 'Data deletion is disabled in demo mode' : 'Permanently delete all data'}
             >
               <Trash2 className="w-4 h-4" />
               <span>Delete ALL data</span>

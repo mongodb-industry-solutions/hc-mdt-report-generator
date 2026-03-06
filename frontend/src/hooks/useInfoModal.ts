@@ -146,17 +146,17 @@ export const tabInfoContent: Record<string, InfoModalContent> = {
           "Monitor system performance and processing metrics in the Observability tab"
         ]
       },
-      {
-        title: "Key Features",
-        icon: Activity,
-        description: "This platform has a lot to offer! Here are some of the key features to help you get the most out of it:",
-        points: [
-          "Customizable report templates to fit your specific needs. Easily adjust the structure and content of generated reports to match your requirements.",
-          "AI-powered entity extraction that identifies key medical information such as diagnoses, medications, procedures, and more.",
-          "Different LLM models to choose from, allowing you to select the one that best fits your use case and preferences.",
-          "Ground Truth comparison to validate the accuracy and completeness of generated reports against original source documents."
-        ]
-      }
+      // {
+      //   title: "Key Features",
+      //   icon: Activity,
+      //   description: "This platform has a lot to offer! Here are some of the key features to help you get the most out of it:",
+      //   points: [
+      //     "Customizable report templates to fit your specific needs. Easily adjust the structure and content of generated reports to match your requirements.",
+      //     "AI-powered entity extraction that identifies key medical information such as diagnoses, medications, procedures, and more.",
+      //     "Different LLM models to choose from, allowing you to select the one that best fits your use case and preferences.",
+      //     "Ground Truth comparison to validate the accuracy and completeness of generated reports against original source documents."
+      //   ]
+      // }
     ],
     tips: [
       "Select a patient to get started and explore the platform's capabilities",
@@ -181,21 +181,21 @@ export const tabInfoContent: Record<string, InfoModalContent> = {
         numbered: true,
         description: "The document processing pipeline is used to extract structured information from unstructured medical documents:",
         points: [
-          "Unstructured documents for the patient are listed in the 'Incoming Documents' tab. These can include various types of medical records such as clinical notes, lab reports, imaging reports, and more.",
-          "The selected documents are processed through a series of steps including text normalization, document related entity extraction, and relationship identification to convert them into structured data formats.",
-          "Once processed, the extracted information is available in the 'Processed Documents' tab, where you can review the results",
+          "Unstructured documents for the patient are listed in the 'Incoming Documents' tab.",
+          "The selected documents are pre-processed to convert them into semi-structured data formats.",
+          "Once processed, the extracted information is available in the 'Processed Documents' tab.",
         ]
       },
-      {
-        title: "Key Features",
-        icon: Stethoscope,
-        points: [
-          "Select specific documents to process or re-process as needed",
-          "Real-time monitoring of processing status and progress",
-          "Review extracted information before generating reports",
-          "Supports a wide range of document types and formats for comprehensive coverage"
-        ]
-      }
+      // {
+      //   title: "Key Features",
+      //   icon: Stethoscope,
+      //   points: [
+      //     "Select specific documents to process or re-process as needed",
+      //     "Real-time monitoring of processing status and progress",
+      //     "Review extracted information before generating reports",
+      //     "Supports a wide range of document types and formats for comprehensive coverage"
+      //   ]
+      // }
     ],
 
   },
@@ -212,18 +212,18 @@ export const tabInfoContent: Record<string, InfoModalContent> = {
       {
         title: "Customizable Report Templates",
         icon: Pencil,
-        description: "This MDT reports can be customized to your team's needs using our platform by creating your own medical entity templates. Define the description, filters and extraction rules for each entity to ensure your generated reports include the most relevant information according to your needs.",
+        description: "This MDT reports can be customized to your team's needs creating your own medical entity templates. Define the description, filters and extraction rules for each medical entity",
       },
 
-      {
-        title: "What you can do here",
-        icon: FileText,
-        points: [
-          "Create your own medical entity templates to customize the structure and content of generated reports",
-          "Create comprehensive MDT reports tailored to your specific needs and preferences",
-          "Download generated reports in PDF format for easy sharing and review",
-        ]
-      },
+      // {
+      //   title: "What you can do here",
+      //   icon: FileText,
+      //   points: [
+      //     "Create your own medical entity templates to customize the structure and content of generated reports",
+      //     "Create comprehensive MDT reports tailored to your specific needs and preferences",
+      //     "Download generated reports in PDF format for easy sharing and review",
+      //   ]
+      // },
       {
         title: "How to create a report",
         icon: Users,

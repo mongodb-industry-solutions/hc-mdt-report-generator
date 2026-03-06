@@ -149,7 +149,7 @@ export default function Observability({
     return generation.report?.uuid || null;
   };
 
-  // Evaluation handlers - Modified to use auto-load GT workflow
+  // Evaluation handlers - Modified to use auto-load GT workflow with demo mode support
   const handleStartEvaluation = async (generation: GenerationItem) => {
     const reportUuid = getReportUuid(generation);
     if (!reportUuid) {
@@ -177,39 +177,56 @@ export default function Observability({
         await handleAutoLoadGT(generation, reportUuid);
       }
     } else {
-      // No GT → Try auto-load from public folder
-      await handleAutoLoadGT(generation, reportUuid);
+      // No GT → Handle based on demo mode
+      if (isDemoMode) {
+        // Demo mode: Try auto-load (which will reuse existing GT data)
+        // The backend will handle demo mode logic to reuse existing GT
+        await handleAutoLoadGT(generation, reportUuid);
+      } else {
+        // Normal mode: Try auto-load from public folder
+        await handleAutoLoadGT(generation, reportUuid);
+      }
     }
   };
 
-  // New function to handle auto-load GT workflow
+  // New function to handle auto-load GT workflow with demo mode support
   const handleAutoLoadGT = async (generation: GenerationItem, reportUuid: string) => {
     try {
       console.log('Starting handleAutoLoadGT for:', { 
         patientId: generation.patient_id, 
         reportUuid,
-        generation 
+        generation,
+        isDemoMode
       });
       
       setIsEvaluating(true);
-      setEvaluationProgress({ status: 'STARTED', progress: 0, message: 'Checking for ground truth file...' });
+      setEvaluationProgress({ 
+        status: 'STARTED', 
+        progress: 0, 
+        message: isDemoMode ? 'Demo mode: Checking for existing ground truth data...' : 'Checking for ground truth file...'
+      });
       
-      // Check if GT file is available
-      console.log('Checking GT availability...');
-      const availability = await apiService.checkGTAvailability(generation.patient_id);
-      console.log('GT availability result:', availability);
-      console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
-      
-      
-      if (!availability.available) {
-        console.error('GT not available:', availability);
-        setIsEvaluating(false);
-        alert(`No ground truth file found for patient ${generation.patient_id}. Expected file: GT_${generation.patient_id}.pdf in public folder.`);
-        return;
-      }
+      // In demo mode, skip file availability check and go straight to auto-load
+      // The backend will handle demo mode logic
+      if (!isDemoMode) {
+        // Normal mode: Check if GT file is available
+        console.log('Checking GT availability...');
+        const availability = await apiService.checkGTAvailability(generation.patient_id);
+        console.log('GT availability result:', availability);
+        console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+        
+        if (!availability.available) {
+          console.error('GT not available:', availability);
+          setIsEvaluating(false);
+          alert(`No ground truth file found for patient ${generation.patient_id}. Expected file: GT_${generation.patient_id}.pdf in public folder.`);
+          return;
+        }
 
-      setEvaluationProgress({ status: 'LOADING_FILE', progress: 10, message: `Found GT file: ${availability.filename}` });
-      console.log('GT file available, starting auto-load...');
+        setEvaluationProgress({ status: 'LOADING_FILE', progress: 10, message: `Found GT file: ${availability.filename}` });
+        console.log('GT file available, starting auto-load...');
+      } else {
+        console.log('Demo mode: Skipping file availability check, going directly to auto-load...');
+      }
 
       // Auto-load GT file
       const gtResult = await apiService.autoLoadGroundTruth(
@@ -268,7 +285,16 @@ export default function Observability({
       });
       
       setIsEvaluating(false);
-      alert(`Failed to auto-load GT and run evaluation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
+      // Provide more helpful error messages based on mode
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      if (isDemoMode && errorMsg.includes('No pre-existing ground truth found')) {
+        alert(`Demo Mode: No ground truth data found for patient ${generation.patient_id}. In demo mode, ground truth data must be pre-loaded in the database. Please contact the administrator to ensure demo data is properly configured.`);
+      } else if (isDemoMode) {
+        alert(`Demo Mode Error: ${errorMsg}. Please ensure ground truth data is properly configured for demonstrations.`);
+      } else {
+        alert(`Failed to auto-load GT and run evaluation: ${errorMsg}`);
+      }
     }
   };
 
