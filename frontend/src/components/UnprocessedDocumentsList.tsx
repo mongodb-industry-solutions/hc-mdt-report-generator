@@ -98,6 +98,22 @@ export default function UnprocessedDocumentsList({
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [showSuccessBanner, setShowSuccessBanner] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+
+  // Load demo mode status
+  useEffect(() => {
+    const loadDemoMode = async () => {
+      try {
+        const { demo_mode } = await apiService.getDemoMode();
+        setIsDemoMode(demo_mode);
+      } catch (error) {
+        console.error('Failed to load demo mode status:', error);
+        // Fallback to false if API call fails
+        setIsDemoMode(false);
+      }
+    };
+    loadDemoMode();
+  }, []);
   const [isSuccessBannerAnimating, setIsSuccessBannerAnimating] = useState(true);
   const [isSuccessBannerClosing, setIsSuccessBannerClosing] = useState(false);
   const pageSize = 20;
@@ -507,19 +523,28 @@ export default function UnprocessedDocumentsList({
                   <span>Refresh</span>
                 </button>
 
-                {/* Disabled Upload Button with Professional Styling */}
+                {/* Upload Button with Demo Mode Support */}
                 <div className="flex items-center space-x-3">
                   <button
                     type="button"
-                    onClick={() =>
-                      alert("This functionality is disabled for demo purposes due to security restrictions.")
-                    }
-                    className="group inline-flex items-center space-x-2 px-5 py-3 rounded-xl font-medium text-sm
-                      bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed
-                      relative overflow-hidden"
+                    onClick={() => {
+                      if (isDemoMode) {
+                        alert("Upload functionality is disabled in demo mode. This feature is not available for demonstration purposes.");
+                      } else {
+                        setShowUploadModal(true);
+                      }
+                    }}
+                    disabled={isDemoMode}
+                    className={`group inline-flex items-center space-x-2 px-5 py-3 rounded-xl font-medium text-sm transition-all duration-200 relative overflow-hidden ${
+                      isDemoMode
+                        ? 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 border border-blue-600 hover:border-blue-700 text-white shadow-sm hover:shadow-md'
+                    }`}
+                    title={isDemoMode ? 'Upload functionality is disabled in demo mode' : 'Upload new documents for processing'}
                   >
-                    {/* Disabled overlay pattern */}
-                    <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(0,0,0,0.03)_2px,rgba(0,0,0,0.03)_4px)]"></div>
+                    {isDemoMode && (
+                      <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(0,0,0,0.03)_2px,rgba(0,0,0,0.03)_4px)]"></div>
+                    )}
                     <Upload className="w-4 h-4" />
                     <span>{t.documents.upload}</span>
                   </button>
