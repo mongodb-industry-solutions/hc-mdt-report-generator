@@ -121,14 +121,24 @@ async def upload_ground_truth(
             pdf_content = await file.read()
             file_size = len(pdf_content)
             
+            # Validate uploaded file
             if file_size > 20 * 1024 * 1024:  # 20MB limit
                 yield _sse_event("FAILED", 10, "File too large. Maximum size is 20MB.")
+                return
+            
+            if file_size < 100:
+                yield _sse_event("FAILED", 10, "File too small. Likely corrupted or empty.")
+                return
+            
+            # Validate PDF header
+            if not pdf_content.startswith(b'%PDF-'):
+                yield _sse_event("FAILED", 10, "Invalid PDF file format.")
                 return
             
             # Convert to base64 for inline storage
             pdf_base64 = base64.b64encode(pdf_content).decode("utf-8")
             
-            yield _sse_event("UPLOADING", 20, "PDF read successfully")
+            yield _sse_event("UPLOADING", 20, f"PDF validated and read successfully ({file_size} bytes)")
             
             # Step 2: Run OCR
             yield _sse_event("OCR_RUNNING", 30, f"Running OCR with {ocr_engine}...")
@@ -139,12 +149,33 @@ async def upload_ground_truth(
                     ocr_engine=ocr_engine,
                     languages=["fr", "en"]
                 )
+                
+                # Validate OCR results
+                if not ocr_text or not ocr_text.strip():
+                    logger.error("OCR extraction returned empty text")
+                    yield _sse_event("FAILED", 30, "OCR extraction failed: No text found in PDF")
+                    return
+                
+                text_length = len(ocr_text.strip())
+                min_expected_chars = max(50, page_count * 10)  # At least 50 chars, or 10 per page
+                
+                if text_length < min_expected_chars:
+                    logger.warning(f"OCR extracted very little text: {text_length} chars from {page_count} pages")
+                    yield _sse_event("OCR_RUNNING", 45, f"WARNING: OCR extracted only {text_length} characters from {page_count} pages")
+                
+                # Check for reasonable text content
+                alpha_chars = sum(1 for c in ocr_text if c.isalpha())
+                if alpha_chars < text_length * 0.1:
+                    logger.warning(f"OCR text has few alphabetic characters ({alpha_chars}/{text_length})")
+                    yield _sse_event("OCR_RUNNING", 45, f"WARNING: Extracted text may be corrupted ({alpha_chars}/{text_length} alphabetic)")
+                
             except Exception as e:
                 logger.error(f"OCR failed: {e}")
                 yield _sse_event("FAILED", 30, f"OCR extraction failed: {str(e)}")
                 return
             
             yield _sse_event("OCR_RUNNING", 50, f"OCR completed: {len(ocr_text)} characters from {page_count} pages")
+            logger.info(f"Manual upload OCR text sample (first 200 chars): {ocr_text[:200]}")
             
             # Step 3: Extract entities using LLM
             # Use the same template that was used to generate the report for consistency
@@ -157,12 +188,24 @@ async def upload_ground_truth(
                     template_id=template_id,  # Pass template_id for consistency
                     llm_provider=llm_provider  # Pass user's LLM selection
                 )
+                
+                # Validate extraction results
+                entities_with_values = [e for e in extracted_entities if e.get("value")]
+                logger.info(f"Manual upload entity extraction: {len(extracted_entities)} total, {len(entities_with_values)} with values")
+                
+                if len(extracted_entities) == 0:
+                    yield _sse_event("FAILED", 60, "Entity extraction returned no entities - check template configuration")
+                    return
+                elif len(entities_with_values) == 0:
+                    yield _sse_event("EXTRACTING_ENTITIES", 75, f"WARNING: Extracted {len(extracted_entities)} entities but all have null values")
+                    logger.warning("All extracted entities have null values - OCR text might not match expected format")
+                
             except Exception as e:
                 logger.error(f"Entity extraction failed: {e}")
                 yield _sse_event("FAILED", 60, f"Entity extraction failed: {str(e)}")
                 return
             
-            yield _sse_event("EXTRACTING_ENTITIES", 80, f"Extracted {len(extracted_entities)} entities")
+            yield _sse_event("EXTRACTING_ENTITIES", 80, f"Extracted {len(extracted_entities)} entities ({len(entities_with_values)} with values)")
             
             # Step 4: Save ground truth to ground_truths collection
             yield _sse_event("SAVING", 90, "Saving ground truth to database...")
@@ -772,7 +815,19 @@ async def auto_load_ground_truth(
                     async with session.get(gt_url) as response:
                         if response.status == 200:
                             pdf_data = await response.read()
-                            yield _sse_event("LOADING_FILE", 20, "GT file loaded successfully via HTTP")
+                            
+                            # Validate PDF file size and content
+                            pdf_size = len(pdf_data)
+                            logger.info(f"PDF loaded via HTTP - Size: {pdf_size} bytes, URL: {gt_url}")
+                            
+                            if pdf_size < 100:
+                                raise Exception(f"PDF file too small ({pdf_size} bytes) - likely corrupted or empty")
+                            
+                            # Check PDF header to ensure it's a valid PDF
+                            if not pdf_data.startswith(b'%PDF-'):
+                                raise Exception("File doesn't appear to be a valid PDF (missing PDF header)")
+                            
+                            yield _sse_event("LOADING_FILE", 20, f"GT file loaded successfully via HTTP ({pdf_size} bytes)")
                         else:
                             raise Exception(f"HTTP download failed: {response.status}")
             except Exception as http_error:
@@ -782,14 +837,30 @@ async def auto_load_ground_truth(
                 project_root = Path(__file__).parent.parent.parent
                 gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
                 
+                logger.info(f"Attempting filesystem access: {gt_file_path}")
+                
                 if not gt_file_path.exists():
                     yield _sse_event("FAILED", 20, f"Ground truth file not found: {gt_filename}")
+                    return
+                
+                # Check file size before reading
+                file_size = gt_file_path.stat().st_size
+                logger.info(f"PDF file size on filesystem: {file_size} bytes")
+                
+                if file_size < 100:
+                    yield _sse_event("FAILED", 20, f"PDF file too small ({file_size} bytes) - likely corrupted")
                     return
                     
                 try:
                     with open(gt_file_path, "rb") as f:
                         pdf_data = f.read()
-                    yield _sse_event("LOADING_FILE", 20, "GT file loaded successfully via filesystem")
+                    
+                    # Validate PDF content
+                    if not pdf_data.startswith(b'%PDF-'):
+                        yield _sse_event("FAILED", 20, "File doesn't appear to be a valid PDF")
+                        return
+                    
+                    yield _sse_event("LOADING_FILE", 20, f"GT file loaded successfully via filesystem ({file_size} bytes)")
                 except Exception as e:
                     yield _sse_event("FAILED", 20, f"Failed to read GT file: {str(e)}")
                     return
@@ -813,23 +884,60 @@ async def auto_load_ground_truth(
                 pdf_data, ocr_engine
             )
             
+            # Validate OCR extraction results
             if not extracted_text or not extracted_text.strip():
                 yield _sse_event("FAILED", 40, "OCR extraction failed - no text found")
                 return
-                
+            
+            text_length = len(extracted_text.strip())
+            
+            # Check if we got reasonable amount of text (at least 10 chars per page seems reasonable)
+            min_expected_chars = max(50, page_count * 10)  # At least 50 chars, or 10 per page
+            if text_length < min_expected_chars:
+                logger.warning(f"OCR extracted very little text: {text_length} chars from {page_count} pages (expected at least {min_expected_chars})")
+                yield _sse_event("OCR_RUNNING", 50, f"WARNING: OCR extracted only {text_length} characters from {page_count} pages - document may be image-based or corrupted")
+            
             yield _sse_event("OCR_RUNNING", 60, f"OCR completed - extracted {len(extracted_text)} characters from {page_count} pages")
             
+            # DEBUG: Log sample of extracted text
+            logger.info(f"OCR text sample (first 200 chars): {extracted_text[:200]}")
+            
+            # Check if text looks reasonable (contains some alphabetic characters)
+            alpha_chars = sum(1 for c in extracted_text if c.isalpha())
+            if alpha_chars < text_length * 0.1:  # Less than 10% alphabetic characters
+                logger.warning(f"OCR text has very few alphabetic characters ({alpha_chars}/{text_length}). Text might be corrupted.")
+                yield _sse_event("OCR_RUNNING", 65, f"WARNING: Extracted text has few alphabetic characters ({alpha_chars}/{text_length})")
+                
             # Entity extraction
             yield _sse_event("EXTRACTING_ENTITIES", 70, "Extracting entities with LLM...")
             
             try:
+                # Get template info for debugging
+                from config.entity_config import get_active_template
+                template, source = get_active_template()
+                expected_entities = len(template.get("entities", [])) if template else 0
+                logger.info(f"Template loaded - Expected {expected_entities} entities from {source}")
+                
                 entities = await gt_extraction_service.extract_entities(
                     ocr_text=extracted_text,
                     llm_provider=llm_provider
                 )
-                yield _sse_event("EXTRACTING_ENTITIES", 90, f"Extracted {len(entities)} entities")
+                
+                # Validate extraction results
+                entities_with_values = [e for e in entities if e.get("value")]
+                logger.info(f"Entity extraction: {len(entities)} total entities, {len(entities_with_values)} with values")
+                
+                if len(entities) == 0:
+                    yield _sse_event("FAILED", 80, "Entity extraction returned no entities - template or LLM issue")
+                    return
+                elif len(entities_with_values) == 0:
+                    yield _sse_event("EXTRACTING_ENTITIES", 85, f"WARNING: Extracted {len(entities)} entities but all have null values")
+                    logger.warning("All extracted entities have null values - OCR text might not contain the expected medical information")
+                else:
+                    yield _sse_event("EXTRACTING_ENTITIES", 90, f"Extracted {len(entities)} entities ({len(entities_with_values)} with values)")
                 
             except Exception as e:
+                logger.error(f"Entity extraction failed: {str(e)}")
                 yield _sse_event("FAILED", 80, f"Entity extraction failed: {str(e)}")
                 return
             
