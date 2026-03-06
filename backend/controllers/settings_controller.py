@@ -136,6 +136,15 @@ async def get_llm_models() -> dict:
     }
 
 
+@router.get("/demo-mode", status_code=200)
+async def get_demo_mode() -> dict:
+    """
+    Get demo mode status from environment variable
+    """
+    demo_mode = os.getenv('DEMO_MODE', 'false').lower() == 'true'
+    return {"demo_mode": demo_mode}
+
+
 @router.post("/llm-models", status_code=201)
 async def add_llm_model(request: LLMModelAddRequest = Body(...)) -> dict:
     """

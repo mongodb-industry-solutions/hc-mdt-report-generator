@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { apiService } from '../services/api';
-import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2, User, Eye } from 'lucide-react';
+import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2, User, Eye, Upload } from 'lucide-react';
 import { GroundTruthEntity } from '../types';
 import { useI18n } from '../i18n/context';
 import { GTViewer } from './GTViewer';
+import GTUploadDialog from './GTUploadDialog';
 
 type EvaluationProgress = {
   status: string;
@@ -80,6 +81,27 @@ export default function Observability({
   // GT Viewer state
   const [gtViewerOpen, setGtViewerOpen] = useState(false);
   const [gtViewerPatientId, setGtViewerPatientId] = useState<string>('');
+
+  // GT Upload state
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadPatientId, setUploadPatientId] = useState<string>('');
+  const [uploadReportUuid, setUploadReportUuid] = useState<string>('');
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Load demo mode status
+    const loadDemoMode = async () => {
+      try {
+        const { demo_mode } = await apiService.getDemoMode();
+        setIsDemoMode(demo_mode);
+      } catch (error) {
+        console.error('Failed to load demo mode status:', error);
+        // Fallback to false if API call fails
+        setIsDemoMode(false);
+      }
+    };
+    loadDemoMode();
+  }, []);
 
   useEffect(() => {
     loadFilters();
@@ -258,6 +280,42 @@ export default function Observability({
     }
   };
 
+  // GT Upload handlers
+  const handleUploadGT = () => {
+    // Check if demo mode is enabled
+    if (isDemoMode) {
+      alert('Upload functionality is disabled in demo mode. This feature is not available for demonstration purposes.');
+      return;
+    }
+    
+    if (!patientId) {
+      alert('No patient selected');
+      return;
+    }
+    
+    // Find reports for this patient
+    const patientGenerations = items.filter(g => g.patient_id === patientId);
+    
+    if (patientGenerations.length === 0) {
+      alert('No reports found for this patient');
+      return;
+    }
+    
+    // Use the most recent report (first in the sorted list)
+    const latestGeneration = patientGenerations[0];
+    
+    setUploadPatientId(latestGeneration.patient_id);
+    setUploadReportUuid(latestGeneration.report?.uuid || latestGeneration.uuid);
+    setUploadDialogOpen(true);
+  };
+
+  const handleUploadComplete = (entities: GroundTruthEntity[]) => {
+    setUploadDialogOpen(false);
+    // Refresh the data to show updated GT status
+    fetchData();
+    alert(`Ground truth uploaded successfully! Extracted ${entities.length} entities.`);
+  };
+
   const distinctLLMs = useMemo(() => llms, [llms]);
   const distinctHashes = useMemo(() => hashes, [hashes]);
 
@@ -281,9 +339,9 @@ export default function Observability({
         </div>
       </div>
 
-      {/* View GT Button */}
+      {/* GT Action Buttons */}
       {patientId && (
-        <div className="mb-4">
+        <div className="mb-4 flex gap-3">
           <button
             onClick={handleViewGT}
             className="inline-flex items-center px-4 py-2 text-sm rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-800 transition-colors font-medium"
@@ -291,6 +349,24 @@ export default function Observability({
           >
             <Eye className="w-4 h-4 mr-2" />
             View Ground Truth PDF
+          </button>
+          
+          <button
+            onClick={handleUploadGT}
+            disabled={isDemoMode}
+            className={`inline-flex items-center px-4 py-2 text-sm rounded-lg transition-colors font-medium ${
+              isDemoMode 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-purple-100 hover:bg-purple-200 text-purple-800'
+            }`}
+            title={
+              isDemoMode 
+                ? 'Upload functionality is disabled in demo mode' 
+                : `Upload Ground Truth PDF for Patient ${patientId}`
+            }
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Ground Truth
           </button>
         </div>
       )}
@@ -405,30 +481,33 @@ export default function Observability({
                   <td className="px-2 py-2 text-sm text-gray-700">{g.max_content_size}</td>
                   <td className="px-2 py-2 text-sm text-gray-700">{g.evaluation_summary?.macro_accuracy?.toFixed(2) ?? '-'}</td>
                   <td className="px-3 py-2 text-center">
-                    <button
-                      onClick={() => handleStartEvaluation(g)}
-                      className={`inline-flex items-center px-2 py-1 text-xs rounded-md transition-colors ${
-                        g.evaluation_status === 'COMPLETED'
-                          ? 'bg-green-100 hover:bg-green-200 text-green-800'
+                    <div className="flex gap-1 justify-center">
+                      {/* Evaluation Button */}
+                      <button
+                        onClick={() => handleStartEvaluation(g)}
+                        className={`inline-flex items-center px-2 py-1 text-xs rounded-md transition-colors ${
+                          g.evaluation_status === 'COMPLETED'
+                            ? 'bg-green-100 hover:bg-green-200 text-green-800'
+                            : g.gt_status === 'COMPLETED'
+                            ? 'bg-amber-100 hover:bg-amber-200 text-amber-800'
+                            : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
+                        }`}
+                        title={
+                          g.evaluation_status === 'COMPLETED'
+                            ? t.observability.evaluation.viewResults
+                            : g.gt_status === 'COMPLETED'
+                            ? t.observability.evaluation.runEvaluationExisting
+                            : t.observability.evaluation.uploadGroundTruthEvaluate
+                        }
+                      >
+                        <BarChart3 className="w-3 h-3 mr-1" />
+                        {g.evaluation_status === 'COMPLETED'
+                          ? t.observability.evaluation.view
                           : g.gt_status === 'COMPLETED'
-                          ? 'bg-amber-100 hover:bg-amber-200 text-amber-800'
-                          : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
-                      }`}
-                      title={
-                        g.evaluation_status === 'COMPLETED'
-                          ? t.observability.evaluation.viewResults
-                          : g.gt_status === 'COMPLETED'
-                          ? t.observability.evaluation.runEvaluationExisting
-                          : t.observability.evaluation.uploadGroundTruthEvaluate
-                      }
-                    >
-                      <BarChart3 className="w-3 h-3 mr-1" />
-                      {g.evaluation_status === 'COMPLETED'
-                        ? t.observability.evaluation.view
-                        : g.gt_status === 'COMPLETED'
-                        ? t.observability.evaluation.evaluate
-                        : t.observability.evaluation.uploadGT}
-                    </button>
+                          ? t.observability.evaluation.evaluate
+                          : t.observability.evaluation.uploadGT}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -469,6 +548,15 @@ export default function Observability({
         patientId={gtViewerPatientId}
         isOpen={gtViewerOpen}
         onClose={() => setGtViewerOpen(false)}
+      />
+      
+      {/* GT Upload Dialog */}
+      <GTUploadDialog
+        isOpen={uploadDialogOpen}
+        onClose={() => setUploadDialogOpen(false)}
+        patientId={uploadPatientId}
+        reportUuid={uploadReportUuid}
+        onComplete={handleUploadComplete}
       />
     </div>
   );

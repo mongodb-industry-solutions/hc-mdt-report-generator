@@ -6,6 +6,7 @@ env:
   FRONTEND_URL: http://mdt-report-generator-frontend-web-app:80
   BACKEND_URL: http://mdt-report-generator-backend-web-app:80 # or http://localhost:8000 if multicontainer pod is setup and backend is running on 8000
   LLM_PROVIDER: bedrock
+  DEMO_MODE: true
   GPT_OPEN_TIMEOUT: 3000.0
   GPT_OPEN_TEMPERATURE: 0.1
   GPT_OPEN_MAX_TOKENS: 7000

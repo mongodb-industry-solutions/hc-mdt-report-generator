@@ -566,6 +566,11 @@ class ApiService {
     return response.data;
   }
 
+  async getDemoMode(): Promise<{ demo_mode: boolean; }> {
+    const response = await this.api.get('/settings/demo-mode');
+    return response.data;
+  }
+
   // Master Delete (Danger Zone)
   async masterDeleteAll(phrase: string): Promise<{ success: boolean; deleted: { reports: number; documents: number; } }> {
     const response = await this.api.post('/settings/master-delete', { phrase });

@@ -75,7 +75,7 @@ async def upload_ground_truth(
     patient_id: str,
     report_uuid: str,
     file: UploadFile = File(...),
-    ocr_engine: str = Form(default="easyocr", description="OCR engine: 'bedrock', 'mistral', or 'easyocr'"),
+    ocr_engine: str = Form(default="bedrock", description="OCR engine: 'bedrock', 'mistral', or 'easyocr'"),
     llm_provider: Optional[str] = Form(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'mistral', 'ollama', 'gpt_open'")
 ):
     """
@@ -149,62 +149,13 @@ async def upload_ground_truth(
                     ocr_engine=ocr_engine,
                     languages=["fr", "en"]
                 )
-                
-                # Check for insufficient OCR results (likely permission issues)
-                if not ocr_text or len(ocr_text.strip()) < 50:
-                    # If bedrock/AWS OCR failed, try easyocr as fallback
-                    if ocr_engine == "bedrock":
-                        yield _sse_event("OCR_RUNNING", 35, "AWS OCR returned insufficient text, trying EasyOCR fallback...")
-                        logger.warning("AWS OCR permissions issue detected, falling back to EasyOCR")
-                        ocr_text, page_count = await gt_ocr_service.extract_text(
-                            pdf_content=pdf_content,
-                            ocr_engine="easyocr",
-                            languages=["fr", "en"]
-                        )
-                        ocr_engine = "easyocr"  # Update engine for logging
-                        
             except Exception as e:
-                # If primary OCR fails, try fallback  
-                if ocr_engine != "easyocr":
-                    yield _sse_event("OCR_RUNNING", 35, f"{ocr_engine} OCR failed, trying EasyOCR fallback...")
-                    logger.warning(f"Primary OCR '{ocr_engine}' failed: {e}. Trying EasyOCR fallback.")
-                    try:
-                        ocr_text, page_count = await gt_ocr_service.extract_text(
-                            pdf_content=pdf_content,
-                            ocr_engine="easyocr",
-                            languages=["fr", "en"]
-                        )
-                        ocr_engine = "easyocr"
-                    except Exception as fallback_error:
-                        logger.error(f"Fallback OCR also failed: {fallback_error}")
-                        yield _sse_event("FAILED", 30, f"All OCR engines failed: {str(e)}")
-                        return
-                else:
-                    logger.error(f"OCR failed: {e}")
-                    yield _sse_event("FAILED", 30, f"OCR extraction failed: {str(e)}")
-                    return
-                
-            # Validate OCR results
-            if not ocr_text or not ocr_text.strip():
-                logger.error("OCR extraction returned empty text")
-                yield _sse_event("FAILED", 30, "OCR extraction failed: No text found in PDF")
+                logger.error(f"OCR failed: {e}")
+                yield _sse_event("FAILED", 30, f"OCR extraction failed: {str(e)}")
                 return
             
-            text_length = len(ocr_text.strip())
-            min_expected_chars = max(50, page_count * 10)  # At least 50 chars, or 10 per page
-            
-            if text_length < min_expected_chars:
-                logger.warning(f"OCR extracted very little text: {text_length} chars from {page_count} pages")
-                yield _sse_event("OCR_RUNNING", 45, f"WARNING: OCR extracted only {text_length} characters from {page_count} pages")
-            
-            # Check for reasonable text content
-            alpha_chars = sum(1 for c in ocr_text if c.isalpha())
-            if alpha_chars < text_length * 0.1:
-                logger.warning(f"OCR text has few alphabetic characters ({alpha_chars}/{text_length})")
-                yield _sse_event("OCR_RUNNING", 45, f"WARNING: Extracted text may be corrupted ({alpha_chars}/{text_length} alphabetic)")
-            
             yield _sse_event("OCR_RUNNING", 50, f"OCR completed ({ocr_engine}): {len(ocr_text)} characters from {page_count} pages")
-            logger.info(f"Manual upload OCR text sample (first 200 chars): {ocr_text[:200]}")
+            logger.info(f"OCR text sample (first 200 chars): {ocr_text[:200]}")
             
             # Step 3: Extract entities using LLM
             # Use the same template that was used to generate the report for consistency
@@ -791,7 +742,7 @@ async def check_gt_availability(patient_id: str):
 async def auto_load_ground_truth(
     patient_id: str,
     report_uuid: str,
-    ocr_engine: str = Query(default="easyocr", description="OCR engine: 'bedrock', 'mistral', or 'easyocr'"),
+    ocr_engine: str = Query(default="bedrock", description="OCR engine: 'bedrock', 'mistral', or 'easyocr'"),
     llm_provider: Optional[str] = Query(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'mistral', 'ollama', 'gpt_open'")
 ):
     """
@@ -913,88 +864,26 @@ async def auto_load_ground_truth(
                 extracted_text, page_count = await gt_ocr_service.extract_text(
                     pdf_data, ocr_engine
                 )
-                
-                # Check for OCR permission/access issues
-                if not extracted_text or len(extracted_text.strip()) < 50:
-                    # If bedrock/AWS OCR failed due to permissions, try easyocr as fallback
-                    if ocr_engine == "bedrock" and len(extracted_text.strip()) < 50:
-                        yield _sse_event("OCR_RUNNING", 40, "AWS OCR failed, trying EasyOCR as fallback...")
-                        logger.warning("AWS OCR returned insufficient text, falling back to EasyOCR")
-                        extracted_text, page_count = await gt_ocr_service.extract_text(
-                            pdf_data, "easyocr"
-                        )
-                        ocr_engine = "easyocr"  # Update the engine used for logging
-            
             except Exception as e:
-                # If primary OCR fails, try fallback
-                if ocr_engine != "easyocr":
-                    yield _sse_event("OCR_RUNNING", 40, f"{ocr_engine} OCR failed, trying EasyOCR fallback...")
-                    logger.warning(f"Primary OCR '{ocr_engine}' failed: {e}. Trying EasyOCR fallback.")
-                    try:
-                        extracted_text, page_count = await gt_ocr_service.extract_text(
-                            pdf_data, "easyocr"
-                        )
-                        ocr_engine = "easyocr"  # Update the engine used
-                    except Exception as fallback_error:
-                        logger.error(f"Fallback OCR also failed: {fallback_error}")
-                        yield _sse_event("FAILED", 40, f"All OCR engines failed: {str(e)}")
-                        return
-                else:
-                    logger.error(f"OCR failed: {e}")
-                    yield _sse_event("FAILED", 40, f"OCR extraction failed: {str(e)}")
-                    return
+                logger.error(f"OCR failed: {e}")
+                yield _sse_event("FAILED", 40, f"OCR extraction failed: {str(e)}")
+                return
             
             # Validate OCR extraction results
             if not extracted_text or not extracted_text.strip():
                 yield _sse_event("FAILED", 50, "OCR extraction failed - no text found")
                 return
             
-            text_length = len(extracted_text.strip())
-            
-            # Check if we got reasonable amount of text (at least 10 chars per page seems reasonable)
-            min_expected_chars = max(50, page_count * 10)  # At least 50 chars, or 10 per page
-            if text_length < min_expected_chars:
-                logger.warning(f"OCR extracted very little text: {text_length} chars from {page_count} pages (expected at least {min_expected_chars})")
-                yield _sse_event("OCR_RUNNING", 55, f"WARNING: OCR extracted only {text_length} characters from {page_count} pages - document may be image-based or corrupted")
-            
             yield _sse_event("OCR_RUNNING", 60, f"OCR completed ({ocr_engine}) - extracted {len(extracted_text)} characters from {page_count} pages")
-            
-            # DEBUG: Log sample of extracted text
-            logger.info(f"OCR text sample (first 200 chars): {extracted_text[:200]}")
-            
-            # Check if text looks reasonable (contains some alphabetic characters)
-            alpha_chars = sum(1 for c in extracted_text if c.isalpha())
-            if alpha_chars < text_length * 0.1:  # Less than 10% alphabetic characters
-                logger.warning(f"OCR text has very few alphabetic characters ({alpha_chars}/{text_length}). Text might be corrupted.")
-                yield _sse_event("OCR_RUNNING", 65, f"WARNING: Extracted text has few alphabetic characters ({alpha_chars}/{text_length})")
-                
             # Entity extraction
             yield _sse_event("EXTRACTING_ENTITIES", 70, "Extracting entities with LLM...")
             
             try:
-                # Get template info for debugging
-                from config.entity_config import get_active_template
-                template, source = get_active_template()
-                expected_entities = len(template.get("entities", [])) if template else 0
-                logger.info(f"Template loaded - Expected {expected_entities} entities from {source}")
-                
                 entities = await gt_extraction_service.extract_entities(
                     ocr_text=extracted_text,
                     llm_provider=llm_provider
                 )
-                
-                # Validate extraction results
-                entities_with_values = [e for e in entities if e.get("value")]
-                logger.info(f"Entity extraction: {len(entities)} total entities, {len(entities_with_values)} with values")
-                
-                if len(entities) == 0:
-                    yield _sse_event("FAILED", 80, "Entity extraction returned no entities - template or LLM issue")
-                    return
-                elif len(entities_with_values) == 0:
-                    yield _sse_event("EXTRACTING_ENTITIES", 85, f"WARNING: Extracted {len(entities)} entities but all have null values")
-                    logger.warning("All extracted entities have null values - OCR text might not contain the expected medical information")
-                else:
-                    yield _sse_event("EXTRACTING_ENTITIES", 90, f"Extracted {len(entities)} entities ({len(entities_with_values)} with values)")
+                yield _sse_event("EXTRACTING_ENTITIES", 90, f"Extracted {len(entities)} entities")
                 
             except Exception as e:
                 logger.error(f"Entity extraction failed: {str(e)}")
