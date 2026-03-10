@@ -24,6 +24,7 @@ export function useInfoModal(tabId: string, isActive: boolean = false) {
   const [hasBeenVisited, setHasBeenVisited] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [buttonPosition, setButtonPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize visited status on mount
   useEffect(() => {
@@ -33,11 +34,12 @@ export function useInfoModal(tabId: string, isActive: boolean = false) {
     } catch {
       setHasBeenVisited(false);
     }
+    setIsInitialized(true);
   }, [storageKey, tabId]);
 
   // Effect to show modal when tab becomes active for first time
   useEffect(() => {
-    if (isActive && !hasBeenVisited && !isOpen) {
+    if (isInitialized && isActive && !hasBeenVisited && !isOpen) {
       // For patient selection, show from center (no info button exists)
       if (tabId === 'patientSelection') {
         setButtonPosition(null);
@@ -78,7 +80,7 @@ export function useInfoModal(tabId: string, isActive: boolean = false) {
         return () => clearTimeout(timer);
       }
     }
-  }, [isActive, hasBeenVisited, isOpen, tabId]);
+  }, [isInitialized, isActive, hasBeenVisited, isOpen, tabId]);
 
   const showModal = useCallback((position?: { x: number; y: number }) => {
     // Prevent triggering if already open

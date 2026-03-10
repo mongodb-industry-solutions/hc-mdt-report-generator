@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { apiService } from '../services/api';
 import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2, User, Eye, Upload } from 'lucide-react';
 import { GroundTruthEntity } from '../types';
@@ -87,6 +87,11 @@ export default function Observability({
   const [uploadPatientId, setUploadPatientId] = useState<string>('');
   const [uploadReportUuid, setUploadReportUuid] = useState<string>('');
   const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+  
+  // Ref to track if we're in a manual refresh to prevent useEffect from triggering fetchData
+  const isManualRefreshRef = useRef(false);
+  // Track if initial setup is complete to prevent premature fetchData calls
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // Load demo mode status
@@ -105,16 +110,18 @@ export default function Observability({
 
   useEffect(() => {
     loadFilters();
-    // Initialize date range to last 7 days
-    const now = new Date();
-    const past = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    setStart(past.toISOString());
-    setEnd(now.toISOString());
+    // Initialize with empty date filters to show all generations
+    // setStart and setEnd remain empty strings by default
+    // Mark initialization as complete
+    setIsInitialized(true);
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [selectedLLM, selectedHash, start, end, patientId]);
+    // Only fetch data after initialization is complete and not during manual refresh
+    if (isInitialized && !isManualRefreshRef.current) {
+      fetchData();
+    }
+  }, [selectedLLM, selectedHash, start, end, patientId, isInitialized]);
 
   const loadFilters = async () => {
     try {
@@ -126,22 +133,42 @@ export default function Observability({
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (overrideParams?: { start?: string; end?: string }) => {
     setLoading(true);
     try {
       const params: any = {};
-      if (start) params.start = start;
-      if (end) params.end = end;
+      if (overrideParams?.start || start) params.start = overrideParams?.start || start;
+      if (overrideParams?.end || end) params.end = overrideParams?.end || end;
       if (selectedLLM) params.model_llm = selectedLLM;
       if (selectedHash) params.filenames_hash = selectedHash;
       if (patientId) params.patient_id = patientId;
+      
+      console.log('📊 Fetching generations with params:', params);
       const { items } = await apiService.getGenerations(params);
+      console.log(`📊 Received ${items.length} generations`);
       setItems(items as GenerationItem[]);
     } catch (e) {
       console.error('Failed to load generations', e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const refreshData = async () => {
+    // Update the end time to "now" to capture any new data
+    const now = new Date();
+    const newEndTime = now.toISOString();
+    console.log('🔄 Refresh: Updating end time from', end, 'to', newEndTime);
+    
+    // Set flag to prevent useEffect from triggering fetchData
+    isManualRefreshRef.current = true;
+    
+    // Update state and fetch with the new end time immediately
+    setEnd(newEndTime);
+    await fetchData({ end: newEndTime });
+    
+    // Reset flag after fetch is complete
+    isManualRefreshRef.current = false;
   };
 
   // Helper to get the report UUID from a generation
@@ -260,7 +287,7 @@ export default function Observability({
         if (evalResult?.status === 'COMPLETED') {
           console.log('Evaluation successful, refreshing data...');
           // Refresh data to show updated status
-          await fetchData();
+          await refreshData();
           setIsEvaluating(false);
           
           // Automatically show results
@@ -338,7 +365,7 @@ export default function Observability({
   const handleUploadComplete = (entities: GroundTruthEntity[]) => {
     setUploadDialogOpen(false);
     // Refresh the data to show updated GT status
-    fetchData();
+    refreshData();
     alert(`Ground truth uploaded successfully! Extracted ${entities.length} entities.`);
   };
 
@@ -357,7 +384,7 @@ export default function Observability({
             </div>
           )}
           <button
-            onClick={fetchData}
+            onClick={refreshData}
             className="inline-flex items-center px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
           >
             <RefreshCw className="w-4 h-4 mr-2" /> {t.observability.refresh}
@@ -505,21 +532,34 @@ export default function Observability({
                   <td className="px-2 py-2 text-sm text-gray-700">{g.max_entities_per_batch}</td>
                   <td className="px-2 py-2 text-sm text-gray-700">{g.aggregation_batch_size}</td>
                   <td className="px-2 py-2 text-sm text-gray-700">{g.max_content_size}</td>
-                  <td className="px-2 py-2 text-sm text-gray-700">{g.evaluation_summary?.macro_accuracy?.toFixed(2) ?? '-'}</td>
+                  <td className="px-2 py-2 text-sm text-gray-700">
+                    {!getReportUuid(g) ? (
+                      <span className="text-gray-400">No report</span>
+                    ) : g.evaluation_summary?.macro_accuracy !== undefined ? (
+                      g.evaluation_summary.macro_accuracy.toFixed(2)
+                    ) : (
+                      '-'
+                    )}
+                  </td>
                   <td className="px-3 py-2 text-center">
                     <div className="flex gap-1 justify-center">
                       {/* Evaluation Button */}
                       <button
                         onClick={() => handleStartEvaluation(g)}
                         className={`inline-flex items-center px-2 py-1 text-xs rounded-md transition-colors ${
-                          g.evaluation_status === 'COMPLETED'
+                          !getReportUuid(g) 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : g.evaluation_status === 'COMPLETED'
                             ? 'bg-green-100 hover:bg-green-200 text-green-800'
                             : g.gt_status === 'COMPLETED'
                             ? 'bg-amber-100 hover:bg-amber-200 text-amber-800'
                             : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
                         }`}
+                        disabled={!getReportUuid(g)}
                         title={
-                          g.evaluation_status === 'COMPLETED'
+                          !getReportUuid(g)
+                            ? 'No report available - cannot evaluate'
+                            : g.evaluation_status === 'COMPLETED'
                             ? t.observability.evaluation.viewResults
                             : g.gt_status === 'COMPLETED'
                             ? t.observability.evaluation.runEvaluationExisting
@@ -527,7 +567,9 @@ export default function Observability({
                         }
                       >
                         <BarChart3 className="w-3 h-3 mr-1" />
-                        {g.evaluation_status === 'COMPLETED'
+                        {!getReportUuid(g) 
+                          ? 'No Report'
+                          : g.evaluation_status === 'COMPLETED'
                           ? t.observability.evaluation.view
                           : g.gt_status === 'COMPLETED'
                           ? t.observability.evaluation.evaluate
