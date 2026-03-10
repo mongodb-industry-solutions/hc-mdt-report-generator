@@ -664,11 +664,12 @@ class ApiService {
     return { template: response.data.template };
   }
 
-  async createTemplate(name: string, description: string = '', entities: EntityDef[] = []): Promise<{ template_id: string; validation: any; }> {
+  async createTemplate(name: string, description: string = '', entities: EntityDef[] = [], adminTemplate: boolean = false): Promise<{ template_id: string; validation: any; }> {
     const response = await this.api.post('/entity-config/templates', {
       name,
       description,
-      entities
+      entities,
+      admin_template: adminTemplate
     });
     return { template_id: response.data.template_id, validation: response.data.validation };
   }

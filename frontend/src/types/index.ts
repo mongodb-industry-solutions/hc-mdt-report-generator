@@ -299,6 +299,7 @@ export interface EntityTemplate {
   created_at: string;
   updated_at: string;
   entities: EntityDef[];
+  admin_template?: boolean;
 }
 
 export interface TemplatesData {

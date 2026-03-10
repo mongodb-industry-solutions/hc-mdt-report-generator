@@ -13,6 +13,12 @@ Usage:
     # Add new template AND set as active
     python add_template_to_mongodb.py --add new_entities_template.json --active
 
+    # Add new admin template (protected from deletion)
+    python add_template_to_mongodb.py --add new_entities_template.json --admin
+
+    # Add new admin template AND set as active
+    python add_template_to_mongodb.py --add new_entities_template.json --active --admin
+
     # Set an existing template as active
     python add_template_to_mongodb.py --set-active template_xxxxxxxx
 
@@ -119,7 +125,7 @@ def validate_template(template_data: dict) -> bool:
     return True
 
 
-def add_template_to_mongodb(template_data: dict, set_as_active: bool = False):
+def add_template_to_mongodb(template_data: dict, set_as_active: bool = False, admin_template: bool = False):
     """
     Add a new template to MongoDB as its own document.
     
@@ -166,6 +172,7 @@ def add_template_to_mongodb(template_data: dict, set_as_active: bool = False):
         "name": template_data.get("template_name", "New Template"),
         "description": template_data.get("template_description", ""),
         "is_active": set_as_active,
+        "admin_template": admin_template,
         "created_at": now,
         "updated_at": now,
         "version": "1.0.0",
@@ -182,6 +189,9 @@ def add_template_to_mongodb(template_data: dict, set_as_active: bool = False):
     print(f"   Name: {template_doc['name']}")
     print(f"   Entities: {len(template_doc['entities'])}")
     print(f"   Active: {set_as_active}")
+    print(f"   Admin Template: {admin_template}")
+    if admin_template:
+        print(f"   🔒 This template is protected from deletion")
     
     # Print entities with source filters
     print(f"\n📝 Entities with Source Filters:")
@@ -211,6 +221,7 @@ def list_existing_templates():
     
     for template in templates:
         is_active = "✓ ACTIVE" if template.get("is_active") else ""
+        is_admin = "🔒 ADMIN" if template.get("admin_template") else ""
         entity_count = len(template.get('entities', []))
         created = str(template.get('created_at', 'unknown'))[:10]
         
@@ -218,14 +229,17 @@ def list_existing_templates():
         print(f"      Name: {template.get('name')}")
         print(f"      Entities: {entity_count}")
         print(f"      Created: {created}")
-        if is_active:
-            print(f"      Status: {is_active}")
+        status_parts = [s for s in [is_active, is_admin] if s]
+        if status_parts:
+            print(f"      Status: {', '.join(status_parts)}")
         print()
     
     print("-" * 60)
     active_count = sum(1 for t in templates if t.get("is_active"))
+    admin_count = sum(1 for t in templates if t.get("admin_template"))
     print(f"Total templates: {len(templates)}")
     print(f"Active: {active_count}")
+    print(f"Admin: {admin_count}")
 
 
 def set_active_template(template_id: str):
@@ -312,6 +326,9 @@ def show_template_details(template_id: str):
     print(f"Updated: {template.get('updated_at', 'N/A')}")
     print(f"Version: {template.get('version', 'N/A')}")
     print(f"Active: {'Yes ✓' if template.get('is_active') else 'No'}")
+    print(f"Admin Template: {'Yes 🔒' if template.get('admin_template') else 'No'}")
+    if template.get('admin_template'):
+        print(f"🔒 This template is protected from deletion")
     print(f"\nEntities ({len(template.get('entities', []))}):")
     print("-" * 60)
     
@@ -386,6 +403,7 @@ Examples:
     )
     parser.add_argument("--add", type=str, metavar="FILE", help="Path to template JSON file to add")
     parser.add_argument("--active", action="store_true", help="Set added template as active")
+    parser.add_argument("--admin", action="store_true", help="Mark added template as admin template (protected from deletion)")
     parser.add_argument("--list", action="store_true", help="List existing templates")
     parser.add_argument("--set-active", type=str, metavar="ID", help="Set a template ID as active")
     parser.add_argument("--show", type=str, metavar="ID", help="Show detailed info about a template")
@@ -401,7 +419,7 @@ Examples:
             print(f"❌ File not found: {args.add}")
             sys.exit(1)
         template_data = load_template_from_file(args.add)
-        add_template_to_mongodb(template_data, set_as_active=args.active)
+        add_template_to_mongodb(template_data, set_as_active=args.active, admin_template=args.admin)
     elif args.set_active:
         set_active_template(args.set_active)
     elif args.show:

@@ -99,7 +99,8 @@ async def get_active_entity_template() -> Dict[str, Any]:
 async def create_entity_template(
     name: str = Body(...),
     description: str = Body(""),
-    entities: List[Dict[str, Any]] = Body([])
+    entities: List[Dict[str, Any]] = Body([]),
+    admin_template: bool = Body(False)
 ) -> Dict[str, Any]:
     """Create a new template."""
     # Validate entities structure
@@ -111,7 +112,7 @@ async def create_entity_template(
         )
     
     try:
-        template_id = create_template(name, description, entities)
+        template_id = create_template(name, description, entities, admin_template=admin_template)
         return {"success": True, "template_id": template_id, "validation": validation}
     except Exception as e:
         logger.error(f"Error creating template: {e}")

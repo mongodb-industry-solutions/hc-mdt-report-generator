@@ -150,6 +150,11 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
     const template = templates.find(t => t.id === templateId);
     if (!template) return;
     
+    if (template.admin_template) {
+      alert('Cannot delete admin template. Admin templates are protected from deletion.');
+      return;
+    }
+    
     if (!confirm(`Are you sure you want to delete the template "${template.name}"? This action cannot be undone.`)) {
       return;
     }
@@ -189,9 +194,16 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
             <Settings className="w-5 h-5 text-gray-600 group-hover:text-white" />
             <h3 className="text-lg font-medium text-gray-900 group-hover:text-white">Template Configuration</h3>
             {activeTemplateId && templates.find(t => t.id === activeTemplateId) && (
-              <span className="px-2 py-1 bg-green-100 text-green-800 group-hover:bg-white group-hover:text-green-700 text-xs font-medium rounded-full">
-                Active: {templates.find(t => t.id === activeTemplateId)?.name}
-              </span>
+              <div className="flex items-center space-x-2">
+                <span className="px-2 py-1 bg-green-100 text-green-800 group-hover:bg-white group-hover:text-green-700 text-xs font-medium rounded-full">
+                  Active: {templates.find(t => t.id === activeTemplateId)?.name}
+                </span>
+                {templates.find(t => t.id === activeTemplateId)?.admin_template && (
+                  <span className="px-2 py-1 bg-orange-100 text-orange-800 group-hover:bg-white group-hover:text-orange-700 text-xs font-medium rounded-full">
+                    Admin
+                  </span>
+                )}
+              </div>
             )}
           </div>
           <div className="flex items-center space-x-2">
@@ -258,7 +270,7 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
                     <span>Active for Extraction</span>
                   </div>
                 )}
-                {templates.length > 1 && selectedTemplateId !== activeTemplateId && (
+                {templates.length > 1 && selectedTemplateId !== activeTemplateId && !templates.find(t => t.id === selectedTemplateId)?.admin_template && (
                   <button
                     type="button"
                     className="text-sm text-red-600 hover:text-red-800 p-2"
@@ -267,6 +279,12 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
+                )}
+                {templates.find(t => t.id === selectedTemplateId)?.admin_template && (
+                  <div className="px-3 py-2 bg-orange-50 text-orange-700 border border-orange-200 rounded-md inline-flex items-center space-x-1 text-sm">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>Admin Template - Protected</span>
+                  </div>
                 )}
               </div>
             )}

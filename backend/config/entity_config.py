@@ -138,6 +138,7 @@ def get_all_templates() -> Dict[str, Any]:
                     "name": template.get("name", ""),
                     "description": template.get("description", ""),
                     "is_active": template.get("is_active", False),
+                    "admin_template": template.get("admin_template", False),
                     "created_at": template.get("created_at", ""),
                     "updated_at": template.get("updated_at", ""),
                     "entities": template.get("entities", [])
@@ -167,6 +168,7 @@ def get_template_by_id(template_id: str) -> Optional[Dict[str, Any]]:
                     "name": template.get("name", ""),
                     "description": template.get("description", ""),
                     "is_active": template.get("is_active", False),
+                    "admin_template": template.get("admin_template", False),
                     "created_at": template.get("created_at", ""),
                     "updated_at": template.get("updated_at", ""),
                     "entities": template.get("entities", [])
@@ -187,6 +189,7 @@ def get_active_template() -> Tuple[Optional[Dict[str, Any]], str]:
                     "name": template.get("name", ""),
                     "description": template.get("description", ""),
                     "is_active": True,
+                    "admin_template": template.get("admin_template", False),
                     "created_at": template.get("created_at", ""),
                     "updated_at": template.get("updated_at", ""),
                     "entities": template.get("entities", [])
@@ -203,7 +206,8 @@ def create_template(
     name: str, 
     description: str = "", 
     entities: List[Dict] = None,
-    set_active: bool = False
+    set_active: bool = False,
+    admin_template: bool = False
 ) -> str:
     """
     Create a new template. Returns the new template ID.
@@ -213,6 +217,7 @@ def create_template(
         description: Template description
         entities: List of entity definitions
         set_active: If True, set this template as active (deactivates others)
+        admin_template: If True, marks template as admin template (protected from deletion)
     """
     template_id = f"template_{uuid.uuid4().hex[:8]}"
     now = datetime.now(timezone.utc).isoformat()
@@ -222,6 +227,7 @@ def create_template(
         "name": name,
         "description": description,
         "is_active": set_active,
+        "admin_template": admin_template,
         "created_at": now,
         "updated_at": now,
         "version": "1.0.0",
@@ -265,7 +271,7 @@ def update_template(template_id: str, updates: Dict[str, Any]) -> bool:
 
 
 def delete_template(template_id: str) -> bool:
-    """Delete a template. Cannot delete if it's the active template."""
+    """Delete a template. Cannot delete if it's the active template or an admin template."""
     template = get_template_by_id(template_id)
     
     if not template:
@@ -273,6 +279,9 @@ def delete_template(template_id: str) -> bool:
     
     if template.get("is_active"):
         raise ValueError("Cannot delete the active template. Switch to another template first.")
+    
+    if template.get("admin_template"):
+        raise ValueError("Cannot delete admin template. Admin templates are protected from deletion.")
     
     with MongoDBConnection() as db:
         result = db[TEMPLATES_COLLECTION].delete_one({"_id": template_id})
