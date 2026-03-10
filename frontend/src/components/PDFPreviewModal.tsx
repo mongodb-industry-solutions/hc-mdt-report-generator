@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Download, Eye, Loader, AlertCircle } from 'lucide-react';
 import { Report } from '../types';
+import { apiService } from '../services/api';
 
 interface PDFPreviewModalProps {
   isOpen: boolean;
@@ -42,14 +43,28 @@ export default function PDFPreviewModal({
     setGenerationProgress({ progress: 0, currentStep: 'Initializing...' });
     
     try {
+      // Get active template for PDF generation
+      let activeTemplate = null;
+      try {
+        setGenerationProgress({ progress: 10, currentStep: 'Loading template configuration...' });
+        const { template } = await apiService.getActiveTemplate();
+        activeTemplate = template;
+      } catch (templateError) {
+        console.warn('Could not fetch active template for PDF generation:', templateError);
+      }
+
+      setGenerationProgress({ progress: 20, currentStep: 'Loading PDF generator...' });
       const { generateMedicalReportPDF } = await import('../services/pdfGenerator');
       
       // Create progress callback
       const progressCallback = (progress: number, step: string) => {
-        setGenerationProgress({ progress, currentStep: step });
+        setGenerationProgress({ 
+          progress: Math.min(20 + (progress * 0.8), 100), // Scale remaining progress from 20-100
+          currentStep: step 
+        });
       };
       
-      const pdfBlob = await generateMedicalReportPDF(report, progressCallback);
+      const pdfBlob = await generateMedicalReportPDF(report, activeTemplate, progressCallback);
       const url = URL.createObjectURL(pdfBlob);
       setPdfUrl(url);
       

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronDown, ChevronRight, User, Stethoscope, Target, Presentation, Settings, Activity, FileText, List, Eye, Search, AlertCircle } from 'lucide-react';
-import { Report, ReportEntity } from '../types';
-import reportGroupingConfig from '../config/report_grouping_config.json';
+import { Report, ReportEntity, EntityTemplate, SectionConfig } from '../types';
+import { apiService } from '../services/api';
 import SourceViewerModal from './SourceViewerModal';
 import ReportDisclaimer from './ReportDisclaimer';
 
@@ -10,36 +10,15 @@ interface ReportViewerProps {
   onClose: () => void;
 }
 
-const NotFoundEntityCard = ({ entityName, category }: { entityName: string; category: string }) => {
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Patient Information':
-        return 'bg-blue-50 border-blue-200';
-      case 'Clinical Summary':
-        return 'bg-green-50 border-green-200';
-      case 'General Health and Functional Status':
-        return 'bg-teal-50 border-teal-200';
-      case 'Laboratory and Exploration Results':
-        return 'bg-cyan-50 border-cyan-200';
-      case 'Medical Diagnoses':
-        return 'bg-rose-50 border-rose-200';
-      case 'Psychological and Social Factors':
-        return 'bg-indigo-50 border-indigo-200';
-      case 'Patient and Tumor Characteristics':
-        return 'bg-purple-50 border-purple-200';
-      case 'Presentation Reason':
-        return 'bg-orange-50 border-orange-200';
-      case 'MDT Recommendation (EXPERIMENTAL - Medical validation required)':
-        return 'bg-amber-50 border-amber-200';
-      case 'DRAFT System Recommendation':
-        return 'bg-red-50 border-red-200';
-      default:
-        return 'bg-gray-50 border-gray-200';
-    }
-  };
-
+const NotFoundEntityCard = ({ entityName, category, sectionColor }: { entityName: string; category: string; sectionColor?: string }) => {
   return (
-    <div className={`border-2 border-dashed rounded-lg p-4 ${getCategoryColor(category)} transition-all duration-200`}>
+    <div 
+      className="border-2 border-dashed rounded-lg p-4 transition-all duration-200"
+      style={{ 
+        backgroundColor: sectionColor ? `${sectionColor}20` : '#F3F4F6', 
+        borderColor: sectionColor ? `${sectionColor}60` : '#D1D5DB' 
+      }}
+    >
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0 mt-0.5">
           <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
@@ -74,7 +53,17 @@ const NotFoundEntityCard = ({ entityName, category }: { entityName: string; cate
   );
 };
 
-const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; category: string; onViewSource: (filename: string) => void }) => {
+const EntityCard = ({ 
+  entity, 
+  category, 
+  onViewSource, 
+  getSectionColorClasses 
+}: { 
+  entity: ReportEntity; 
+  category: string; 
+  onViewSource: (filename: string) => void;
+  getSectionColorClasses: (categoryName: string, type?: 'background' | 'text' | 'border') => string;
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFullContent, setShowFullContent] = useState(false);
   const [showMobilizedDocs, setShowMobilizedDocs] = useState(false);
@@ -137,33 +126,6 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
   };
 
   const relevantDocuments = getRelevantDocuments();
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Patient Information':
-        return 'bg-blue-100 text-blue-800';
-      case 'Clinical Summary':
-        return 'bg-green-100 text-green-800';
-      case 'General Health and Functional Status':
-        return 'bg-teal-100 text-teal-800';
-      case 'Laboratory and Exploration Results':
-        return 'bg-cyan-100 text-cyan-800';
-      case 'Medical Diagnoses':
-        return 'bg-rose-100 text-rose-800';
-      case 'Psychological and Social Factors':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'Patient and Tumor Characteristics':
-        return 'bg-purple-100 text-purple-800';
-      case 'Presentation Reason':
-        return 'bg-orange-100 text-orange-800';
-      case 'MDT Recommendation (EXPERIMENTAL - Medical validation required)':
-        return 'bg-amber-100 text-amber-800';
-      case 'DRAFT System Recommendation':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   // Helper function to render entity values
   const renderEntityValue = () => {
@@ -260,7 +222,7 @@ const EntityCard = ({ entity, category, onViewSource }: { entity: ReportEntity; 
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2 mb-2">
             <h4 className="font-medium text-gray-900 break-words">{entity.entity_name}</h4>
-            <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${getCategoryColor(category)}`}>
+            <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${getSectionColorClasses(category)}`}>
               {category}
             </span>
           </div>
@@ -507,6 +469,36 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
     isOpen: false,
     filename: ''
   });
+  
+  // Template and sections state
+  const [activeTemplate, setActiveTemplate] = useState<EntityTemplate | null>(null);
+  const [isTemplateLoading, setIsTemplateLoading] = useState(true);
+
+  // Load active template on mount
+  useEffect(() => {
+    const loadActiveTemplate = async () => {
+      try {
+        setIsTemplateLoading(true);
+        const { template } = await apiService.getActiveTemplate();
+        setActiveTemplate(template);
+      } catch (error) {
+        console.error('Failed to load active template:', error);
+        // Fallback to create a basic template structure if none exists
+        setActiveTemplate({ 
+          id: 'fallback', 
+          name: 'Default Template', 
+          entities: [], 
+          sections: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      } finally {
+        setIsTemplateLoading(false);
+      }
+    };
+
+    loadActiveTemplate();
+  }, []);
 
   const handleViewSource = (filename: string) => {
     setSourceViewerModal({ isOpen: true, filename });
@@ -515,12 +507,76 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
   const handleCloseSourceViewer = () => {
     setSourceViewerModal({ isOpen: false, filename: '' });
   };
-  // Get unique categories from config
-  const semanticCategories = [...new Set(Object.values(reportGroupingConfig))];
+
+  // Get sections from active template, fallback to default if none
+  const getTemplateSections = (): SectionConfig[] => {
+    if (!activeTemplate?.sections || activeTemplate.sections.length === 0) {
+      // Fallback to default sections if template has no sections
+      return [
+        { id: 'default', name: 'Uncategorized', color: '#D1D5DB', order: 0 }
+      ];
+    }
+    return activeTemplate.sections.sort((a, b) => a.order - b.order);
+  };
+
+  // Get unique categories from template sections
+  const semanticCategories = getTemplateSections().map(section => section.name);
   
   // Helper function to get semantic category for an entity
   const getEntityCategory = (entityName: string): string => {
-    return reportGroupingConfig[entityName as keyof typeof reportGroupingConfig] || 'Uncategorized';
+    if (!activeTemplate?.entities) return 'Uncategorized';
+    
+    // Find the entity in the template
+    const templateEntity = activeTemplate.entities.find(e => e.name === entityName);
+    if (!templateEntity?.section_id) return 'Uncategorized';
+    
+    // Find the section by ID
+    const section = getTemplateSections().find(s => s.id === templateEntity.section_id);
+    return section?.name || 'Uncategorized';
+  };
+
+  // Helper function to get section color from template
+  const getSectionColor = (categoryName: string): string => {
+    const section = getTemplateSections().find(s => s.name === categoryName);
+    return section?.color || '#D1D5DB'; // Default to soft gray if not found
+  };
+
+  // Convert section color to CSS classes and inline styles for different opacity levels
+  const getSectionColorClasses = (categoryName: string, type: 'background' | 'text' | 'border' = 'background'): string => {
+    const color = getSectionColor(categoryName);
+    
+    // Use a more reliable approach with predefined Tailwind classes for pastel colors
+    const colorToTailwind: { [key: string]: { bg: string; text: string; border: string } } = {
+      '#A5B4FC': { bg: 'bg-indigo-100 text-indigo-800', text: 'text-indigo-800', border: 'border-indigo-200' },
+      '#86EFAC': { bg: 'bg-green-100 text-green-800', text: 'text-green-800', border: 'border-green-200' },
+      '#FDE047': { bg: 'bg-yellow-100 text-yellow-800', text: 'text-yellow-800', border: 'border-yellow-200' },
+      '#FCA5A5': { bg: 'bg-red-100 text-red-800', text: 'text-red-800', border: 'border-red-200' },
+      '#C4B5FD': { bg: 'bg-purple-100 text-purple-800', text: 'text-purple-800', border: 'border-purple-200' },
+      '#67E8F9': { bg: 'bg-cyan-100 text-cyan-800', text: 'text-cyan-800', border: 'border-cyan-200' },
+      '#FDBA74': { bg: 'bg-orange-100 text-orange-800', text: 'text-orange-800', border: 'border-orange-200' },
+      '#BEF264': { bg: 'bg-lime-100 text-lime-800', text: 'text-lime-800', border: 'border-lime-200' },
+      '#F9A8D4': { bg: 'bg-pink-100 text-pink-800', text: 'text-pink-800', border: 'border-pink-200' },
+      '#D1D5DB': { bg: 'bg-gray-100 text-gray-800', text: 'text-gray-800', border: 'border-gray-200' },
+      // Keep old colors for backward compatibility
+      '#3B82F6': { bg: 'bg-blue-100 text-blue-800', text: 'text-blue-800', border: 'border-blue-200' },
+      '#10B981': { bg: 'bg-green-100 text-green-800', text: 'text-green-800', border: 'border-green-200' },
+      '#F59E0B': { bg: 'bg-yellow-100 text-yellow-800', text: 'text-yellow-800', border: 'border-yellow-200' },
+      '#EF4444': { bg: 'bg-red-100 text-red-800', text: 'text-red-800', border: 'border-red-200' },
+      '#8B5CF6': { bg: 'bg-purple-100 text-purple-800', text: 'text-purple-800', border: 'border-purple-200' },
+      '#06B6D4': { bg: 'bg-cyan-100 text-cyan-800', text: 'text-cyan-800', border: 'border-cyan-200' },
+      '#F97316': { bg: 'bg-orange-100 text-orange-800', text: 'text-orange-800', border: 'border-orange-200' },
+      '#84CC16': { bg: 'bg-lime-100 text-lime-800', text: 'text-lime-800', border: 'border-lime-200' },
+      '#EC4899': { bg: 'bg-pink-100 text-pink-800', text: 'text-pink-800', border: 'border-pink-200' },
+      '#6B7280': { bg: 'bg-gray-100 text-gray-800', text: 'text-gray-800', border: 'border-gray-200' }
+    };
+    
+    const colorMapping = colorToTailwind[color] || colorToTailwind['#D1D5DB']; // Default to soft gray
+    
+    switch (type) {
+      case 'text': return colorMapping.text;
+      case 'border': return colorMapping.border;
+      default: return colorMapping.bg;
+    }
   };
 
   // Helper function to get a normalized entity value
@@ -681,6 +737,7 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
 
   // Initialize activeTab with first available category
   const [activeTab, setActiveTab] = useState<string>(availableCategories[0] || 'Patient Information');
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -709,52 +766,36 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
     }
   };
 
-  const getCategoryColor = (category: string, isActive: boolean = false) => {
-    switch (category) {
-      case 'Patient Information':
-        return isActive
-          ? 'border-blue-500 text-blue-700 bg-blue-100'
-          : 'border-blue-300 text-blue-600 bg-blue-50 hover:text-blue-700 hover:bg-blue-100 hover:border-blue-400';
-      case 'Clinical Summary':
-        return isActive
-          ? 'border-green-500 text-green-700 bg-green-100'
-          : 'border-green-300 text-green-600 bg-green-50 hover:text-green-700 hover:bg-green-100 hover:border-green-400';
-      case 'General Health and Functional Status':
-        return isActive
-          ? 'border-teal-500 text-teal-700 bg-teal-100'
-          : 'border-teal-300 text-teal-600 bg-teal-50 hover:text-teal-700 hover:bg-teal-100 hover:border-teal-400';
-      case 'Laboratory and Exploration Results':
-        return isActive
-          ? 'border-cyan-500 text-cyan-700 bg-cyan-100'
-          : 'border-cyan-300 text-cyan-600 bg-cyan-50 hover:text-cyan-700 hover:bg-cyan-100 hover:border-cyan-400';
-      case 'Medical Diagnoses':
-        return isActive
-          ? 'border-rose-500 text-rose-700 bg-rose-100'
-          : 'border-rose-300 text-rose-600 bg-rose-50 hover:text-rose-700 hover:bg-rose-100 hover:border-rose-400';
-      case 'Psychological and Social Factors':
-        return isActive
-          ? 'border-indigo-500 text-indigo-700 bg-indigo-100'
-          : 'border-indigo-300 text-indigo-600 bg-indigo-50 hover:text-indigo-700 hover:bg-indigo-100 hover:border-indigo-400';
-      case 'Patient and Tumor Characteristics':
-        return isActive
-          ? 'border-purple-500 text-purple-700 bg-purple-100'
-          : 'border-purple-300 text-purple-600 bg-purple-50 hover:text-purple-700 hover:bg-purple-100 hover:border-purple-400';
-      case 'Presentation Reason':
-        return isActive
-          ? 'border-orange-500 text-orange-700 bg-orange-100'
-          : 'border-orange-300 text-orange-600 bg-orange-50 hover:text-orange-700 hover:bg-orange-100 hover:border-orange-400';
-      case 'MDT Recommendation (EXPERIMENTAL - Medical validation required)':
-        return isActive
-          ? 'border-amber-500 text-amber-700 bg-amber-100'
-          : 'border-amber-300 text-amber-600 bg-amber-50 hover:text-amber-700 hover:bg-amber-100 hover:border-amber-400';
-      case 'DRAFT System Recommendation':
-        return isActive
-          ? 'border-red-500 text-red-700 bg-red-100'
-          : 'border-red-300 text-red-600 bg-red-50 hover:text-red-700 hover:bg-red-100 hover:border-red-400';
-      default:
-        return isActive
-          ? 'border-gray-500 text-gray-700 bg-gray-100'
-          : 'border-gray-300 text-gray-600 bg-gray-50 hover:text-gray-700 hover:bg-gray-100 hover:border-gray-400';
+  const getCategoryColor = (category: string, isActive: boolean = false, isHovered: boolean = false): { className: string; style: React.CSSProperties } => {
+    const color = getSectionColor(category);
+    
+    if (isActive) {
+      return {
+        className: 'border text-gray-800',
+        style: {
+          borderColor: color,
+          backgroundColor: `${color}30`,
+          color: '#1F2937'
+        }
+      };
+    } else if (isHovered) {
+      return {
+        className: 'border text-gray-800 transition-all duration-200',
+        style: {
+          borderColor: `${color}80`,
+          backgroundColor: `${color}20`,
+          color: '#1F2937'
+        }
+      };
+    } else {
+      return {
+        className: 'border text-gray-600 transition-all duration-200',
+        style: {
+          borderColor: `${color}60`,
+          backgroundColor: `${color}10`,
+          color: '#4B5563'
+        }
+      };
     }
   };
 
@@ -806,8 +847,21 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
         />
       </div> */}
 
-      {/* Summary */}
-      <div className="p-4 bg-gray-50 border-b border-gray-200">
+      {/* Loading state for template */}
+      {isTemplateLoading && (
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+            <p className="text-gray-500">Loading template configuration...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Main content - only show when template is loaded */}
+      {!isTemplateLoading && (
+        <>
+          {/* Summary */}
+          <div className="p-4 bg-gray-50 border-b border-gray-200">
         <h3 className="font-medium text-gray-900 mb-2">Entity Categories Summary</h3>
         <div className="grid grid-cols-2 gap-4 text-sm mb-3">
           <div>
@@ -857,14 +911,19 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
                 const foundCount = organizedEntities[category]?.length || 0;
                 const notFoundCount = organizedNotFound[category]?.length || 0;
                 const isActive = activeTab === category;
+                const isHovered = hoveredTab === category;
+                const categoryColors = getCategoryColor(category, isActive, isHovered);
                 return (
                   <button
                     key={category}
                     onClick={() => setActiveTab(category)}
+                    onMouseEnter={() => setHoveredTab(category)}
+                    onMouseLeave={() => setHoveredTab(null)}
                     className={`
-                      w-full flex items-start space-x-3 p-3 text-sm font-medium rounded-lg transition-all duration-200 border
-                      ${getCategoryColor(category, isActive)}
+                      w-full flex items-start space-x-3 p-3 text-sm font-medium rounded-lg
+                      ${categoryColors.className}
                     `}
+                    style={categoryColors.style}
                   >
                     <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 text-left">
@@ -914,6 +973,7 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
                         entity={entity}
                         category={activeTab}
                         onViewSource={handleViewSource}
+                        getSectionColorClasses={getSectionColorClasses}
                       />
                     ))}
                   </div>
@@ -938,6 +998,7 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
                         key={`not-found-${index}`}
                         entityName={entityName}
                         category={activeTab}
+                        sectionColor={getSectionColor(activeTab)}
                       />
                     ))}
                   </div>
@@ -954,6 +1015,8 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
           </div>
         </div>
       </div>
+        </>
+      )}
 
       {/* Source Viewer Modal */}
       <SourceViewerModal

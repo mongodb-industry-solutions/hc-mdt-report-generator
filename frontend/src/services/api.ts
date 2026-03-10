@@ -10,6 +10,7 @@ import {
   EntityDef,
   EntityTemplate,
   TemplatesData,
+  SectionConfig,
   GroundTruth,
   GroundTruthEntity,
   Evaluation,
@@ -516,9 +517,18 @@ class ApiService {
 
   async downloadAsPDF(data: any, filename: string) {
     try {
+      // Get active template for PDF generation
+      let activeTemplate = null;
+      try {
+        const { template } = await this.getActiveTemplate();
+        activeTemplate = template;
+      } catch (templateError) {
+        console.warn('Could not fetch active template for PDF generation:', templateError);
+      }
+
       // Import the PDF generator dynamically to avoid loading issues
       const { generateMedicalReportPDF } = await import('./pdfGenerator');
-      const pdfBlob = await generateMedicalReportPDF(data);
+      const pdfBlob = await generateMedicalReportPDF(data, activeTemplate);
       this.downloadBlob(pdfBlob, filename);
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -664,12 +674,13 @@ class ApiService {
     return { template: response.data.template };
   }
 
-  async createTemplate(name: string, description: string = '', entities: EntityDef[] = [], adminTemplate: boolean = false): Promise<{ template_id: string; validation: any; }> {
+  async createTemplate(name: string, description: string = '', entities: EntityDef[] = [], adminTemplate: boolean = false, sections: SectionConfig[] = []): Promise<{ template_id: string; validation: any; }> {
     const response = await this.api.post('/entity-config/templates', {
       name,
       description,
       entities,
-      admin_template: adminTemplate
+      admin_template: adminTemplate,
+      sections
     });
     return { template_id: response.data.template_id, validation: response.data.validation };
   }

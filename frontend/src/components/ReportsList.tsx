@@ -234,6 +234,18 @@ export default function ReportsList({
       
       // Import the PDF generator with progress tracking
       console.log('🔄 Generating full medical report PDF...');
+      setPdfGenerationProgress(prev => ({ ...prev, progress: 15, currentStep: 'Loading template configuration...' }));
+      
+      // Get active template for PDF generation
+      let activeTemplate = null;
+      try {
+        const { template } = await apiService.getActiveTemplate();
+        activeTemplate = template;
+        console.log('✅ Active template loaded for PDF generation');
+      } catch (templateError) {
+        console.warn('Could not fetch active template for PDF generation:', templateError);
+      }
+      
       setPdfGenerationProgress(prev => ({ ...prev, progress: 20, currentStep: 'Loading PDF generator...' }));
       
       const { generateMedicalReportPDF } = await import('../services/pdfGenerator');
@@ -248,7 +260,7 @@ export default function ReportsList({
       };
       
       setPdfGenerationProgress(prev => ({ ...prev, progress: 25, currentStep: 'Generating comprehensive summaries...' }));
-      const pdfBlob = await generateMedicalReportPDF(report, progressCallback);
+      const pdfBlob = await generateMedicalReportPDF(report, activeTemplate, progressCallback);
       console.log('✅ Medical PDF generation successful, blob size:', pdfBlob.size);
       
       setPdfGenerationProgress(prev => ({ ...prev, progress: 95, currentStep: 'Preparing download...' }));

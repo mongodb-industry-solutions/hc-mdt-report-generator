@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ListPlus, Check, Trash2, AlertTriangle, Plus, Minus, Filter, ChevronDown, ChevronRight, Settings, Code, X } from 'lucide-react';
-import { EntityConfig, EntityDef, EntityTemplate, SourceFilter } from '../types';
+import { ListPlus, Check, Trash2, AlertTriangle, Plus, Minus, Filter, ChevronDown, ChevronRight, Settings, Code, X, Grid, Palette, GripVertical } from 'lucide-react';
+import { EntityConfig, EntityDef, EntityTemplate, SourceFilter, SectionConfig } from '../types';
 import { apiService } from '../services/api';
 
 interface TemplateConfigurationProps {
@@ -24,6 +24,26 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
   const [entityConfigStatus, setEntityConfigStatus] = useState<'idle' | 'loading' | 'validating' | 'saving' | 'success' | 'error'>('idle');
   const [entityConfig, setEntityConfig] = useState<EntityConfig | null>(null);
   const [selectedEntityIndex, setSelectedEntityIndex] = useState<number>(0);
+
+  // Section management state
+  const [showSectionDialog, setShowSectionDialog] = useState<'create' | 'edit' | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [sectionsExpanded, setSectionsExpanded] = useState(false);
+  const [sectionFormName, setSectionFormName] = useState('');
+  const [sectionFormColor, setSectionFormColor] = useState('#A5B4FC');
+  const [sectionFormOrder, setSectionFormOrder] = useState<number>(0);
+  const [availableColors] = useState([
+    '#A5B4FC', // Pastel Blue
+    '#86EFAC', // Pastel Green
+    '#FDE047', // Pastel Yellow
+    '#FCA5A5', // Pastel Red
+    '#C4B5FD', // Pastel Purple
+    '#67E8F9', // Pastel Cyan
+    '#FDBA74', // Pastel Orange
+    '#BEF264', // Pastel Lime
+    '#F9A8D4', // Pastel Pink
+    '#D1D5DB'  // Soft Gray
+  ]);
 
   // Load templates on component mount
   useEffect(() => {
@@ -114,8 +134,10 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
     
     try {
       setEntityConfigStatus('saving');
+      const currentSections = getCurrentSections();
       await apiService.updateTemplate(selectedTemplateId, {
-        entities: entityConfig?.entities || []
+        entities: entityConfig?.entities || [],
+        sections: currentSections
       });
       
       // Reload templates
@@ -181,6 +203,128 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
       console.error('Error deleting template:', e);
       alert(e?.response?.data?.detail || 'Failed to delete template');
     }
+  };
+
+  // Section management functions
+  const getCurrentSections = (): SectionConfig[] => {
+    const template = templates.find(t => t.id === selectedTemplateId);
+    return template?.sections || [];
+  };
+
+  const handleCreateSection = async () => {
+    if (!selectedTemplateId || !sectionFormName.trim()) return;
+    
+    try {
+      const currentSections = getCurrentSections();
+      const newSection: SectionConfig = {
+        id: `section_${Date.now()}`,
+        name: sectionFormName.trim(),
+        color: sectionFormColor,
+        order: sectionFormOrder || currentSections.length
+      };
+
+      const updatedSections = [...currentSections, newSection]
+        .sort((a, b) => a.order - b.order);
+
+      await apiService.updateTemplate(selectedTemplateId, {
+        entities: entityConfig?.entities || [],
+        sections: updatedSections
+      });
+
+      // Reload templates
+      const { data } = await apiService.getAllTemplates();
+      setTemplates(data.templates);
+
+      // Reset form
+      setSectionFormName('');
+      setSectionFormColor('#A5B4FC');
+      setSectionFormOrder(0);
+      setShowSectionDialog(null);
+    } catch (e) {
+      console.error('Error creating section:', e);
+    }
+  };
+
+  const handleUpdateSection = async () => {
+    if (!selectedTemplateId || !selectedSectionId || !sectionFormName.trim()) return;
+    
+    try {
+      const currentSections = getCurrentSections();
+      const updatedSections = currentSections.map(section => 
+        section.id === selectedSectionId 
+          ? { ...section, name: sectionFormName.trim(), color: sectionFormColor, order: sectionFormOrder }
+          : section
+      ).sort((a, b) => a.order - b.order);
+
+      await apiService.updateTemplate(selectedTemplateId, {
+        entities: entityConfig?.entities || [],
+        sections: updatedSections
+      });
+
+      // Reload templates
+      const { data } = await apiService.getAllTemplates();
+      setTemplates(data.templates);
+
+      // Reset form
+      setSectionFormName('');
+      setSectionFormColor('#A5B4FC');
+      setSectionFormOrder(0);
+      setSelectedSectionId(null);
+      setShowSectionDialog(null);
+    } catch (e) {
+      console.error('Error updating section:', e);
+    }
+  };
+
+  const handleDeleteSection = async (sectionId: string) => {
+    if (!selectedTemplateId) return;
+    
+    const currentSections = getCurrentSections();
+    const section = currentSections.find(s => s.id === sectionId);
+    if (!section) return;
+
+    if (!confirm(`Are you sure you want to delete the section "${section.name}"? This action cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      const updatedSections = currentSections.filter(s => s.id !== sectionId);
+      
+      // Remove section assignments from entities
+      const updatedEntities = (entityConfig?.entities || []).map(entity => ({
+        ...entity,
+        section_id: entity.section_id === sectionId ? undefined : entity.section_id
+      }));
+
+      await apiService.updateTemplate(selectedTemplateId, {
+        entities: updatedEntities,
+        sections: updatedSections
+      });
+
+      // Reload templates
+      const { data } = await apiService.getAllTemplates();
+      setTemplates(data.templates);
+      
+      // Update local entity config
+      setEntityConfig({ entities: updatedEntities });
+    } catch (e) {
+      console.error('Error deleting section:', e);
+    }
+  };
+
+  const openSectionDialog = (mode: 'create' | 'edit', section?: SectionConfig) => {
+    if (mode === 'edit' && section) {
+      setSelectedSectionId(section.id);
+      setSectionFormName(section.name);
+      setSectionFormColor(section.color);
+      setSectionFormOrder(section.order);
+    } else {
+      setSelectedSectionId(null);
+      setSectionFormName('');
+      setSectionFormColor('#A5B4FC');
+      setSectionFormOrder(getCurrentSections().length);
+    }
+    setShowSectionDialog(mode);
   };
 
   return (
@@ -297,23 +441,197 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
             </div>
           )}
 
+          {/* Section Management */}
+          {selectedTemplateId && (
+            <div className="border border-gray-200 rounded-lg bg-white shadow-sm">
+              {/* Header */}
+              <div 
+                className="flex items-center justify-between p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => setSectionsExpanded(!sectionsExpanded)}
+              >
+                <div className="flex items-center space-x-2">
+                  {sectionsExpanded ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 flex items-center space-x-2">
+                      <Grid className="w-4 h-4 text-blue-600" />
+                      <span>Report Sections</span>
+                      <span className="text-xs text-gray-500 font-normal">({getCurrentSections().length})</span>
+                    </h3>
+                    <p className="text-xs text-gray-500">Configure entity organization</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openSectionDialog('create');
+                  }}
+                  className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center space-x-1.5 text-xs font-medium"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Section</span>
+                </button>
+              </div>
+
+              {/* Section Grid */}
+              {sectionsExpanded && (
+                <div className="p-4">
+                {getCurrentSections().length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="relative">
+                      {/* Background decoration */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-32 h-32 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl opacity-50"></div>
+                      </div>
+                      
+                      {/* Main icon */}
+                      <div className="relative w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <Grid className="w-10 h-10 text-white" />
+                      </div>
+                    </div>
+                    
+                    <h4 className="text-xl font-bold text-gray-900 mb-3">Organize Your Report</h4>
+                    <p className="text-gray-600 mb-2 max-w-sm mx-auto">
+                      Create sections to group related entities and improve report readability
+                    </p>
+                    <p className="text-sm text-gray-500 mb-8 max-w-sm mx-auto">
+                      Start by adding your first section, such as "Patient Information" or "Clinical Summary"
+                    </p>
+                    
+                    <button
+                      type="button"
+                      onClick={() => openSectionDialog('create')}
+                      className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 inline-flex items-center space-x-2 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Create First Section</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {getCurrentSections()
+                      .sort((a, b) => a.order - b.order)
+                      .map((section, index) => (
+                        <div 
+                          key={section.id} 
+                          className="group relative bg-white border border-gray-200 hover:border-blue-300 rounded-lg p-2.5 transition-all duration-200 hover:shadow-md cursor-pointer"
+                          style={{ 
+                            borderLeftColor: section.color,
+                            borderLeftWidth: '3px'
+                          }}
+                        >
+                          {/* Drag Handle */}
+                          <div className="absolute top-2 left-1 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <GripVertical className="w-3 h-3" />
+                          </div>
+
+                          {/* Section Content */}
+                          <div className="pl-3.5 space-y-2">
+                            {/* Title and Entity Count */}
+                            <div className="flex items-center justify-between space-x-2">
+                              <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                <div 
+                                  className="w-3.5 h-3.5 rounded shadow-sm flex-shrink-0" 
+                                  style={{ backgroundColor: section.color }}
+                                />
+                                <h4 className="text-sm font-semibold text-gray-900 truncate leading-tight">
+                                  {section.name}
+                                </h4>
+                              </div>
+                              {(() => {
+                                const entityCount = getCurrentSections().length > 0 && entityConfig?.entities 
+                                  ? entityConfig.entities.filter(e => e.section_id === section.id).length 
+                                  : 0;
+                                return (
+                                  <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full flex-shrink-0">
+                                    {entityCount} {entityCount === 1 ? 'entity' : 'entities'}
+                                  </span>
+                                );
+                              })()} 
+                            </div>
+
+                            {/* Order and Actions */}
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-500">
+                                Order #{section.order}
+                              </span>
+                              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  type="button"
+                                  onClick={() => openSectionDialog('edit', section)}
+                                  className="p-1 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                >
+                                  <Settings className="w-3 h-3" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteSection(section.id)}
+                                  className="p-1 text-xs text-red-600 hover:bg-red-100 rounded transition-colors"
+                                  title="Delete section"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Entity Configuration */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Entity List Column */}
             <div className="md:col-span-1 space-y-3">
               {/* Entity List */}
               <div className="border border-gray-200 rounded-md max-h-96 overflow-auto bg-white">
-                {entityConfig?.entities?.map((e, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setSelectedEntityIndex(idx)}
-                    className={`w-full text-left px-3 py-2 border-b last:border-b-0 hover:bg-gray-50 ${selectedEntityIndex === idx ? 'bg-green-50 border-l-4 border-l-green-500' : ''}`}
-                  >
-                    <div className="text-sm text-gray-900 truncate">{e.name || '(unnamed entity)'}</div>
-                    <div className="text-xs text-gray-400 truncate">{e.processing_type || '(default)'}</div>
-                  </button>
-                ))}
+                {entityConfig?.entities?.sort((a, b) => {
+                  const sections = getCurrentSections();
+                  const sectionA = sections.find(s => s.id === a.section_id);
+                  const sectionB = sections.find(s => s.id === b.section_id);
+                  
+                  // If both entities have sections, sort by section order
+                  if (sectionA && sectionB) {
+                    return (sectionA.order || 0) - (sectionB.order || 0);
+                  }
+                  // If only one has a section, that one comes first
+                  if (sectionA && !sectionB) return -1;
+                  if (!sectionA && sectionB) return 1;
+                  // If neither has a section, maintain original order
+                  return 0;
+                }).map((e, idx) => {
+                  const entitySection = getCurrentSections().find(s => s.id === e.section_id);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedEntityIndex(idx)}
+                      className={`w-full text-left px-3 py-2 border-b last:border-b-0 hover:bg-gray-50 ${selectedEntityIndex === idx ? 'bg-green-50 border-l-4 border-l-green-500' : ''}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm text-gray-900 truncate">{e.name || '(unnamed entity)'}</div>
+                          <div className="text-xs text-gray-400 truncate">{e.processing_type || '(default)'}</div>
+                        </div>
+                        {entitySection && (
+                          <div className="flex items-center space-x-1">
+                            <div 
+                              className="w-3 h-3 rounded-full" 
+                              style={{ backgroundColor: entitySection.color }}
+                            />
+                            <span className="text-xs text-gray-500 truncate max-w-16">
+                              {entitySection.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
               
               {/* Action Buttons */}
@@ -349,6 +667,7 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
               {entityConfig && entityConfig.entities && entityConfig.entities[selectedEntityIndex] && (
                 <EntityEditor
                   entity={entityConfig.entities[selectedEntityIndex]}
+                  sections={getCurrentSections()}
                   onChange={(updated) => {
                     const next: EntityConfig = { ...(entityConfig as EntityConfig), entities: [...(entityConfig?.entities || [])] };
                     next.entities[selectedEntityIndex] = updated;
@@ -426,6 +745,144 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
         </div>
       )}
 
+      {/* Section Dialog */}
+      {showSectionDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto">
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Grid className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {showSectionDialog === 'create' ? 'Create New Section' : 'Edit Section'}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {showSectionDialog === 'create' 
+                      ? 'Add a new section to organize report entities' 
+                      : 'Modify section properties and appearance'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-5 space-y-6">
+              {/* Section Name */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Section Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
+                  value={sectionFormName}
+                  onChange={(e) => setSectionFormName(e.target.value)}
+                  placeholder="e.g., Patient Information, Clinical Summary"
+                  autoFocus
+                />
+              </div>
+
+              {/* Display Order */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Display Order
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    value={sectionFormOrder}
+                    onChange={(e) => setSectionFormOrder(parseInt(e.target.value) || 0)}
+                  />
+                  <div className="absolute inset-y-0 right-3 flex items-center">
+                    <span className="text-xs text-gray-500">Lower numbers appear first</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section Color */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  Section Color
+                </label>
+                <div className="space-y-4">
+                  {/* Color Preview */}
+                  <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="w-12 h-12 rounded-xl shadow-sm border border-white" 
+                        style={{ backgroundColor: sectionFormColor }}
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Preview</div>
+                        <div className="text-xs text-gray-500">{sectionFormColor}</div>
+                      </div>
+                    </div>
+                    {sectionFormName && (
+                      <div className="flex-1">
+                        <div 
+                          className="px-3 py-2 rounded-lg text-sm font-medium text-white shadow-sm"
+                          style={{ backgroundColor: sectionFormColor }}
+                        >
+                          {sectionFormName}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Color Palette */}
+                  <div className="grid grid-cols-5 gap-3">
+                    {availableColors.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        className={`relative w-12 h-12 rounded-xl border-2 hover:scale-105 transition-all duration-200 shadow-sm ${
+                          sectionFormColor === color 
+                            ? 'border-gray-800 shadow-lg scale-105' 
+                            : 'border-gray-200 hover:border-gray-400'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => setSectionFormColor(color)}
+                      >
+                        {sectionFormColor === color && (
+                          <div className="absolute inset-0 rounded-xl bg-black bg-opacity-20 flex items-center justify-center">
+                            <Check className="w-6 h-6 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
+              <button
+                type="button"
+                className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
+                onClick={() => setShowSectionDialog(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm"
+                onClick={showSectionDialog === 'create' ? handleCreateSection : handleUpdateSection}
+                disabled={!sectionFormName.trim()}
+              >
+                {showSectionDialog === 'create' ? 'Create Section' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* JSON Viewer Modal */}
       {showJsonViewer && selectedTemplateId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -458,7 +915,12 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
 }
 
 // Entity Editor component
-function EntityEditor({ entity, onChange, onDelete }: { entity: EntityDef; onChange: (e: EntityDef) => void; onDelete: () => void; }) {
+function EntityEditor({ entity, onChange, onDelete, sections }: { 
+  entity: EntityDef; 
+  onChange: (e: EntityDef) => void; 
+  onDelete: () => void;
+  sections: SectionConfig[];
+}) {
   const [showSourceFilters, setShowSourceFilters] = useState(false);
   const [showFallbackFilters, setShowFallbackFilters] = useState(false);
   
@@ -550,6 +1012,34 @@ function EntityEditor({ entity, onChange, onDelete }: { entity: EntityDef; onCha
             <option value="multiple_matches">multiple_matches</option>
             <option value="aggregate_all_matches">aggregate_all_matches</option>
           </select>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Report Section</label>
+          <select
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={entity.section_id || ''}
+            onChange={(e) => update('section_id', e.target.value || undefined)}
+          >
+            <option value="">No section assigned</option>
+            {sections
+              .sort((a, b) => a.order - b.order)
+              .map((section) => (
+                <option key={section.id} value={section.id}>
+                  {section.name}
+                </option>
+              ))
+            }
+          </select>
+          {entity.section_id && (
+            <div className="mt-1 flex items-center space-x-2 text-sm text-gray-600">
+              <div 
+                className="w-3 h-3 rounded-full" 
+                style={{ backgroundColor: sections.find(s => s.id === entity.section_id)?.color }}
+              />
+              <span>Assigned to: {sections.find(s => s.id === entity.section_id)?.name}</span>
+            </div>
+          )}
         </div>
 
         <div className="md:col-span-2">

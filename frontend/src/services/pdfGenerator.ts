@@ -1,7 +1,6 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Report, ReportEntity, ReportContent } from '../types';
-import reportGroupingConfig from '../config/report_grouping_config.json';
+import { Report, ReportEntity, ReportContent, EntityTemplate, SectionConfig } from '../types';
 
 interface PDFSection {
   title: string;
@@ -16,6 +15,7 @@ class MedicalPDFGenerator {
   private margins = { top: 30, right: 15, bottom: 40, left: 15 };
   private currentY: number = 0;
   private mongoDBLogoBase64: string | null = null;
+  private activeTemplate: EntityTemplate | null = null;
   private readonly colors = {
     // MongoDB Primary Colors
     primary: '#10AA50',    // MongoDB Green
@@ -100,6 +100,19 @@ class MedicalPDFGenerator {
     "MDT Recommendation (EXPERIMENTAL - Medical validation required)"
   ];
 
+  // Get section order from template, with fallback to default ordering
+  private getSectionOrder(): string[] {
+    if (this.activeTemplate?.sections && this.activeTemplate.sections.length > 0) {
+      // Use template section ordering
+      return this.activeTemplate.sections
+        .sort((a, b) => a.order - b.order)
+        .map(section => section.name);
+    }
+    
+    // Fallback to default section order
+    return this.sectionOrder;
+  }
+
   // Clean section titles mapping (shorten long titles for PDF)
   private readonly cleanSectionTitles: Record<string, string> = {
     "Patient Information": "Patient Information",
@@ -120,11 +133,12 @@ class MedicalPDFGenerator {
     "Autres informations": "Other Information"
   };
 
-  constructor() {
+  constructor(activeTemplate?: EntityTemplate | null) {
     this.doc = new jsPDF('portrait', 'mm', 'a4');
     this.pageWidth = this.doc.internal.pageSize.getWidth();
     this.pageHeight = this.doc.internal.pageSize.getHeight();
     this.currentY = this.margins.top;
+    this.activeTemplate = activeTemplate || null;
     
     this.loadMongoDBLogo();
     
@@ -619,12 +633,13 @@ class MedicalPDFGenerator {
     
     // Get ALL section names from the data (dynamic discovery)
     const allSectionNames = Object.keys(entitiesBySection);
+    const templateSectionOrder = this.getSectionOrder();
     
     // Sort sections: known sections first (in predefined order), then unknown sections alphabetically
     // "Autres informations" always goes last
     const sortedSections = allSectionNames.sort((a, b) => {
-      const aIndex = this.sectionOrder.indexOf(a);
-      const bIndex = this.sectionOrder.indexOf(b);
+      const aIndex = templateSectionOrder.indexOf(a);
+      const bIndex = templateSectionOrder.indexOf(b);
       
       // Both in predefined order - sort by position
       if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
@@ -673,7 +688,18 @@ class MedicalPDFGenerator {
     const grouped: Record<string, ReportEntity[]> = {};
     
     entities.forEach(entity => {
-      const sectionName = (reportGroupingConfig as Record<string, string>)[entity.entity_name] || "Autres informations";
+      let sectionName = "Autres informations"; // Default section
+      
+      // Use template-based section assignment if available
+      if (this.activeTemplate?.entities && this.activeTemplate?.sections) {
+        const templateEntity = this.activeTemplate.entities.find(e => e.name === entity.entity_name);
+        if (templateEntity?.section_id) {
+          const section = this.activeTemplate.sections.find(s => s.id === templateEntity.section_id);
+          if (section) {
+            sectionName = section.name;
+          }
+        }
+      }
       
       if (!grouped[sectionName]) {
         grouped[sectionName] = [];
@@ -1531,9 +1557,10 @@ class MedicalPDFGenerator {
 // Export function for easy usage
 export const generateMedicalReportPDF = async (
   report: Report, 
+  activeTemplate?: EntityTemplate | null,
   progressCallback?: (progress: number, step: string) => void
 ): Promise<Blob> => {
-  const generator = new MedicalPDFGenerator();
+  const generator = new MedicalPDFGenerator(activeTemplate);
   return await generator.generateReportPDF(report, progressCallback);
 };
 

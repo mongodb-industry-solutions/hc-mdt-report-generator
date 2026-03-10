@@ -259,6 +259,15 @@ export interface NERConfig {
   aggregation_batch_size: number;
 } 
 
+// Section configuration for template-based report organization
+export interface SectionConfig {
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+  order: number;
+}
+
 // Source filter configuration for targeted entity extraction
 export interface SourceFilter {
   libnatcr: string;           // Required: Report type (e.g., "CR Radio", "RCP", "CR Anatomopathologie")
@@ -271,6 +280,7 @@ export interface SourceFilter {
 // Entity configuration types
 export interface EntityDef {
   name: string;
+  section_id?: string;               // NEW: Reference to section ID (optional for backward compatibility)
   definition?: string;
   extraction_instructions?: string;
   type?: string;
@@ -299,6 +309,7 @@ export interface EntityTemplate {
   created_at: string;
   updated_at: string;
   entities: EntityDef[];
+  sections: SectionConfig[];         // NEW: Section definitions for this template
   admin_template?: boolean;
 }
 
