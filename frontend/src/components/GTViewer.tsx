@@ -13,12 +13,25 @@ export function GTViewer({ patientId, isOpen, onClose }: GTViewerProps) {
   const [pdfUrl, setPdfUrl] = useState<string>('');
   const [pdfExists, setPdfExists] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showInfoBanner, setShowInfoBanner] = useState<boolean>(true);
 
   useEffect(() => {
     if (isOpen && patientId) {
       checkAndLoadPDF();
+      setShowInfoBanner(true); // Reset banner when opening
     }
   }, [isOpen, patientId]);
+
+  // Auto-hide info banner after 10 seconds
+  useEffect(() => {
+    if (showInfoBanner && isOpen) {
+      const timer = setTimeout(() => {
+        setShowInfoBanner(false);
+      }, 10000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [showInfoBanner, isOpen]);
 
   const checkAndLoadPDF = async () => {
     setLoading(true);
@@ -107,6 +120,44 @@ export function GTViewer({ patientId, isOpen, onClose }: GTViewerProps) {
             </button>
           </div>
         </div>
+
+        {/* Info Banner */}
+        {showInfoBanner && (
+          <div className="bg-gradient-to-r from-amber-100 to-orange-100 border-b border-amber-200 px-4 py-3 relative">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                <p className="text-sm text-amber-800 font-medium">
+                  <strong>Demo Notice:</strong> This Ground Truth Document has been generated specifically for this use case and for demonstration purposes only. 
+                  It should not be used for actual medical decisions or patient care.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowInfoBanner(false)}
+                className="p-1 text-amber-600 hover:text-amber-800 rounded transition-colors flex-shrink-0 ml-4"
+                title="Dismiss notice"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Auto-hide progress indicator */}
+            <div 
+              className="absolute bottom-0 left-0 h-1 bg-amber-300 rounded-full"
+              style={{
+                width: '100%',
+                animation: 'shrinkWidth 10s linear forwards'
+              }}
+            ></div>
+            
+            <style jsx>{`
+              @keyframes shrinkWidth {
+                from { width: 100%; }
+                to { width: 0%; }
+              }
+            `}</style>
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-hidden bg-gray-100 min-h-0">

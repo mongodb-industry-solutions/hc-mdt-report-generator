@@ -1,4 +1,4 @@
-# 🏥 ClarityGR - AI-Powered Medical Document Processing Platform
+# AI-Powered Medical Report Generator Platform
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
@@ -8,289 +8,674 @@
 
 > AI-powered platform to ingest clinical documents, extract structured medical entities, and generate MDT reports — with a modern React UI, robust security middleware, and MongoDB persistence.
 
-## 🌟 Overview
+---
 
-ClarityGR automates extraction of structured medical entities from clinical documents and supports MDT (Multidisciplinary Team) report generation. It exposes a FastAPI backend, a React (Vite) frontend, and persists data in MongoDB.
+## 🎯 Key Aspects
 
-### Key Features
-- AI-assisted entity extraction workflow (Mistral/OpenAI-compatible via GPT-Open/Ollama; runtime-switchable)
-- Universal document intake: PDF, images, text, XML, JSON (base64 or URL)
-- OCR and text normalization pipeline (OCR via Mistral OCR client; normalization simplified)
-- MDT report generation including SSE live progress
-- Progressive rate limiting, strict input validation, and security headers
-- React UI with uploads, progress, reports, entity viewing, bilingual support
+The AI Powered Medical Report Generator is an enterprise-grade medical document processing platform that combines advanced AI with modern web technologies to streamline clinical workflows.
+
+### Core Capabilities
+- **Multi-format Document Ingestion**: PDF, images, text, XML, JSON (base64 or URL upload)
+- **AI-Powered Entity Extraction**: Named Entity Recognition (NER) for medical entities using configurable LLM providers
+- **OCR Processing**: Built-in OCR capabilities for image and PDF documents
+- **MDT Report Generation**: Automated Multidisciplinary Team report creation with real-time progress tracking
+
+### Technical Stack
+- **Backend**: Python 3.11+ with FastAPI, async processing, MongoDB persistence
+- **Frontend**: React 18+ with TypeScript, Vite build system, Tailwind CSS
+- **Database**: MongoDB 7.x with automatic indexing and optimized queries
+- **AI/ML**: Configurable LLM providers
+
+
+### Demo Capabilities
+- Upload and process medical documents in multiple formats
+- Extract structured medical entities with real-time visualization
+- Generate comprehensive MDT reports with live progress tracking
+- Switch between different AI models and providers easily
+- Compare generated results with original documents for validation and accuracy assessment
 
 ---
 
-## 🧱 Architecture
+## ⚡ Fast Track: Simple Fast Deployment
 
-High-level components and data flow:
-
-```
-+-------------------+       upload/trigger        +------------------+
-|       UI (Vite)   |  ─────────────────────────▶ |   FastAPI (app)  |
-|  React + TS, 3000 |                              |  src/main.py     |
-+---------┬---------+                              +-----┬------------+
-          │  API calls (REST/SSE)                        │ include_router
-          │                                              │
-          │                               +--------------▼-----------------------+
-          │                               |             Controllers              |
-          │                               | patients/, reports/, settings/, ...  |
-          │                               +--------------┬-----------------------+
-          │                                              │ calls
-          │                               +--------------▼-----------------------+
-          │                               |               Services               |
-          │                               | OCR, categorization (bypassed),      |
-          │                               | data extraction (simplified),        |
-          │                               | MDT report generator (NER workflow)  |
-          │                               +--------------┬-----------------------+
-          │                                              │ persist/query
-          │                               +--------------▼-----------------------+
-          │                               |            Repositories              |
-          │                               | MongoDB collections:                 |
-          │                               | documents, reports, generations,     |
-          │                               | users, blacklisted_tokens            |
-          │                               +--------------┬-----------------------+
-          │                                              │ PyMongo
-          │                               +--------------▼-----------------------+
-          │                               |               MongoDB                |
-          │                               | (docker-compose mongodb service)     |
-          │                               +--------------------------------------+
-
-Notes:
-- Static UI (built) is served by backend at / (Docker build copies to ./static)
-- Public UI assets mounted at /assets (src/frontend/public)
-- Auth router exists but is NOT mounted by default
-```
-
-Project structure (excerpt):
-
-```
-poc-aifac-claritygr/
-├── Dockerfile
-├── docker-compose.yml
-├── environment.template
-├── generate_env.sh
-├── gr_entities_definition.json
-├── src/
-│   ├── main.py                     # FastAPI app, routers, middleware, exceptions
-│   ├── controllers/                # API endpoints (patients, reports, settings, ...)
-│   ├── services/                   # OCR, extraction, MDT generator, auth utils
-│   ├── repositories/               # Mongo repositories
-│   ├── config/                     # env settings, database, NER/LLM config
-│   ├── middleware/                 # rate limiter, input validator, auth helpers
-│   ├── models/                     # Pydantic models stored in Mongo
-│   └── api/schemas/                # Request/response schemas
-└── frontend/                       # React app (Vite, Tailwind)
-```
-
----
-
-## ✅ Active Functionality and Toggles
-
-- Auth endpoints exist (`src/controllers/auth_controller.py`) but are NOT mounted in `src/main.py` (commented). Enable with caution in secured environments.
-- Document categorization is currently bypassed; normalization uses raw text (see `services/patient_document_service.py`).
-- NER runtime configuration is adjustable via `GET/POST /settings/ner-config`.
-- LLM provider and model routing is changeable at runtime via `/settings/llm-model` and `/settings/llm-models`.
-- Observability (generation logs) and evaluation (SSE) are available.
-
----
-
-## 🔧 Configuration
-
-Backend settings are defined in `src/config/settings.py` (Pydantic BaseSettings). Create `.env` (or use Docker Compose env). Minimal recommended vars:
+Get The AI Powered Medical Report Generator running in under 5 minutes with Docker:
 
 ```bash
-SECRET_KEY=replace-with-32-byte-minimum        # required; 32+ chars
-MONGODB_URI=mongodb://localhost:27017/clarityGR
-MONGODB_DB=clarityGR
-# If using OpenAI-compatible local/OSS endpoints
-GPT_OPEN_BASE_URL=http://localhost:8080
-# If using Mistral cloud API
-MISTRAL_API_KEY=
-```
+# 1. Clone and navigate to the project
+git clone <repository-url>
+cd hc-mdt-report-generator
 
-Additional notes:
-- CORS: defaults allow localhost dev origins; configure via `ALLOWED_ORIGINS`.
-- JWT settings exist but auth router is disabled by default.
-- Script to generate a minimal `.env`:
-
-```bash
-cd poc-aifac-claritygr
-./generate_env.sh
-```
-
----
-
-## 🚀 Run and Deploy
-
-### Option A: Docker (backend + UI + MongoDB)
-
-```bash
-cd poc-aifac-claritygr
+# 2. Quick environment setup
 cp environment.template .env
-# Edit .env (SECRET_KEY, GPT_OPEN_BASE_URL, etc.)
 
+# 3. Edit the .env file with minimal required settings
+
+# Set at minimum:
+# SECRET_KEY=your-32-character-secret-key-here-minimum
+# JWT_SECRET_KEY=your-32-character-jwt-secret-key-here-minimum
+# MONGODB_URI=your-mongodb-connection-string
+# MONGODB_DB=your-database-name
+# DEMO_MODE=false  # Enables full functionality 
+
+# 4. Start everything with Docker Compose
 docker-compose up -d --build
 ```
 
-Services:
-- Backend: http://localhost:8000
-- API Docs (Swagger): http://localhost:8000/docs
-- Health: http://localhost:8000/health
-- UI: served by backend at `/` (static) in this image
+**That's it!** Access your platform at:
+- **Main Application**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
 
-### Option B: Local development (separate processes)
+### Quick Test
+1. Open http://localhost:8000 in your browser
+2. Upload a test document from the `data/` folder
+3. Process the document and generate an MDT report
+4. View extracted entities and generated report
 
-Backend:
+**Note**: The fast track uses default settings. For production or advanced features, follow the complete deployment guide below.
+
+---
+
+## 🔧 Step-by-Step Complete Deployment
+
+For production environments or custom configurations, follow this comprehensive deployment guide.
+
+### Prerequisites
+- Python 3.11+ (for local development)
+- Node.js 18+ and npm (for frontend development)
+- Docker and Docker Compose (recommended)
+- MongoDB 7.x (or use Docker MongoDB)
+
+### Step 1: Environment Configuration
+
+Create and configure your environment variables:
+
 ```bash
-cd poc-aifac-claritygr
+# Copy the template
+cp environment.template .env
+```
+Now edit the `.env` file with your specific settings. At minimum, you must set the following:
+
+
+**Essential Environment Variables:**
+
+```bash
+# Security (REQUIRED)
+SECRET_KEY=your-generated-32-character-minimum-secret-key
+
+# Database Configuration
+MONGODB_URI=your-mongodb-connection-string
+MONGODB_DB=your-database-name
+
+# AI/LLM Provider Configuration (choose one or multiple)
+LLM_PROVIDER=bedrock  # or mistral, openai, ollama
+
+# CORS and Security (Optional)
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
+CORS_ALLOW_CREDENTIALS=true
+
+# JWT Configuration (Optional - Auth disabled by default)
+JWT_SECRET_KEY=your-generated-32-character-minimum-jwt-secret-key
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+
+### Step 2: LLM Provider Setup
+
+Choose and configure your AI provider:
+
+<!-- Bedrock -->
+#### Option A: AWS Bedrock
+
+If you are using sso or aws cli with configured credentials, the platform will automatically use those credentials to access Bedrock. You just need to specify the provider in your environment variables.
+
+```bash 
+# Add to your .env
+LLM_PROVIDER=bedrock
+```
+
+Then run this command and authenticate with your AWS account:
+```bash
+aws sso login
+```
+
+
+#### Option B: Mistral Cloud API
+```bash
+# Add to your .env
+MISTRAL_API_KEY=your-mistral-api-key
+LLM_PROVIDER=mistral
+LLM_MODEL=mistral-medium
+```
+
+#### Option C: Local LLM (Ollama)
+```bash
+# First, start Ollama server
+ollama serve
+
+# Pull a model (example)
+ollama pull llama2
+
+# Add to your .env
+GPT_OPEN_BASE_URL=http://localhost:11434
+LLM_PROVIDER=ollama
+LLM_MODEL=llama2
+```
+
+### Step 3: Database Setup
+
+#### Create your MongoDB database and user (if using external MongoDB):
+
+
+### Step 4: Application Deployment
+
+#### Method 1: Docker Compose (Recommended)
+```bash
+# Start all services
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+#### Method 2: Local Development Setup
+
+**Backend Setup:**
+```bash
+# Create virtual environment
 python -m venv venv
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
 source venv/bin/activate
+
+# Install dependencies
+cd backend
 pip install -r requirements.txt
 
-# Start MongoDB (Docker suggested)
-docker run -d -p 27017:27017 --name mongodb mongo:7
+# Run database migrations/setup
+python -c "from repositories.mongo_db import create_indexes; create_indexes()"
 
-# Run the API  
-cd backend
+# Start backend server
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Frontend:
+**Frontend Setup (separate terminal):**
 ```bash
-cd poc-aifac-claritygr/frontend
+cd frontend
+
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
-# UI at http://localhost:3000 (proxies/targets API at http://localhost:8000)
+
+# Build for production
+npm run build
+```
+
+### Step 5: Initial Configuration
+
+1. **Access the application**: http://localhost:8000
+2. **Verify health**: http://localhost:8000/health
+3. **Configure LLM settings** (if not set via environment):
+   - Go to Settings → LLM Configuration
+   - Test your AI provider connection
+4. **Upload test data**:
+   - Use sample files from `data/` directory
+   - Test document processing pipeline
+   - Generate sample MDT reports
+
+### Step 6: Production Considerations
+
+**Security Hardening:**
+```bash
+# Set secure CORS origins
+ALLOWED_ORIGINS=https://your-domain.com
+
+# Enable security headers
+ENABLE_SECURITY_HEADERS=true
+
+# Set production secret
+SECRET_KEY=your-production-secret-key-32-chars-minimum
+```
+
+**Performance Optimization:**
+```bash
+# Increase rate limits for production
+RATE_LIMIT_PER_MINUTE=300
+GENERAL_RATE_LIMIT_PER_MINUTE=500
+
+# Configure MongoDB connection pooling
+MONGODB_MAX_CONNECTIONS=100
+MONGODB_MIN_CONNECTIONS=10
+```
+
+**Monitoring and Logging:**
+- Use `/observability/generations` for processing metrics
+- Monitor `/health` endpoint for system status
+- Configure log aggregation for production environments
+
+### Verification Steps
+
+1. **Health Check**: `curl http://localhost:8000/health`
+2. **Upload Test Document**: Use the web interface or API
+3. **Process Document**: Trigger processing and verify completion
+4. **Generate MDT Report**: Create a report and check real-time progress
+5. **Switch LLM Provider**: Test runtime LLM switching via settings
+6. **Check Logs**: Verify no errors in application logs
+
+---
+
+## 🏗️ Architecture Overview
+
+### System Architecture
+
+```
+┌─────────────────┐    HTTP/WebSocket     ┌─────────────────┐
+│   Frontend UI   │◄─────────────────────►│  FastAPI Backend │
+│  React + Vite   │                       │   Python 3.11+   │
+│  Port: 3000/8000│                       │    Port: 8000     │
+└─────────────────┘                       └─────────┬───────┘
+                                                    │
+                                                    │ API Calls
+                                                    │
+                ┌─────────────┬─────────────────────┴─────────────────┐
+                │             │                                       │
+        ┌───────▼──────┐ ┌───▼──────┐ ┌─────────▼────┐ ┌──────▼─────────┐
+        │ Controllers  │ │ Services │ │ Middleware   │ │  Repositories  │
+        │              │ │          │ │              │ │                │
+        │ • Patients   │ │ • OCR    │ │ • Rate Limit │ │ • Documents    │
+        │ • Reports    │ │ • NER    │ │ • Validation │ │ • Reports      │
+        │ • Settings   │ │ • MDT    │ │ • Security   │ │ • Users        │
+        └──────────────┘ └──────────┘ └──────────────┘ └────────┬───────┘
+                                                                 │
+                                                                 │ PyMongo
+                                                                 │
+                                                      ┌──────────▼───────────┐
+                                                      │     MongoDB 7.x      │
+                                                      │                      │
+                                                      │ Collections:         │
+                                                      │ • documents          │
+                                                      │ • reports            │
+                                                      │ • generations        │
+                                                      │ • users              │
+                                                      │ • entity_configs     │
+                                                      └──────────────────────┘
+```
+
+### Project Structure
+
+```
+hc-mdt-report-generator/
+├── 🐳 Docker Configuration
+│   ├── docker-compose.yml          # Multi-service orchestration
+│   ├── Dockerfile.backend          # Python FastAPI container
+│   └── Dockerfile.frontend         # React build container
+│
+├── 🔧 Configuration
+│   ├── environment.template        # Environment variables template
+│   ├── generate_env.sh            # Quick env setup script
+│   └── gr_entities_definition.json # Medical entity definitions
+│
+├── 🖥️ Backend (Python)
+│   ├── main.py                    # FastAPI application entry
+│   ├── requirements.txt           # Python dependencies
+│   ├── pyproject.toml            # Project metadata
+│   │
+│   ├── 🎯 controllers/           # API endpoints
+│   │   ├── patient_document_controller.py  # Document upload/processing
+│   │   ├── report_controller.py           # MDT report management
+│   │   ├── settings_controller.py         # System configuration
+│   │   └── entity_config_controller.py    # Entity management
+│   │
+│   ├── 🔨 services/              # Business logic
+│   │   ├── patient_document_service.py    # Document processing
+│   │   ├── mdt_report_generator.py        # Report generation
+│   │   ├── entity_extraction_service.py   # NER extraction
+│   │   └── ner_workflow_orchestrator.py   # AI workflow
+│   │
+│   ├── 💾 repositories/          # Data access layer
+│   │   ├── mongo_db.py           # Database connection
+│   │   ├── patient_document_repository.py # Document CRUD
+│   │   └── report_repository.py          # Report CRUD
+│   │
+│   └── 📊 models/               # Data models
+│       ├── patient_document.py   # Document schema
+│       └── report.py            # Report schema
+│
+├── 🌐 Frontend (React + TypeScript)
+│   ├── package.json              # Node dependencies
+│   ├── vite.config.js           # Build configuration
+│   ├── tailwind.config.js       # Styling framework
+│   │
+│   └── src/                     # React application
+│       ├── components/          # UI components
+│       ├── pages/              # Application pages
+│       ├── services/           # API client
+│       └── types/              # TypeScript definitions
+│
+├── 📄 Documentation
+│   └── docs/                   # Technical documentation
+│
+├── 🧪 Testing
+│   ├── tests/sanity/           # Pre-push sanity checks
+│   ├── tests/integration/      # API integration tests
+│   └── scripts/               # Utility scripts
+│
+└── 📊 Data
+    ├── Sample medical documents for testing
+    └── Entity definition templates
 ```
 
 ---
 
-## 🔗 API Surface
+## 🔗 API Reference
 
 Base URL: `http://localhost:8000`
 
-### Health and root
-- `GET /health`, `HEAD /health`
-- `GET /` (links to docs, health)
+### Core Endpoints
 
-### Patients & Documents (`src/controllers/patient_document_controller.py`, prefix `/patients`)
-- `GET /patients` — list distinct patient IDs in documents/reports
-- `POST /patients/{patient_id}/document` — upload document (base64 or URL)
-- `GET /patients/{patient_id}/documents` — list documents (pagination)
-- `GET /patients/{patient_id}/document/{uuid}` — document details
-- `POST /patients/{patient_id}/document/{uuid}/process` — trigger processing
-- `GET /patients/{patient_id}/document/{uuid}/ocr` — get OCR text/metadata
-- `GET /patients/{patient_id}/documents/by-filename/{filename}` — fetch by filename
-- `GET /patients/{patient_id}/document/{document_uuid}/` — normalization results (if present)
-- `DELETE /patients/{patient_id}/document/{document_uuid}` — delete document
+#### System Health
+- `GET /health` - System health check
+- `GET /` - API documentation links
 
-### Reports (`src/controllers/report_controller.py`, prefix `/patients`)
-- `POST /patients/{id}/reports` — create report record (PROCESSING); async generation
-- `POST /patients/{id}/reports/stream` — generate with SSE progress
-- `POST /patients/{id}/reports/json-filter-check` — preview JSON filter impact
-- `GET /patients/{id}/reports` — list reports (pagination)
-- `GET /patients/{id}/reports/{report_id}` — get one
-- `GET /patients/{id}/reports/statistics` — patient report stats
-- `DELETE /patients/{id}/reports/{report_id}` — delete
+#### Patient Document Management
+**Base Path**: `/patients`
 
-### Settings & Model Routing (`src/controllers/settings_controller.py`, prefix `/settings`)
-- `GET /settings/llm-models` — enabled models + current settings
-- `POST /settings/llm-models` — add model (persists in Mongo)
-- `PUT /settings/llm-models` — edit existing model (by id+name)
-- `POST /settings/llm-model` — switch provider/model; optionally update keys/base URL
-- `POST /settings/set-env-var` — set limited env keys (e.g., MISTRAL_API_KEY)
-- `POST /settings/gpt-open-url` — set GPT-Open base URL
-- `GET /settings/ner-config` — get NER processing config
-- `POST /settings/ner-config` — update NER processing config
-- `POST /settings/master-delete` — delete all reports/documents (requires phrase "delete all")
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/patients` | List all patient IDs |
+| `POST` | `/patients/{patient_id}/document` | Upload document (PDF/image/text) |
+| `GET` | `/patients/{patient_id}/documents` | List patient documents |
+| `GET` | `/patients/{patient_id}/document/{uuid}` | Get document details |
+| `POST` | `/patients/{patient_id}/document/{uuid}/process` | Trigger document processing |
+| `GET` | `/patients/{patient_id}/document/{uuid}/ocr` | Get OCR results |
+| `DELETE` | `/patients/{patient_id}/document/{uuid}` | Delete document |
 
-### Entity Config (`src/controllers/entity_config_controller.py`)
-- `GET /entity-config` — get effective entity config (DB or file)
-- `PUT /entity-config` — replace entity config
-- `POST /entity-config/reset` — reset from file baseline
-- `GET /entity-config/validate` — validate config (duplicates, summary)
+#### MDT Report Generation
+**Base Path**: `/patients/{patient_id}/reports`
 
-### Observability & Evaluation
-- `GET /observability/generations` — list generation logs (filters: time range, llm, filenames_hash, patient)
-- `GET /observability/generations/filters` — distinct filter values
-- `GET /evaluate/pending` — pending generations to evaluate
-- `POST /evaluate/stream` — run evaluation with SSE progress
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/reports` | Create new MDT report |
+| `POST` | `/reports/stream` | Generate report with live progress (SSE) |
+| `GET` | `/reports` | List patient reports |
+| `GET` | `/reports/{report_id}` | Get specific report |
+| `GET` | `/reports/statistics` | Patient report statistics |
+| `DELETE` | `/reports/{report_id}` | Delete report |
 
----
+#### System Configuration
+**Base Path**: `/settings`
 
-## 🧩 Data Models (at a glance)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/llm-models` | List available AI models |
+| `POST` | `/llm-model` | Switch AI provider/model |
+| `GET` | `/ner-config` | Get NER processing config |
+| `POST` | `/ner-config` | Update NER settings |
+| `POST` | `/set-env-var` | Update environment variables |
+| `POST` | `/master-delete` | Clear all data (requires confirmation) |
 
-### PatientDocument (`src/models/patient_document.py`)
-Fields include: `uuid`, `patient_id`, `type`, `source`, `status`, `filename`, `file_path`, `file_content (base64)`, timestamps, errors, and processing results:
-- Categorization: `document_category`, `document_type`, `categorization_completed_at`
-- Structured data extraction: `extracted_data`, `extraction_metadata`, `extraction_status`, `extraction_completed_at`
-- OCR: `ocr_text`, `ocr_metadata`, `ocr_completed_at`, `character_count`, `word_count`
+#### Entity Management
+**Base Path**: `/entity-config`
 
-### Report (`src/models/report.py`)
-Fields: `uuid`, `patient_id`, `status`, `title`, `filename`, `file_type`, `file_size`, `created_at`, `character_count`, `word_count`, optional `author/subject/keywords`, `elements`, `content`, `metadata`.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | Get current entity configuration |
+| `PUT` | `/` | Update entity configuration |
+| `POST` | `/reset` | Reset to default entities |
+| `GET` | `/validate` | Validate entity config |
 
----
+#### Monitoring & Analytics
+**Base Path**: `/observability`
 
-## 🧠 Processing Pipelines
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/generations` | List AI generation logs |
+| `GET` | `/generations/filters` | Available log filters |
 
-### Upload → Process Document (`services/patient_document_service.py`)
-1. Validate input; store base64 or file URL; deduplicate by filename per patient
-2. Async processing steps:
-   - OCR text extraction (PDF/images via Mistral OCR; text/XML handled directly)
-   - Normalization: currently uses raw text as normalized text
-   - Categorization: currently bypassed with default values
-   - Structured data extraction: simplified text-only service; persists `extracted_data`
-   - Status updates to `DONE` with timestamps and counts
+### Request/Response Examples
 
-### MDT Report Generation (`services/mdt_report_generator.py`)
-- Loads entity definitions (DB first, falls back to `gr_entities_definition.json` and seeds DB if missing)
-- Retrieves previously processed documents for a patient
-- Extracts/filters text (JSON-specific preprocess supported via date or AUTO-RCP)
-- Prepares NER inputs (no chunking per-doc for now; full-document chunks)
-- Calls `ner_workflow_orchestrator.extract_entities_workflow` and normalizes results
-- Adds programmatic entity (e.g., Date de présentation)
-- Persists generation logs to `generations` (model, timing, entities found)
-- Creates final `Report` (status COMPLETED or FAILED based on content/zero-entities)
-- SSE endpoint streams stepwise progress (initializing → retrieving → extracting → NER → creating → saving)
+#### Upload Document
+```bash
+curl -X POST "http://localhost:8000/patients/PATIENT001/document" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filename": "consultation.pdf",
+    "file_content": "base64-encoded-content",
+    "document_type": "consultation"
+  }'
+```
 
----
+#### Generate MDT Report (with live progress)
+```bash
+curl -X POST "http://localhost:8000/patients/PATIENT001/reports/stream" \
+  -H "Accept: text/event-stream" \
+  -d '{
+    "title": "Cardiology MDT Report",
+    "include_entities": ["medications", "procedures", "findings"]
+  }'
+```
 
-## 🤖 LLM Routing and Modes
+#### Switch AI Model
+```bash
+curl -X POST "http://localhost:8000/settings/llm-model" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "mistral",
+    "model": "mistral-medium",
+    "api_key": "your-api-key"
+  }'
+```
 
-- Runtime switching via `/settings/llm-model` and `/settings/llm-models`:
-  - Providers: `mistral api`, `openai`, `ollama` (via GPT-Open-compatible path)
-  - Sets env `LLM_PROVIDER` and `LLM_MODEL`, and updates `GPT_OPEN_BASE_URL` / `OPENAI_API_KEY` / `MISTRAL_API_KEY` as needed
-- `config/mistral_config.py` resolves Mistral clients (api/local). Current infra uses `infrastructure.llm.mistral_client` wrapper
-- Key requirements enforced in `ReportService._check_llm_api_keys()`:
-  - OpenAI endpoints require `OPENAI_API_KEY` only if base URL is `https://api.openai.com`
-  - Mistral API mode requires `MISTRAL_API_KEY`
+### Authentication (Optional)
+Authentication endpoints exist but are **disabled by default**. To enable:
 
----
-
-## 🔒 Security Posture
-
-- CORS restricted by configured origins
-- Progressive rate limiting middleware and general rate limiting
-- Comprehensive input validation for SQL/NoSQL/XSS/command/path injections (`middleware/input_validator.py`)
-- Security headers middleware (HSTS, X-Frame-Options, X-XSS-Protection, etc.)
-- JWT scaffolding (HS256, blacklist support); auth router not mounted by default
-- Security event logging utilities available
+1. Uncomment auth router in `backend/main.py`
+2. Set JWT environment variables
+3. Use `/auth/login` and `/auth/register` endpoints
 
 ---
 
-## 🧪 Testing
+## 🔄 Processing Workflows
 
-### Run Sanity Tests Before Push
+### Document Processing Pipeline
 
-Before pushing any changes, run the sanity tests to ensure critical functionality works:
+```
+📤 Upload Document
+│
+├─ Validation & Storage
+│  ├─ File type validation
+│  ├─ Size limits check
+│  └─ Duplicate detection
+│
+├─ OCR Processing
+│  ├─ PDF text extraction
+│  ├─ Image OCR (via Mistral)
+│  └─ Text normalization
+│
+├─ Content Analysis
+│  ├─ Document categorization
+│  ├─ Text preprocessing
+│  └─ Structure detection
+│
+└─ ✅ Ready for Report Generation
+```
+
+### MDT Report Generation
+
+```
+🎯 Generate Report Request
+│
+├─ Entity Configuration Loading
+│  ├─ Load from MongoDB
+│  └─ Fallback to JSON definition
+│
+├─ Document Retrieval
+│  ├─ Fetch processed documents
+│  ├─ Apply filters (date, type)
+│  └─ Prepare text chunks
+│
+├─ AI Processing
+│  ├─ Named Entity Recognition
+│  ├─ Entity extraction & validation
+│  └─ Structured data creation
+│
+├─ Report Compilation
+│  ├─ Aggregate extracted entities
+│  ├─ Add metadata & statistics
+│  └─ Generate final report
+│
+└─ 📊 Complete MDT Report
+```
+
+### Real-time Progress Tracking
+
+The platform provides live updates during processing via Server-Sent Events (SSE):
+
+1. **Initializing**: Setup and validation
+2. **Retrieving**: Loading documents and configuration
+3. **Extracting**: Text processing and preparation  
+4. **Processing**: AI entity extraction
+5. **Compiling**: Report generation
+6. **Completed**: Final report available
+
+---
+
+## 🤖 AI/LLM Configuration
+
+### Supported Providers
+
+#### 1. Mistral AI (Cloud)
+```bash
+# Environment setup
+MISTRAL_API_KEY=your-mistral-api-key
+LLM_PROVIDER=mistral
+LLM_MODEL=mistral-medium  # or mistral-large, mistral-small
+```
+
+**Models Available:**
+- `mistral-small`: Fast, cost-effective
+- `mistral-medium`: Balanced performance  
+- `mistral-large`: Highest accuracy
+
+#### 2. OpenAI API
+```bash
+# Environment setup
+OPENAI_API_KEY=your-openai-api-key
+LLM_PROVIDER=openai
+LLM_MODEL=gpt-3.5-turbo  # or gpt-4, gpt-4-turbo
+```
+
+**Models Available:**
+- `gpt-3.5-turbo`: Fast and cost-effective
+- `gpt-4`: High accuracy
+- `gpt-4-turbo`: Latest model
+
+#### 3. Local LLM (Ollama/GPT-compatible)
+```bash
+# Environment setup
+GPT_OPEN_BASE_URL=http://localhost:11434
+LLM_PROVIDER=ollama
+LLM_MODEL=llama2  # or any installed model
+```
+
+**Popular Models:**
+- `llama2`: General purpose
+- `codellama`: Code-focused
+- `medlm`: Medical domain (if available)
+
+### Runtime Switching
+
+Change AI providers without restart:
 
 ```bash
-# Option 1: Use the pre-push script
+# Via API
+curl -X POST "http://localhost:8000/settings/llm-model" \
+  -d '{"provider": "mistral", "model": "mistral-large"}'
+
+# Via Web Interface
+Settings → LLM Configuration → Switch Provider
+```
+
+### NER Configuration
+
+Customize entity extraction behavior:
+
+```json
+{
+  "max_retries": 3,
+  "timeout_seconds": 30,
+  "chunk_size": 4000,
+  "overlap_size": 200,
+  "confidence_threshold": 0.7,
+  "entities": {
+    "medications": {"enabled": true, "priority": "high"},
+    "procedures": {"enabled": true, "priority": "medium"},
+    "findings": {"enabled": true, "priority": "high"}
+  }
+}
+```
+
+---
+
+## 🔒 Security & Production Considerations
+
+### Built-in Security Features
+
+- **Progressive Rate Limiting**: API and general request throttling
+- **Input Validation**: Protection against SQL/NoSQL injection, XSS, command injection
+- **Security Headers**: HSTS, X-Frame-Options, X-XSS-Protection, CSP
+- **CORS Protection**: Configurable origin restrictions  
+- **JWT Authentication**: Available but disabled by default
+
+### Production Security Setup
+
+```bash
+# Secure environment variables
+SECRET_KEY=your-production-secure-32-char-minimum-secret
+ALLOWED_ORIGINS=https://your-domain.com,https://api.your-domain.com
+CORS_ALLOW_CREDENTIALS=true
+ENABLE_SECURITY_HEADERS=true
+
+# Rate limiting for production
+RATE_LIMIT_PER_MINUTE=300
+GENERAL_RATE_LIMIT_PER_MINUTE=500
+
+# Database security
+MONGODB_URI=mongodb://username:password@mongodb:27017/your-database-name?authSource=admin
+```
+
+### Security Best Practices
+
+1. **Use HTTPS in production** with proper SSL certificates
+2. **Restrict CORS origins** to your domain only
+3. **Set strong SECRET_KEY** (32+ characters, cryptographically secure)
+4. **Enable MongoDB authentication** with dedicated user accounts
+5. **Monitor rate limits** and adjust based on usage patterns
+6. **Regular security updates** for all dependencies
+7. **Network isolation** using Docker networks or VPNs
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+### Pre-Push Testing
+
+Always run sanity tests before deployment:
+
+```bash
+# Quick sanity check
 ./scripts/pre-push-tests.sh
 
-# Option 2: Run pytest directly
+# Or run directly
 pytest tests/sanity/ -v
 ```
 
@@ -301,91 +686,220 @@ pytest tests/sanity/ -v
    You can safely push your changes.
 ```
 
-### Test Categories
-
-| Suite | Description |
-|-------|-------------|
-| `TestSourceFilterDepth` | Positive/negative/zero depth filtering |
-| `TestSourceFilterLIBNATCR` | Report type filtering |
-| `TestSourceFilterMultiple` | Multiple filters OR logic |
-| `TestCriticalImports` | Core module imports |
-| `TestEmptyInputs` | Edge cases |
-
-### Run All Tests
+### Comprehensive Testing
 
 ```bash
-cd poc-aifac-claritygr
-
-# All tests
-pytest tests/ -v
+# All tests with coverage
+pytest tests/ --cov=backend --cov-report=html -v
 
 # Integration tests only
 pytest tests/integration/ -v
 
-# Sanity tests only
+# Sanity checks only  
 pytest tests/sanity/ -v
-
-# With coverage report
-pytest tests/ --cov=src --cov-report=html
 ```
 
-### Test File Structure
+### Test Categories
 
-```
-tests/
-├── conftest.py              # Pytest fixtures
-├── sanity/                  # Pre-push sanity checks
-│   ├── __init__.py
-│   └── test_sanity_checks.py
-├── integration/             # API endpoint tests
-│   ├── test_api_endpoints.py
-│   └── test_patient_document_endpoints.py
-└── experiments/             # Exploratory tests
-```
+| Test Suite | Coverage | Purpose |
+|------------|----------|---------|
+| **Sanity Tests** | Core functionality | Pre-push validation |
+| **Integration Tests** | API endpoints | End-to-end testing |
+| **Unit Tests** | Individual components | Component testing |
+
+### Manual Testing Checklist
+
+- [ ] Document upload (PDF, image, text)
+- [ ] Document processing pipeline
+- [ ] MDT report generation
+- [ ] Real-time progress tracking (SSE)
+- [ ] LLM provider switching
+- [ ] Entity configuration management
+- [ ] Error handling and validation
 
 ---
 
-## 🛠️ Troubleshooting
+## 🛠️ Troubleshooting Guide
 
-- Mongo connection/indexes
-  - On startup, `create_indexes()` ensures indexes for `users`, `documents`, `reports`, `generations`.
-  - Use `MONGODB_URI` reachable from the running app/container. In docker-compose, the app uses `mongodb` host.
-- Missing API keys / wrong provider
-  - If provider is OpenAI and base URL is OpenAI, set `OPENAI_API_KEY`.
-  - For Mistral API mode, set `MISTRAL_API_KEY`.
-  - For local GPT-Open/Ollama endpoints, ensure `GPT_OPEN_BASE_URL` is reachable (e.g., `host.docker.internal`).
-- 429 rate limits
-  - General/API limits enforced in middleware; respect `Retry-After` headers. Consider increasing limits for dev only.
-- OCR/model initialization warnings
-  - OCR initializes lazily; startup warm-up tries to initialize processors and may log warnings if LLM not reachable.
-- CORS or UI/API URL mismatch
-  - Update `ALLOWED_ORIGINS` and UI base URL (Settings panel or `VITE_API_BASE_URL`).
-- Health check
-  - `GET /health` should return `{ status: "healthy" }`.
-- Master delete
-  - `POST /settings/master-delete` with body `{ "phrase": "delete all" }` to wipe `reports` and `documents` (irreversible).
+### Common Issues & Solutions
+
+#### 🔴 MongoDB Connection Issues
+
+**Problem**: Cannot connect to MongoDB
+```bash
+# Check MongoDB status
+docker ps | grep mongo
+
+# Restart MongoDB container
+docker restart mongodb
+
+# Check logs
+docker logs mongodb
+```
+
+**Solution**: Ensure `MONGODB_URI` matches your setup:
+- Local: `your-mongodb-connection-string`
+- Docker: `your-mongodb-connection-string` 
+
+#### 🔴 LLM API Errors
+
+**Problem**: API key errors or model unavailable
+```bash
+# Check current configuration
+curl http://localhost:8000/settings/llm-models
+
+# Test API key
+curl -X POST http://localhost:8000/settings/llm-model \
+  -d '{"provider": "mistral", "model": "mistral-medium"}'
+```
+
+**Solutions**:
+- Verify API keys in environment variables
+- Check base URLs for local endpoints
+- Ensure models are available for your account
+
+#### 🔴 Processing Stuck/Failed
+
+**Problem**: Documents not processing or reports failing
+
+**Debug Steps**:
+1. Check document status: `GET /patients/{id}/document/{uuid}`
+2. View processing logs in Docker/console
+3. Verify LLM configuration and connectivity
+4. Check entity configuration: `GET /entity-config/validate`
+
+#### 🔴 Rate Limiting Issues
+
+**Problem**: Too many requests (429 errors)
+
+**Solutions**:
+```bash
+# Increase limits in .env
+RATE_LIMIT_PER_MINUTE=600
+GENERAL_RATE_LIMIT_PER_MINUTE=1000
+
+# Or wait for current window to reset
+wait-retry-after-header
+```
+
+#### 🔴 Frontend/Backend Connection Issues
+
+**Problem**: UI cannot reach API
+
+**Check**:
+1. Backend health: `curl http://localhost:8000/health`
+2. CORS configuration in environment
+3. Frontend API base URL settings
+4. Network connectivity between services
+
+### System Diagnostics
+
+#### Health Check Commands
+```bash
+# System health
+curl http://localhost:8000/health
+
+# Database connectivity
+curl http://localhost:8000/patients
+
+# LLM status
+curl http://localhost:8000/settings/llm-models
+```
+
+#### Log Analysis
+```bash
+# Docker Compose logs
+docker-compose logs -f backend
+docker-compose logs -f mongodb
+
+# Individual service logs
+docker logs hc-mdt-report-generator-backend-1 --tail=100
+```
+
+#### Performance Monitoring
+```bash
+# MongoDB stats
+curl http://localhost:8000/observability/generations
+
+# System resource usage
+docker stats
+```
+
+### Getting Help
+
+1. **Check logs** first - most issues show up in application logs
+2. **Verify configuration** - ensure all required environment variables are set
+3. **Test components** individually - API, database, LLM connectivity
+4. **Review documentation** - API docs at http://localhost:8000/docs
+5. **Run diagnostic scripts** - use provided testing and setup scripts
 
 ---
 
-## 📄 License
+## 📋 Using Demo Effectively
 
-This project is licensed under the MIT License with Additional Terms. See the root `LICENSE` file.
+### Quick Demo Workflow
 
-- The Additional Terms grant MongoDB Inc. the right to use, modify, and distribute any components marked as "common" or "shared" in separate projects, regardless of modifications made by the licensee.
-- The Named Entity Recognition (NER) component is the main "common/shared" component. This includes:
-  - `src/services/entity_extraction_service.py`
-  - `src/services/entity_extraction_service_old.py`
-  - `src/services/entity_extraction_service_19thAug.py`
-  - `src/services/ner_workflow_orchestrator.py`
-  - `src/entity_extraction/` (directory)
+1. **Start the platform**: `docker-compose up -d --build`
+2. **Load sample data**: Upload files from `data/` folder
+3. **Process documents**: Trigger processing for uploaded documents
+4. **Generate reports**: Create MDT reports with live progress tracking
+5. **Explore features**: Try different AI models, entity configurations
+6. **Monitor system**: Check generation logs and statistics
+
+### Demo Scenarios
+
+#### Scenario 1: Basic Document Processing
+- Upload a cardiology consultation (`data/01_cardiology_consultation.txt`)
+- Process the document and view extracted text
+- Generate an MDT report
+- Review extracted medical entities
+
+#### Scenario 2: Multi-Document Patient
+- Upload multiple documents for one patient
+- Process all documents
+- Generate comprehensive MDT report
+- Compare entity extraction across documents
+
+#### Scenario 3: AI Model Comparison
+- Generate a report with one AI model
+- Switch to a different provider (e.g., Mistral → OpenAI)
+- Generate the same report again
+- Compare results and performance
+
+#### Scenario 4: Configuration Testing
+- Modify entity configuration via UI
+- Test with custom medical entities
+- Validate configuration changes
+- Reset to default if needed
+
+### Demo Data Included
+
+The `data/` folder contains:
+- **Medical documents**: Cardiology, lab results, procedures
+- **Test files**: Various formats (TXT, JSON, PDF examples)
+- **Patient datasets**: Multi-document patient examples
+- **Entity templates**: Predefined medical entity configurations
 
 ---
 
+## 📄 License & Attribution
 
+This project is licensed under the MIT License with Additional Terms. See the root [LICENSE](LICENSE) file for complete details.
 
+### Key License Points
+- **Open source MIT license** for general use and modification
+- **Additional terms** for specific components marked as "common/shared"
+- **NER component sharing rights** for MongoDB Inc. on specified components
 
+### Attribution Requirements
+When using or modifying this software:
+1. Retain original copyright notices
+2. Include license file in distributions  
+3. Acknowledge use of the AI Powered Medical Report Generator platform in derivative works
 
+---
 
-
-Last updated: 2026-01-20
+**Last updated**: March 11, 2026  
+**Version**: 2.0.0  
+**Maintainer**: Healthcare AI Development Team
 

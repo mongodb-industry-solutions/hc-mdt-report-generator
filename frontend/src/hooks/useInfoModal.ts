@@ -174,8 +174,13 @@ export const tabInfoContent: Record<string, InfoModalContent> = {
       {
         title: "What you can do here",
         icon: FileText,
-        description: "This section will allow you to manage the patient's medical documents easily. You can explore unprocessed documents, initiate the processing pipeline and review the results before you create new reports.",
-
+        description: "This section will allow you to manage the patient's medical documents easily. You can explore unprocessed documents, initiate the processing pipeline and review the results before you create new reports. Explore multiple unstructured data sources:",
+        points: [
+          "PDFs",
+          "Text files",
+          "Images (e.g. scans, x-rays)",
+          "Structured data exports from EHR systems"
+        ]
       },
       {
         title: "Document Processing Pipeline",

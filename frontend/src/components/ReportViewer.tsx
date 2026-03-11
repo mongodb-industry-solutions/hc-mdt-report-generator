@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, ChevronDown, ChevronRight, User, Stethoscope, Target, Presentation, Settings, Activity, FileText, List, Eye, Search, AlertCircle } from 'lucide-react';
 import { Report, ReportEntity, EntityTemplate, SectionConfig } from '../types';
 import { apiService } from '../services/api';
@@ -724,20 +724,31 @@ export default function ReportViewer({ report, onClose }: ReportViewerProps) {
   const organizedNotFound = organizedData.notFound;
 
   // Create tabs for categories that have entities or not-found entities
-  const availableCategories = semanticCategories.filter(category => 
-    (organizedEntities[category] && organizedEntities[category].length > 0) ||
-    (organizedNotFound[category] && organizedNotFound[category].length > 0)
-  );
-  
-  // Add uncategorized if it has entities or not-found entities
-  if ((organizedEntities['Uncategorized'] && organizedEntities['Uncategorized'].length > 0) ||
-      (organizedNotFound['Uncategorized'] && organizedNotFound['Uncategorized'].length > 0)) {
-    availableCategories.push('Uncategorized');
-  }
+  const availableCategories = useMemo(() => {
+    const categories = semanticCategories.filter(category => 
+      (organizedEntities[category] && organizedEntities[category].length > 0) ||
+      (organizedNotFound[category] && organizedNotFound[category].length > 0)
+    );
+    
+    // Add uncategorized if it has entities or not-found entities
+    if ((organizedEntities['Uncategorized'] && organizedEntities['Uncategorized'].length > 0) ||
+        (organizedNotFound['Uncategorized'] && organizedNotFound['Uncategorized'].length > 0)) {
+      categories.push('Uncategorized');
+    }
+    
+    return categories;
+  }, [semanticCategories, organizedEntities, organizedNotFound]);
 
-  // Initialize activeTab with first available category
-  const [activeTab, setActiveTab] = useState<string>(availableCategories[0] || 'Patient Information');
+  // Initialize activeTab with default value, will be updated when template loads
+  const [activeTab, setActiveTab] = useState<string>('');
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+
+  // Set activeTab to first available category when template loads and categories are available
+  useEffect(() => {
+    if (!isTemplateLoading && availableCategories.length > 0 && !activeTab) {
+      setActiveTab(availableCategories[0]);
+    }
+  }, [isTemplateLoading, availableCategories, activeTab]);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {

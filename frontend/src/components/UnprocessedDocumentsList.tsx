@@ -489,7 +489,7 @@ export default function UnprocessedDocumentsList({
                     transition-all duration-300 ease-out whitespace-nowrap overflow-hidden
                     ${selectedIds.size === 0 || isProcessing
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                      : 'bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 text-white hover:from-slate-800 hover:via-slate-900 hover:to-black shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-slate-600/20'
+                      : 'bg-gradient-to-r from-green-600 via-green-700 to-green-800 text-white hover:from-green-700 hover:via-green-800 hover:to-green-900 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-green-600/20'
                     }
                   `}
                 >

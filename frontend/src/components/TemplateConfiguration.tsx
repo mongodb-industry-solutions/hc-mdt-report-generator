@@ -145,7 +145,11 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
       setTemplates(data.templates);
       
       setEntityConfigStatus('success');
-      setTimeout(() => setEntityConfigStatus('idle'), 1000);
+      // Close the template configuration section after successful save
+      setTimeout(() => {
+        setEntityConfigStatus('idle');
+        setIsExpanded(false);
+      }, 1000);
     } catch (e) {
       console.error('Error saving template:', e);
       setEntityConfigStatus('error');
