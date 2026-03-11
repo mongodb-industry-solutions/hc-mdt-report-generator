@@ -2,7 +2,7 @@ import time
 import asyncio  
 import logging  
 import os
-from mistralai import Mistral  
+from mistralai.sdk import Mistral  
 from typing import Dict, Any  
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type  
 from config.ner_config import settings  

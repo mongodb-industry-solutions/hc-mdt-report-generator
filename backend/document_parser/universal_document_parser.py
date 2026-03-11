@@ -85,7 +85,7 @@ class UniversalDocumentParser:
                 # Try to import and initialize Mistral client      
                 try:      
                     logger.info("📦 Importing Mistral client...")      
-                    from mistralai import Mistral      
+                    from mistralai.sdk import Mistral      
                           
                     logger.info("🚀 Initializing Mistral client...")      
                     self.mistral_client = Mistral(api_key=api_key)      

@@ -49,7 +49,8 @@ class BaseMistralClient:
     def _init_api_client(self):
         """Initialize API Mistral client"""
         try:
-            from mistralai import Mistral, UserMessage, SystemMessage
+            from mistralai.sdk import Mistral
+            from mistralai import UserMessage, SystemMessage
             self.UserMessage = UserMessage
             self.SystemMessage = SystemMessage
             self.model = "mistral-small-latest"
@@ -80,7 +81,7 @@ class BaseMistralClient:
                     self._initialized = True
                     return
                 
-                from mistralai import Mistral
+                from mistralai.sdk import Mistral
                 self.api_client = Mistral(api_key=api_key)
                 self.client = self.api_client  # Set self.client for OCR and other services
                 self._initialized = True
