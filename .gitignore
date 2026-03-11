@@ -134,3 +134,4 @@ venv.bak/
 docs
 data
 scripts/bulk_data_ingestion.py
+tmp.*

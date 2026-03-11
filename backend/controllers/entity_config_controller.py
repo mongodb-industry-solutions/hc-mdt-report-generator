@@ -18,6 +18,7 @@ from config.entity_config import (
     delete_template,
     set_active_template,
     migrate_legacy_config,
+    migrate_sections_to_templates,  # NEW: Section migration function
 )
 
 logger = logging.getLogger(__name__)
@@ -99,19 +100,21 @@ async def get_active_entity_template() -> Dict[str, Any]:
 async def create_entity_template(
     name: str = Body(...),
     description: str = Body(""),
-    entities: List[Dict[str, Any]] = Body([])
+    entities: List[Dict[str, Any]] = Body([]),
+    sections: List[Dict[str, Any]] = Body([]),  # NEW: Add sections parameter
+    admin_template: bool = Body(False)
 ) -> Dict[str, Any]:
     """Create a new template."""
-    # Validate entities structure
-    validation = validate_config({"entities": entities})
+    # Validate entities and sections structure
+    validation = validate_config({"entities": entities, "sections": sections})
     if not validation.get("valid"):
         raise HTTPException(
             status_code=400,
-            detail={"message": "Invalid entities", "validation": validation}
+            detail={"message": "Invalid template configuration", "validation": validation}
         )
     
     try:
-        template_id = create_template(name, description, entities)
+        template_id = create_template(name, description, entities, sections, admin_template=admin_template)
         return {"success": True, "template_id": template_id, "validation": validation}
     except Exception as e:
         logger.error(f"Error creating template: {e}")
@@ -133,13 +136,22 @@ async def update_entity_template(
     updates: Dict[str, Any] = Body(...)
 ) -> Dict[str, Any]:
     """Update an existing template."""
-    # If entities are being updated, validate them
-    if "entities" in updates:
-        validation = validate_config({"entities": updates["entities"]})
+    # If entities or sections are being updated, validate them
+    if "entities" in updates or "sections" in updates:
+        # Get current template to merge with updates for validation
+        current_template = get_template_by_id(template_id)
+        if not current_template:
+            raise HTTPException(status_code=404, detail="Template not found")
+            
+        validation_data = {
+            "entities": updates.get("entities", current_template.get("entities", [])),
+            "sections": updates.get("sections", current_template.get("sections", []))
+        }
+        validation = validate_config(validation_data)
         if not validation.get("valid"):
             raise HTTPException(
                 status_code=400,
-                detail={"message": "Invalid entities", "validation": validation}
+                detail={"message": "Invalid template configuration", "validation": validation}
             )
     
     try:
@@ -191,6 +203,23 @@ async def migrate_to_templates() -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"Error during migration: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to migrate: {e}")
+
+
+@router.post("/templates/migrate-sections", status_code=200)
+async def migrate_sections() -> Dict[str, Any]:
+    """Migrate report_grouping_config.json section mappings to template-based sections."""
+    try:
+        result = migrate_sections_to_templates()
+        if result["success"]:
+            return {"success": True, "result": result}
+        else:
+            raise HTTPException(
+                status_code=400, 
+                detail={"message": "Section migration failed", "errors": result["errors"]}
+            )
+    except Exception as e:
+        logger.error(f"Error during section migration: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to migrate sections: {e}")
 
 
 @router.post("/templates/{template_id}/duplicate", status_code=201)

@@ -1,0 +1,82 @@
+[project]
+name = "mdt-report-generator-backend"
+version = "0.1.0"
+description = "MDT Report Generator Backend Service"
+authors = [{name = "Healthcare Team", email = "team@healthcare.com"}]
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    # Web Framework
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    
+    # Environment & Configuration
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    
+    # Database
+    "pymongo>=4.5.0",
+    "motor>=3.3.0",
+    
+    # HTTP Clients
+    "requests>=2.31.0",
+    "aiohttp>=3.9.0",
+    "httpx>=0.25.0",
+    
+    # File Handling
+    "python-multipart>=0.0.6",
+    "aiofiles>=23.0.0",
+    "Pillow>=10.0.0",
+    
+    # AI/ML
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "torchaudio>=2.0.0",
+    "transformers>=4.47.0",
+    "accelerate>=0.35.0",
+    "tokenizers>=0.20.0",
+    "huggingface_hub>=0.20.0",
+    "tiktoken>=0.7.0",
+    "mistralai>=1.0.0",
+    
+    # Cloud Services
+    "boto3>=1.26.0",
+    "botocore>=1.29.0",
+    
+    # MCP (Model Context Protocol)
+    "mcp>=0.4.0",
+    "fastmcp>=2.8.1",
+    
+    # Reliability & Resilience
+    "tenacity>=8.2.0",
+    "circuitbreaker>=1.4.0",
+    "asyncio-throttle>=1.0.0",
+    
+    # Authentication & Security
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "cryptography>=41.0.0",
+    
+    # Monitoring & Logging
+    "loguru>=0.7.0",
+    
+    # PDF & OCR Processing
+    "pypdf>=4.2.0",
+    "pymupdf>=1.24.0",
+    "easyocr>=1.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

@@ -3,14 +3,33 @@ env:
   # AWS region for IRSA (no credentials needed)
   AWS_REGION: us-east-1
   # Backend API URL for frontend to connect to backend health check
-  BACKEND_URL: http://<service-name>:80 # or http://localhost:8000 if multicontainer pod is setup and backend is running on 8000
+  FRONTEND_URL: http://mdt-report-generator-frontend-web-app:80
+  BACKEND_URL: http://mdt-report-generator-backend-web-app:80 # or http://localhost:8000 if multicontainer pod is setup and backend is running on 8000
+  LLM_PROVIDER: bedrock
+  DEMO_MODE: true
+  GPT_OPEN_TIMEOUT: 3000.0
+  GPT_OPEN_TEMPERATURE: 0.1
+  GPT_OPEN_MAX_TOKENS: 7000
+  MAX_ENTITIES_PER_BATCH: 6
+  MAX_CONTENT_SIZE: 4000
+  CHUNK_OVERLAPPING: 200
+  MAX_CONCURRENT_REQUESTS: 1
+  CONTINUE_ON_BATCH_ERRORS: true
+  RATE_LIMIT_PER_MINUTE: 60
+  RATE_LIMIT_BURST: 10
+  MAX_FILE_SIZE_MB: 100
+  ALLOWED_FILE_TYPES: pdf,txt,docx,doc
 
 ## Single Pod Containers
 envSecrets:
   # MongoDB Configuration
-  MONGODB_URI: <secret-group>
-  DATABASE_NAME: <secret-group> 
-  VOYAGE_API_KEY: <secret-group>
+  MONGODB_URI: mdt-report-generator-secrets
+  MONGODB_DB: mdt-report-generator-secrets 
+  SECRET_KEY: mdt-report-generator-secrets
+  JWT_SECRET_KEY: mdt-report-generator-secrets
+  JWT_ALGORITHM: mdt-report-generator-secrets
+  JWT_ACCESS_TOKEN_EXPIRE_MINUTES: mdt-report-generator-secrets 
+
   
 ## should be used in case of multi-pod container i.e: both frontend and backend in one pod
 # sidecarContainers:

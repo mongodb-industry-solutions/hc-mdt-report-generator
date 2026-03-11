@@ -14,11 +14,14 @@ import json
 import asyncio
 import logging
 import base64
+import os
+import aiohttp
+from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional, List, AsyncGenerator
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query
-from fastapi.responses import StreamingResponse, Response
+from fastapi.responses import StreamingResponse, Response, FileResponse
 from pydantic import BaseModel
 
 from services.gt_ocr_service import GTOCRService
@@ -118,14 +121,24 @@ async def upload_ground_truth(
             pdf_content = await file.read()
             file_size = len(pdf_content)
             
+            # Validate uploaded file
             if file_size > 20 * 1024 * 1024:  # 20MB limit
                 yield _sse_event("FAILED", 10, "File too large. Maximum size is 20MB.")
+                return
+            
+            if file_size < 100:
+                yield _sse_event("FAILED", 10, "File too small. Likely corrupted or empty.")
+                return
+            
+            # Validate PDF header
+            if not pdf_content.startswith(b'%PDF-'):
+                yield _sse_event("FAILED", 10, "Invalid PDF file format.")
                 return
             
             # Convert to base64 for inline storage
             pdf_base64 = base64.b64encode(pdf_content).decode("utf-8")
             
-            yield _sse_event("UPLOADING", 20, "PDF read successfully")
+            yield _sse_event("UPLOADING", 20, f"PDF validated and read successfully ({file_size} bytes)")
             
             # Step 2: Run OCR
             yield _sse_event("OCR_RUNNING", 30, f"Running OCR with {ocr_engine}...")
@@ -141,7 +154,8 @@ async def upload_ground_truth(
                 yield _sse_event("FAILED", 30, f"OCR extraction failed: {str(e)}")
                 return
             
-            yield _sse_event("OCR_RUNNING", 50, f"OCR completed: {len(ocr_text)} characters from {page_count} pages")
+            yield _sse_event("OCR_RUNNING", 50, f"OCR completed ({ocr_engine}): {len(ocr_text)} characters from {page_count} pages")
+            logger.info(f"OCR text sample (first 200 chars): {ocr_text[:200]}")
             
             # Step 3: Extract entities using LLM
             # Use the same template that was used to generate the report for consistency
@@ -154,12 +168,24 @@ async def upload_ground_truth(
                     template_id=template_id,  # Pass template_id for consistency
                     llm_provider=llm_provider  # Pass user's LLM selection
                 )
+                
+                # Validate extraction results
+                entities_with_values = [e for e in extracted_entities if e.get("value")]
+                logger.info(f"Manual upload entity extraction: {len(extracted_entities)} total, {len(entities_with_values)} with values")
+                
+                if len(extracted_entities) == 0:
+                    yield _sse_event("FAILED", 60, "Entity extraction returned no entities - check template configuration")
+                    return
+                elif len(entities_with_values) == 0:
+                    yield _sse_event("EXTRACTING_ENTITIES", 75, f"WARNING: Extracted {len(extracted_entities)} entities but all have null values")
+                    logger.warning("All extracted entities have null values - OCR text might not match expected format")
+                
             except Exception as e:
                 logger.error(f"Entity extraction failed: {e}")
                 yield _sse_event("FAILED", 60, f"Entity extraction failed: {str(e)}")
                 return
             
-            yield _sse_event("EXTRACTING_ENTITIES", 80, f"Extracted {len(extracted_entities)} entities")
+            yield _sse_event("EXTRACTING_ENTITIES", 80, f"Extracted {len(extracted_entities)} entities ({len(entities_with_values)} with values)")
             
             # Step 4: Save ground truth to ground_truths collection
             yield _sse_event("SAVING", 90, "Saving ground truth to database...")
@@ -649,6 +675,362 @@ async def get_patient_evaluations(
     except Exception as e:
         logger.error(f"Failed to get patient evaluations: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# ENDPOINT 9: Check GT File Availability
+# ============================================
+
+@router.get("/{patient_id}/ground-truth/available")
+async def check_gt_availability(patient_id: str):
+    """
+    Check if a ground truth PDF file exists in the public folder for the patient.
+    
+    Returns:
+        {"available": True/False, "filename": "GT_patient_id.pdf" or None}
+    """
+    try:
+        # Construct expected GT filename
+        gt_filename = f"GT_{patient_id}.pdf"
+        
+        # Try to access GT file via HTTP (for Kanopy deployment) or filesystem (for local dev)
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+        gt_url = f"{frontend_url}/gt/{gt_filename}"
+        
+        logger.info(f"Checking GT availability for patient {patient_id}")
+        logger.info(f"Trying GT URL: {gt_url}")
+        
+        try:
+            # Try HTTP access first (for production deployment)
+            async with aiohttp.ClientSession() as session:
+                async with session.head(gt_url) as response:
+                    if response.status == 200:
+                        return {
+                            "available": True,
+                            "filename": gt_filename,
+                            "url": gt_url
+                        }
+        except Exception as http_error:
+            logger.info(f"HTTP access failed: {http_error}, trying filesystem...")
+            
+            # Fallback to filesystem access (for local development)
+            project_root = Path(__file__).parent.parent.parent
+            gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
+            
+            if gt_file_path.exists():
+                return {
+                    "available": True,
+                    "filename": gt_filename,
+                    "path": str(gt_file_path)
+                }
+        
+        return {
+            "available": False,
+            "filename": None
+        }
+            
+    except Exception as e:
+        logger.error(f"Failed to check GT availability for patient {patient_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# ENDPOINT 10: Auto-load GT from Public Folder
+# ============================================
+
+@router.post("/{patient_id}/reports/{report_uuid}/ground-truth/auto-load")
+async def auto_load_ground_truth(
+    patient_id: str,
+    report_uuid: str,
+    ocr_engine: str = Query(default="bedrock", description="OCR engine: 'bedrock', 'mistral', or 'easyocr'"),
+    llm_provider: Optional[str] = Query(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'mistral', 'ollama', 'gpt_open'")
+):
+    """
+    Auto-load ground truth PDF from public folder and extract entities.
+    
+    Automatically detects GT file for patient and processes it without manual upload.
+    
+    Returns SSE stream with progress updates (same format as manual upload):
+    - STARTED: Beginning auto-load process  
+    - LOADING_FILE: Loading GT file from public folder
+    - OCR_RUNNING: OCR extraction in progress
+    - EXTRACTING_ENTITIES: LLM entity extraction
+    - COMPLETED: Entities extracted and saved
+    - FAILED: Error during process
+    
+    Args:
+        patient_id: Patient identifier
+        report_uuid: Report UUID to attach ground truth to
+        ocr_engine: OCR engine to use ("bedrock", "mistral", or "easyocr")
+        llm_provider: LLM provider for entity extraction
+    """
+    
+    async def generate_progress() -> AsyncGenerator[str, None]:
+        try:
+            # Check demo mode
+            demo_mode = os.getenv('DEMO_MODE', 'false').lower() == 'true'
+            
+            # Validate report exists and belongs to patient
+            yield _sse_event("STARTED", 0, "Starting auto-load ground truth process...")
+            
+            report = report_repo.get_by_uuid(report_uuid)
+            if not report or report.patient_id != patient_id:
+                yield _sse_event("FAILED", 0, f"Report {report_uuid} not found for patient {patient_id}")
+                return
+            
+            # Demo Mode: Skip file processing, use existing GT data
+            if demo_mode:
+                yield _sse_event("LOADING_FILE", 20, "Demo mode: Checking for existing ground truth data...")
+                
+                # Check if GT already exists in database for this patient
+                existing_gt = None
+                try:
+                    # Look for existing GT for this patient
+                    existing_gt = gt_repo.get_latest_by_patient(patient_id)
+                    if existing_gt:
+                        logger.info(f"Demo mode: Found existing GT for patient {patient_id}: {existing_gt.uuid}")
+                except Exception as e:
+                    logger.warning(f"Demo mode: Error checking for existing GT: {e}")
+                
+                if existing_gt:
+                    # Reuse existing GT data for this report
+                    yield _sse_event("LOADING_FILE", 50, f"Demo mode: Reusing existing GT data ({len(existing_gt.entities)} entities)")
+                    
+                    # Create a new GT record for this specific report using existing entity data
+                    new_ground_truth = GroundTruth(
+                        patient_id=patient_id,
+                        report_uuid=report_uuid,
+                        original_pdf=existing_gt.original_pdf,  # Reuse PDF data
+                        ocr_text=existing_gt.ocr_text,  # Reuse OCR text
+                        entities=existing_gt.entities,  # Reuse extracted entities
+                        ocr_engine=existing_gt.ocr_engine,
+                        status="COMPLETED",
+                        created_at=datetime.now(timezone.utc)
+                    )
+                    
+                    # Save the reused GT for this specific report
+                    gt_repo.create(new_ground_truth)
+                    
+                    yield _sse_event("COMPLETED", 100, f"Demo mode: Ground truth reused successfully! Using {len(existing_gt.entities)} pre-extracted entities")
+                    return
+                else:
+                    yield _sse_event("FAILED", 20, f"Demo mode: No pre-existing ground truth found for patient {patient_id}. Please ensure GT data is pre-loaded in the database.")
+                    return
+            
+            # Check if GT file is available via HTTP or filesystem
+            availability = await check_gt_availability(patient_id)
+            if not availability["available"]:
+                yield _sse_event("FAILED", 0, f"No GT file found for patient {patient_id}. Expected: GT_{patient_id}.pdf")
+                return
+                
+            yield _sse_event("LOADING_FILE", 10, "Loading ground truth PDF...")
+            
+            # Load the GT PDF content
+            gt_filename = f"GT_{patient_id}.pdf"
+            
+            try:
+                # Try to download via HTTP first (for production)
+                frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+                gt_url = f"{frontend_url}/gt/{gt_filename}"
+                
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(gt_url) as response:
+                        if response.status == 200:
+                            pdf_data = await response.read()
+                            
+                            # Validate PDF file size and content
+                            pdf_size = len(pdf_data)
+                            logger.info(f"PDF loaded via HTTP - Size: {pdf_size} bytes, URL: {gt_url}")
+                            
+                            if pdf_size < 100:
+                                raise Exception(f"PDF file too small ({pdf_size} bytes) - likely corrupted or empty")
+                            
+                            # Check PDF header to ensure it's a valid PDF
+                            if not pdf_data.startswith(b'%PDF-'):
+                                raise Exception("File doesn't appear to be a valid PDF (missing PDF header)")
+                            
+                            yield _sse_event("LOADING_FILE", 20, f"GT file loaded successfully via HTTP ({pdf_size} bytes)")
+                        else:
+                            raise Exception(f"HTTP download failed: {response.status}")
+            except Exception as http_error:
+                logger.info(f"HTTP download failed: {http_error}, trying filesystem...")
+                
+                # Fallback to filesystem (for local development)
+                project_root = Path(__file__).parent.parent.parent
+                gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
+                
+                logger.info(f"Attempting filesystem access: {gt_file_path}")
+                
+                if not gt_file_path.exists():
+                    yield _sse_event("FAILED", 20, f"Ground truth file not found: {gt_filename}")
+                    return
+                
+                # Check file size before reading
+                file_size = gt_file_path.stat().st_size
+                logger.info(f"PDF file size on filesystem: {file_size} bytes")
+                
+                if file_size < 100:
+                    yield _sse_event("FAILED", 20, f"PDF file too small ({file_size} bytes) - likely corrupted")
+                    return
+                    
+                try:
+                    with open(gt_file_path, "rb") as f:
+                        pdf_data = f.read()
+                    
+                    # Validate PDF content
+                    if not pdf_data.startswith(b'%PDF-'):
+                        yield _sse_event("FAILED", 20, "File doesn't appear to be a valid PDF")
+                        return
+                    
+                    yield _sse_event("LOADING_FILE", 20, f"GT file loaded successfully via filesystem ({file_size} bytes)")
+                except Exception as e:
+                    yield _sse_event("FAILED", 20, f"Failed to read GT file: {str(e)}")
+                    return
+            
+            # Delete existing GT for this report (same logic as manual upload)
+            existing_gt = gt_repo.get_latest_by_report(report_uuid)
+            if existing_gt:
+                gt_repo.delete(existing_gt.uuid)
+                yield _sse_event("LOADING_FILE", 25, "Replaced existing ground truth")
+            
+            # Create GT PDF record
+            gt_pdf = GroundTruthPDF(
+                filename=gt_filename,
+                file_content=base64.b64encode(pdf_data).decode('utf-8'),
+                file_size=len(pdf_data)
+            )
+            
+            # OCR extraction  
+            yield _sse_event("OCR_RUNNING", 30, f"Running OCR with {ocr_engine}...")
+            try:
+                extracted_text, page_count = await gt_ocr_service.extract_text(
+                    pdf_data, ocr_engine
+                )
+            except Exception as e:
+                logger.error(f"OCR failed: {e}")
+                yield _sse_event("FAILED", 40, f"OCR extraction failed: {str(e)}")
+                return
+            
+            # Validate OCR extraction results
+            if not extracted_text or not extracted_text.strip():
+                yield _sse_event("FAILED", 50, "OCR extraction failed - no text found")
+                return
+            
+            yield _sse_event("OCR_RUNNING", 60, f"OCR completed ({ocr_engine}) - extracted {len(extracted_text)} characters from {page_count} pages")
+            # Entity extraction
+            yield _sse_event("EXTRACTING_ENTITIES", 70, "Extracting entities with LLM...")
+            
+            try:
+                entities = await gt_extraction_service.extract_entities(
+                    ocr_text=extracted_text,
+                    llm_provider=llm_provider
+                )
+                yield _sse_event("EXTRACTING_ENTITIES", 90, f"Extracted {len(entities)} entities")
+                
+            except Exception as e:
+                logger.error(f"Entity extraction failed: {str(e)}")
+                yield _sse_event("FAILED", 80, f"Entity extraction failed: {str(e)}")
+                return
+            
+            # Save ground truth
+            ground_truth = GroundTruth(
+                patient_id=patient_id,
+                report_uuid=report_uuid,
+                pdf=gt_pdf,
+                ocr_text=extracted_text,
+                entities=entities,
+                ocr_engine=ocr_engine,
+                created_at=datetime.now(timezone.utc)
+            )
+            
+            gt_repo.create(ground_truth)
+            yield _sse_event("COMPLETED", 100, f"Auto-loaded GT successfully! Extracted {len(entities)} entities")
+            
+        except Exception as e:
+            logger.error(f"Auto-load GT failed: {e}")
+            yield _sse_event("FAILED", 0, f"Auto-load failed: {str(e)}")
+    
+    return StreamingResponse(
+        generate_progress(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive"
+        }
+    )
+
+
+# ============================================
+# ENDPOINT 11: View GT PDF File
+# ============================================
+
+@router.get("/{patient_id}/ground-truth/view")
+async def view_gt_pdf(patient_id: str):
+    """
+    Serve the ground truth PDF file for viewing.
+    
+    Returns the PDF file directly for display in browser PDF viewer.
+    """
+    try:
+        # Check if GT file exists
+        gt_filename = f"GT_{patient_id}.pdf"
+        
+        # Try HTTP access first (for production)
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+        gt_url = f"{frontend_url}/gt/{gt_filename}"
+        
+        logger.info(f"Looking for GT PDF via URL: {gt_url}")
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(gt_url) as response:
+                    if response.status == 200:
+                        pdf_content = await response.read()
+                        return Response(
+                            content=pdf_content,
+                            media_type="application/pdf",
+                            headers={
+                                "Content-Disposition": f"inline; filename={gt_filename}",
+                                "Cache-Control": "public, max-age=3600"
+                            }
+                        )
+                    else:
+                        raise Exception(f"HTTP download failed: {response.status}")
+        except Exception as http_error:
+            logger.info(f"HTTP access failed: {http_error}, trying filesystem...")
+            
+            # Fallback to filesystem (for local development)
+            project_root = Path(__file__).parent.parent.parent
+            gt_file_path = project_root / "frontend" / "public" / "gt" / gt_filename
+            
+            logger.info(f"Looking for GT PDF at: {gt_file_path}")
+            
+            if not gt_file_path.exists():
+                raise HTTPException(
+                    status_code=404, 
+                    detail=f"Ground truth PDF not found for patient {patient_id}. Expected: {gt_filename}"
+                )
+            
+            # Return the PDF file
+            return FileResponse(
+                path=str(gt_file_path),
+                media_type="application/pdf",
+                filename=gt_filename,
+                headers={
+                    "Content-Disposition": f"inline; filename={gt_filename}",
+                    "Cache-Control": "public, max-age=3600"
+                }
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to serve GT PDF for patient {patient_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to serve ground truth PDF: {str(e)}"
+        )
 
 
 # ============================================

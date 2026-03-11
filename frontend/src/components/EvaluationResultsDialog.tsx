@@ -45,6 +45,7 @@ export default function EvaluationResultsDialog({
   const [progress, setProgress] = useState<EvaluationProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'name' | 'llm_score'>('llm_score');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); // desc = best first, asc = worst first
 
   useEffect(() => {
     if (isOpen) {
@@ -93,9 +94,12 @@ export default function EvaluationResultsDialog({
   const sortedDetails = evaluation?.details
     ? [...evaluation.details].sort((a, b) => {
         if (sortBy === 'name') {
-          return a.entity_name.localeCompare(b.entity_name);
+          const nameComparison = a.entity_name.localeCompare(b.entity_name);
+          return sortDirection === 'asc' ? nameComparison : -nameComparison;
         }
-        return a.llm_score - b.llm_score; // Worst first
+        // Score sorting
+        const scoreComparison = a.llm_score - b.llm_score;
+        return sortDirection === 'asc' ? scoreComparison : -scoreComparison;
       })
     : [];
 
@@ -117,7 +121,7 @@ export default function EvaluationResultsDialog({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-2xl font-semibold text-gray-900">
               Evaluation Results
             </h2>
             {evaluation?.evaluated_at && (
@@ -130,7 +134,7 @@ export default function EvaluationResultsDialog({
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
@@ -250,14 +254,33 @@ export default function EvaluationResultsDialog({
                   <h3 className="text-sm font-medium text-gray-700">
                     Per-Entity Breakdown
                   </h3>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'name' | 'llm_score')}
-                    className="text-sm border-gray-300 rounded-lg"
-                  >
-                    <option value="llm_score">Sort by Score (worst first)</option>
-                    <option value="name">Sort by Name</option>
-                  </select>
+                  <div className="flex items-center space-x-3">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as 'name' | 'llm_score')}
+                      className="text-sm border-gray-300 rounded-lg"
+                    >
+                      <option value="llm_score">Sort by Score</option>
+                      <option value="name">Sort by Name</option>
+                    </select>
+                    <select
+                      value={sortDirection}
+                      onChange={(e) => setSortDirection(e.target.value as 'asc' | 'desc')}
+                      className="text-sm border-gray-300 rounded-lg"
+                    >
+                      {sortBy === 'llm_score' ? (
+                        <>
+                          <option value="desc">Highest to Lowest</option>
+                          <option value="asc">Lowest to Highest</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="asc">A to Z</option>
+                          <option value="desc">Z to A</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -295,8 +318,10 @@ export default function EvaluationResultsDialog({
                             )}
                           </td>
                           <td className="px-4 py-3 text-center">
-                            {detail.exact_match ? (
+                            {detail.llm_score >= 0.8 ? (
                               <CheckCircle className="w-5 h-5 text-green-500 inline" />
+                            ) : detail.llm_score >= 0.5 ? (
+                              <TrendingUp className="w-5 h-5 text-orange-500 inline" />
                             ) : (
                               <XCircle className="w-5 h-5 text-red-400 inline" />
                             )}

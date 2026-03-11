@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { User, Search, FileText, Calendar, Users, ArrowRight, Loader } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useI18n } from '../i18n/context';
+import InfoModal from './InfoModal';
+import InfoButton from './InfoButton';
+import { useInfoModal, tabInfoContent } from '../hooks/useInfoModal';
 
 interface PatientSelectionViewProps {
   onSelectPatient: (patientId: string) => void;
@@ -21,6 +24,9 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Info modal for patient selection
+  const patientSelectionInfo = useInfoModal('patientSelection', true);
 
   useEffect(() => {
     loadPatients();
@@ -150,66 +156,81 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <div className="flex items-center justify-center mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
-            <Users className="w-6 h-6 text-white" />
-          </div>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Select a Patient</h1>
-        <p className="text-sm text-gray-600 max-w-xl mx-auto">
-          Choose a patient to view their medical documents and reports. You can search by patient ID or browse all available patients.
-        </p>
+    <div className="space-y-8 relative">
+      {/* Info Button - positioned in true top-right corner */}
+      <div className="absolute top-0 right-0 z-20">
+        <InfoButton onClick={patientSelectionInfo.showModal} />
       </div>
-
-      {/* Search Bar */}
-      <div className="max-w-xl mx-auto">
-        <div className="relative">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search patients by ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
-          />
-        </div>
-      </div>
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
-          <div className="flex items-center space-x-2">
-            <Users className="w-6 h-6 text-blue-600" />
-            <div>
-              <p className="text-xs text-blue-600 font-medium">Total Patients</p>
-              <p className="text-2xl font-bold text-blue-900">{patients.length}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
-          <div className="flex items-center space-x-2">
-            <FileText className="w-6 h-6 text-green-600" />
-            <div>
-              <p className="text-xs text-green-600 font-medium">Total Documents</p>
-              <p className="text-2xl font-bold text-green-900">
-                {Object.values(patientDetails).reduce((sum, p) => sum + p.documentCount, 0) || '...'}
+      
+      {/* Header, Search Bar and Statistics */}
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row gap-3">
+          {/* Left side - Header and Search Bar */}
+          <div className="flex-1">
+            {/* Header */}
+            <div className="mb-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Select a Patient</h1>
+              <p className="text-sm text-gray-600 max-w-xl">
+                Choose a patient to view their medical documents and reports. You can search by patient ID or browse all available patients.
               </p>
             </div>
+            
+            {/* Search Bar */}
+            <div className="max-w-xl">
+              <div className="relative">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search patients by ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                />
+              </div>
+            </div>
           </div>
-        </div>
-        
-        <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-4 border border-purple-200">
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-6 h-6 text-purple-600" />
-            <div>
-              <p className="text-xs text-purple-600 font-medium">Available Patients</p>
-              <p className="text-2xl font-bold text-purple-900">
-                {patients.length}
-              </p>
+          
+          {/* Right side - Statistics (Vertical) */}
+          <div className="flex-shrink-0">
+            <div className="flex flex-col gap-3 w-64">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                <div className="flex items-center space-x-2">
+                  <Users className="w-6 h-6 text-blue-600" />
+                  <div>
+                    <p className="text-xs text-blue-600 font-medium">Total Patients</p>
+                    <p className="text-2xl font-bold text-blue-900">{patients.length}</p>
+                  </div>
+                </div>
+              </div>
+            
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-6 h-6 text-green-600" />
+                  <div>
+                    <p className="text-xs text-green-600 font-medium">Total Documents</p>
+                    <p className="text-2xl font-bold text-green-900">
+                      {Object.values(patientDetails).reduce((sum, p) => sum + p.documentCount, 0) || '...'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            
+              <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-4 border border-purple-200">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-6 h-6 text-purple-600" />
+                  <div>
+                    <p className="text-xs text-purple-600 font-medium">Available Patients</p>
+                    <p className="text-2xl font-bold text-purple-900">
+                      {patients.length}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -289,6 +310,13 @@ export default function PatientSelectionView({ onSelectPatient }: PatientSelecti
           </div>
         )}
       </div>
+      
+      {/* Info Modal */}
+      <InfoModal
+        isOpen={patientSelectionInfo.isOpen}
+        onClose={patientSelectionInfo.hideModal}
+        content={tabInfoContent.patientSelection}
+      />
     </div>
   );
 }

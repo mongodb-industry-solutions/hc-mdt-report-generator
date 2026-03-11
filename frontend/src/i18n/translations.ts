@@ -670,7 +670,7 @@ export const translations: Translations = {
     evaluation: {
       view: 'View',
       evaluate: 'Evaluate',
-      uploadGT: 'Upload GT',
+      uploadGT: 'Compare with GT',
       viewResults: 'View evaluation results',
       runEvaluationExisting: 'Run evaluation with existing GT',
       uploadGroundTruthEvaluate: 'Upload ground truth and evaluate',

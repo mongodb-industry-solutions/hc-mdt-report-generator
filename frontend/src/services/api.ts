@@ -10,12 +10,19 @@ import {
   EntityDef,
   EntityTemplate,
   TemplatesData,
+  SectionConfig,
   GroundTruth,
   GroundTruthEntity,
   Evaluation,
   EvaluationSummary,
   GTUploadProgress,
-  EvaluationProgress
+  EvaluationProgress,
+  UnprocessedDocument,
+  UnprocessedDocumentDetail,
+  PaginatedUnprocessedDocuments,
+  UnprocessedDocumentCounts,
+  ProcessDocumentsResponse,
+  BatchProcessingStatusResponse
 } from '../types';
 
 // Storage keys
@@ -25,30 +32,26 @@ const LLM_API_KEY_STORAGE_KEY = 'claritygr_llm_api_key';
 // Provider-specific API key prefix
 const LLM_PROVIDER_API_KEY_PREFIX = 'claritygr_llm_api_key_';
 
-// Dynamic API URL with localStorage persistence
+// Get API URL - uses Next.js API proxy pattern
 function getApiBaseURL(): string {
-  // Check if we have a stored URL first
-  const storedUrl = localStorage.getItem(API_URL_STORAGE_KEY);
-  if (storedUrl) {
-    return storedUrl;
+  // Only access localStorage on client-side (not during SSR)
+  if (typeof window !== 'undefined') {
+    // Check if we have a stored URL first (allows user override via settings)
+    const storedUrl = localStorage.getItem(API_URL_STORAGE_KEY);
+    if (storedUrl) {
+      return storedUrl;
+    }
   }
 
-  // Auto-detect the API URL based on how the UI is accessed
-  let detectedUrl: string;
+  // Use Next.js API proxy route - this will be proxied to backend via BACKEND_URL
+  const proxyUrl = '/api/internal';
   
-  // If accessing via localhost, use localhost
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    detectedUrl = 'http://localhost:8000';
-  } else {
-    // For remote access, assume API is on same host, port 8000
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    detectedUrl = `${protocol}//${hostname}:8000`;
+  // Only store in localStorage on client-side
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(API_URL_STORAGE_KEY, proxyUrl);
   }
   
-  // Store the detected URL
-  localStorage.setItem(API_URL_STORAGE_KEY, detectedUrl);
-  return detectedUrl;
+  return proxyUrl;
 }
 
 class ApiService {
@@ -78,12 +81,15 @@ class ApiService {
   // Update base URL and persist to localStorage
   updateBaseURL(url: string) {
     this.api.defaults.baseURL = url;
-    localStorage.setItem(API_URL_STORAGE_KEY, url);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(API_URL_STORAGE_KEY, url);
+    }
     console.log('🌐 API Base URL updated to:', url);
   }
   
   // Get the current LLM model ID
   getCurrentLLMModelId(): string {
+    if (typeof window === 'undefined') return 'mistral-small-latest';
     const storedModelId = localStorage.getItem(LLM_MODEL_STORAGE_KEY);
     return storedModelId || 'mistral-small-latest'; // Default if not set
   }
@@ -95,7 +101,9 @@ class ApiService {
       const mappedModelId = modelId;
       
       // Save model ID to local storage
-      localStorage.setItem(LLM_MODEL_STORAGE_KEY, mappedModelId);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(LLM_MODEL_STORAGE_KEY, mappedModelId);
+      }
       
       // If API key is provided, save it using the model-specific storage
       if (apiKey) {
@@ -107,7 +115,7 @@ class ApiService {
       }
       
       // If base URL is provided for OpenAI models, save it
-      if (baseUrl && modelId === 'gpt-oss-20b') {
+      if (baseUrl && modelId === 'gpt-oss-20b' && typeof window !== 'undefined') {
         localStorage.setItem('claritygr_gpt_open_url', baseUrl);
         console.log('🌐 GPT Open base URL cached:', baseUrl);
       }
@@ -146,6 +154,8 @@ class ApiService {
   
   // Get API key for specific LLM model or provider
   getLLMApiKey(modelId?: string): string {
+    if (typeof window === 'undefined') return '';
+    
     // If a model ID is provided, try to get its specific key first
     if (modelId) {
       // Try model-specific key
@@ -167,6 +177,8 @@ class ApiService {
   
   // Store API key for a specific model or provider
   storeLLMApiKey(apiKey: string, modelId: string): void {
+    if (typeof window === 'undefined') return;
+    
     // Always store the key by model ID
     localStorage.setItem(`${LLM_PROVIDER_API_KEY_PREFIX}${modelId}`, apiKey);
     
@@ -182,6 +194,7 @@ class ApiService {
   
   // Get the current GPT Open base URL
   getGptOpenBaseUrl(): string {
+    if (typeof window === 'undefined') return 'http://35.88.139.67:8080';
     return localStorage.getItem('claritygr_gpt_open_url') || 'http://35.88.139.67:8080';
   }
 
@@ -504,9 +517,18 @@ class ApiService {
 
   async downloadAsPDF(data: any, filename: string) {
     try {
+      // Get active template for PDF generation
+      let activeTemplate = null;
+      try {
+        const { template } = await this.getActiveTemplate();
+        activeTemplate = template;
+      } catch (templateError) {
+        console.warn('Could not fetch active template for PDF generation:', templateError);
+      }
+
       // Import the PDF generator dynamically to avoid loading issues
       const { generateMedicalReportPDF } = await import('./pdfGenerator');
-      const pdfBlob = await generateMedicalReportPDF(data);
+      const pdfBlob = await generateMedicalReportPDF(data, activeTemplate);
       this.downloadBlob(pdfBlob, filename);
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -551,6 +573,11 @@ class ApiService {
 
   async getGenerationsFilters(): Promise<{ llms: string[]; hashes: string[]; }> {
     const response = await this.api.get('/observability/generations/filters');
+    return response.data;
+  }
+
+  async getDemoMode(): Promise<{ demo_mode: boolean; }> {
+    const response = await this.api.get('/settings/demo-mode');
     return response.data;
   }
 
@@ -647,11 +674,13 @@ class ApiService {
     return { template: response.data.template };
   }
 
-  async createTemplate(name: string, description: string = '', entities: EntityDef[] = []): Promise<{ template_id: string; validation: any; }> {
+  async createTemplate(name: string, description: string = '', entities: EntityDef[] = [], adminTemplate: boolean = false, sections: SectionConfig[] = []): Promise<{ template_id: string; validation: any; }> {
     const response = await this.api.post('/entity-config/templates', {
       name,
       description,
-      entities
+      entities,
+      admin_template: adminTemplate,
+      sections
     });
     return { template_id: response.data.template_id, validation: response.data.validation };
   }
@@ -792,6 +821,81 @@ class ApiService {
   }
 
   /**
+   * Check if ground truth file is available for patient in public folder
+   */
+  async checkGTAvailability(patientId: string): Promise<{
+    available: boolean;
+    filename: string | null;
+    path: string | null;
+  }> {
+    const response = await this.api.get(`/patients/${patientId}/ground-truth/available`);
+    return response.data;
+  }
+
+  /**
+   * Auto-load ground truth from public folder and extract entities with progress updates
+   */
+  async autoLoadGroundTruth(
+    patientId: string,
+    reportUuid: string,
+    ocrEngine: 'bedrock' | 'easyocr' | 'mistral' = 'bedrock',
+    onProgress?: (data: GTUploadProgress) => void
+  ): Promise<GTUploadProgress | null> {
+    
+    const url = `${this.api.defaults.baseURL}/patients/${patientId}/reports/${reportUuid}/ground-truth/auto-load?ocr_engine=${ocrEngine}`;
+    console.log('Auto-load GT URL:', url); // Debug logging
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    console.log('Auto-load GT response status:', response.status); // Debug logging
+    console.log('Auto-load GT response headers:', response.headers); // Debug logging
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Auto-load GT error response:', errorText); // Debug logging
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    if (!response.body) throw new Error('No response body');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let lastData: GTUploadProgress | null = null;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        console.log('Auto-load GT chunk received:', chunk); // Debug logging
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6)) as GTUploadProgress;
+              console.log('Auto-load GT progress data:', data); // Debug logging
+              lastData = data;
+              onProgress?.(data);
+            } catch (e) {
+              console.error('Failed to parse SSE data:', e, 'Line:', line); // Debug logging
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    console.log('Auto-load GT final result:', lastData); // Debug logging
+    return lastData;
+  }
+
+  /**
    * Run evaluation comparing generated entities against ground truth
    */
   async runEvaluation(
@@ -873,6 +977,95 @@ class ApiService {
   }> {
     const response = await this.api.get(
       `/patients/${patientId}/reports/${reportUuid}/evaluation`
+    );
+    return response.data;
+  }
+
+  // ============================================================================
+  // Unprocessed Documents API
+  // ============================================================================
+
+  /**
+   * Get paginated list of unprocessed documents for a patient
+   */
+  async getUnprocessedDocuments(
+    patientId: string,
+    page: number = 1,
+    pageSize: number = 20
+  ): Promise<PaginatedUnprocessedDocuments> {
+    const response = await this.api.get(
+      `/patients/${patientId}/unprocessed-documents?page=${page}&page_size=${pageSize}`
+    );
+    return response.data;
+  }
+
+  /**
+   * Get a single unprocessed document with full content
+   */
+  async getUnprocessedDocument(
+    patientId: string,
+    documentId: string
+  ): Promise<UnprocessedDocumentDetail> {
+    const response = await this.api.get(
+      `/patients/${patientId}/unprocessed-documents/${documentId}`
+    );
+    return response.data;
+  }
+
+  /**
+   * Get count of unprocessed documents for a patient
+   */
+  async getUnprocessedDocumentCount(patientId: string): Promise<number> {
+    const response = await this.api.get(
+      `/patients/${patientId}/unprocessed-documents/count`
+    );
+    return response.data.count;
+  }
+
+  /**
+   * Get unprocessed document counts for all patients
+   */
+  async getUnprocessedDocumentCounts(): Promise<UnprocessedDocumentCounts> {
+    const response = await this.api.get('/patients/unprocessed-documents/counts');
+    return response.data;
+  }
+
+  /**
+   * Process selected unprocessed documents
+   */
+  async processUnprocessedDocuments(
+    patientId: string,
+    documentIds: string[]
+  ): Promise<ProcessDocumentsResponse> {
+    const response = await this.api.post(
+      `/patients/${patientId}/unprocessed-documents/process`,
+      { document_ids: documentIds }
+    );
+    return response.data;
+  }
+
+  /**
+   * Process all unprocessed documents for a patient
+   */
+  async processAllUnprocessedDocuments(
+    patientId: string
+  ): Promise<ProcessDocumentsResponse> {
+    const response = await this.api.post(
+      `/patients/${patientId}/unprocessed-documents/process-all`
+    );
+    return response.data;
+  }
+
+  /**
+   * Get processing status for a batch of documents
+   */
+  async getUnprocessedProcessingStatus(
+    patientId: string,
+    documentIds: string[]
+  ): Promise<BatchProcessingStatusResponse> {
+    const response = await this.api.post(
+      `/patients/${patientId}/unprocessed-documents/process/status`,
+      { document_ids: documentIds }
     );
     return response.data;
   }

@@ -259,6 +259,15 @@ export interface NERConfig {
   aggregation_batch_size: number;
 } 
 
+// Section configuration for template-based report organization
+export interface SectionConfig {
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+  order: number;
+}
+
 // Source filter configuration for targeted entity extraction
 export interface SourceFilter {
   libnatcr: string;           // Required: Report type (e.g., "CR Radio", "RCP", "CR Anatomopathologie")
@@ -271,6 +280,7 @@ export interface SourceFilter {
 // Entity configuration types
 export interface EntityDef {
   name: string;
+  section_id?: string;               // NEW: Reference to section ID (optional for backward compatibility)
   definition?: string;
   extraction_instructions?: string;
   type?: string;
@@ -299,6 +309,8 @@ export interface EntityTemplate {
   created_at: string;
   updated_at: string;
   entities: EntityDef[];
+  sections: SectionConfig[];         // NEW: Section definitions for this template
+  admin_template?: boolean;
 }
 
 export interface TemplatesData {
@@ -389,4 +401,88 @@ export interface EvaluationProgress {
   timestamp: string;
   summary?: EvaluationSummary;
   worst_entities?: WorstEntity[];
+}
+
+// ============================================================================
+// Unprocessed Documents Types
+// ============================================================================
+
+export interface UnprocessedDocument {
+  id: string;
+  patient_id: string;
+  file_name: string;
+  file_type: string;
+  content_preview?: string;
+  content_size?: number;
+  created_at?: string;
+  document_date?: string;
+  source_system?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface UnprocessedDocumentDetail extends UnprocessedDocument {
+  content: string;
+}
+
+export interface PaginatedUnprocessedDocuments {
+  items: UnprocessedDocument[];
+  total: number;
+  page: number;
+  page_size: number;
+  has_more: boolean;
+}
+
+export interface UnprocessedDocumentCounts {
+  counts: Array<{ patient_id: string; count: number }>;
+  total_documents: number;
+  total_patients: number;
+}
+
+export interface ProcessDocumentsRequest {
+  document_ids: string[];
+}
+
+export interface ProcessDocumentsResponse {
+  message: string;
+  total_requested: number;
+  processing_started: number;
+  failed_to_start: number;
+  processing_jobs: Array<{
+    unprocessed_document_id: string;
+    new_document_uuid: string;
+    filename: string;
+    status: string;
+  }>;
+  errors: Array<{
+    document_id: string;
+    error: string;
+  }>;
+}
+
+export interface ProcessingStep {
+  id: string;
+  name: string;
+  order: number;
+}
+
+export interface ProcessingStatus {
+  document_id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'not_found';
+  current_step?: string;
+  current_step_index?: number;
+  total_steps?: number;
+  steps?: ProcessingStep[];
+  completed_steps?: string[];
+  progress?: number;
+  new_document_uuid?: string;
+  error?: string;
+}
+
+export interface BatchProcessingStatusResponse {
+  total: number;
+  completed: number;
+  in_progress: number;
+  failed: number;
+  pending: number;
+  documents: ProcessingStatus[];
 }

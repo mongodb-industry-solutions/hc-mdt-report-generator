@@ -1,6 +1,15 @@
 # Medical Document Processing Frontend
 
-A modern React application for managing medical documents and generating MDT (Multi-Disciplinary Team) reports with real-time progress tracking and entity extraction visualization.
+A modern Next.js application for managing medical documents and generating MDT (Multi-Disciplinary Team) reports with real-time progress tracking and entity extraction visualization.
+
+## Technology Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Frontend**: React 18 with TypeScript
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Axios
+- **Build Tool**: Next.js (migrated from Vite)
+- **Deployment**: Docker with multi-stage builds
 
 ## Features
 
@@ -91,15 +100,21 @@ Maximum file size: 50MB per file
 ## Configuration
 
 ### Backend API Connection
-1. Click the **Settings** button (⚙️) in the top-right corner
-2. Enter your backend API URL (default: `http://localhost:8000`)
-3. Save settings
+The application uses an **API proxy pattern** through Next.js API routes for seamless backend connectivity:
 
-### Environment Variables
-Create a `.env` file in the `ui` directory:
-```env
-VITE_API_BASE_URL=http://localhost:8000
-```
+1. **Proxy Route**: All frontend API calls go to `/api/internal/*` endpoints
+2. **Server-Side Proxy**: Next.js API route proxies requests to backend using `BACKEND_URL` 
+3. **Environment-Based**: `BACKEND_URL` is configured server-side only for security
+4. **Service Discovery**: Works seamlessly with Kubernetes service names
+
+**Environment Configuration**:
+- **Development**: `BACKEND_URL=http://localhost:8000` (or auto-detected)
+- **Staging**: `BACKEND_URL=http://staging-backend-service:8000` 
+- **Production**: `BACKEND_URL=http://production-backend-service:8000`
+
+**Settings Panel Override**:
+- Click the **Settings** button (⚙️) to manually override the API endpoint
+- Useful for debugging or connecting to different backend instances
 
 ## Usage Guide
 
@@ -204,16 +219,17 @@ frontend/
 ├── public/                 # Static assets
 │   └── medical-icon.svg             # Application icon
 ├── package.json            # Dependencies and scripts
-├── vite.config.ts          # Vite configuration
+├── next.config.js          # Next.js configuration
 ├── tailwind.config.js      # Tailwind CSS configuration
 └── tsconfig.json           # TypeScript configuration
 ```
 
 ### Available Scripts
-- `npm run dev` - Start development server
+- `npm run dev` - Start Next.js development server (port 3000)
 - `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+- `npm run start` - Start production server (port 8080)
+- `npm run lint` - Run Next.js ESLint
+- `npm run type-check` - TypeScript type checking
 
 ### Styling Guidelines
 - Uses Tailwind CSS utility classes

@@ -1,11 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { apiService } from '../services/api';
-import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2 } from 'lucide-react';
-import GTUploadDialog from './GTUploadDialog';
-import GTVerifyDialog from './GTVerifyDialog';
-import EvaluationResultsDialog from './EvaluationResultsDialog';
+import { Calendar, Hash, Cpu, RefreshCw, BarChart3, Loader2, User, Eye, Upload } from 'lucide-react';
 import { GroundTruthEntity } from '../types';
 import { useI18n } from '../i18n/context';
+import { GTViewer } from './GTViewer';
+import GTUploadDialog from './GTUploadDialog';
+
+type EvaluationProgress = {
+  status: string;
+  progress: number;
+  message: string;
+};
 
 type GenerationItem = {
   uuid: string;
@@ -46,7 +51,19 @@ function formatElapsed(seconds: number) {
   return `${s}s`;
 }
 
-export default function Observability() {
+interface ObservabilityProps {
+  patientId?: string;
+  onShowGTUpload?: (generationItem: GenerationItem) => void;
+  onShowGTVerify?: (generationItem: GenerationItem, entities: GroundTruthEntity[]) => void;
+  onShowEvalResults?: (generationItem: GenerationItem) => void;
+}
+
+export default function Observability({ 
+  patientId, 
+  onShowGTUpload, 
+  onShowGTVerify, 
+  onShowEvalResults 
+}: ObservabilityProps) {
   const { t } = useI18n();
   const [items, setItems] = useState<GenerationItem[]>([]);
   const [llms, setLlms] = useState<string[]>([]);
@@ -57,26 +74,54 @@ export default function Observability() {
   const [end, setEnd] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Evaluation flow state
-  const [selectedGeneration, setSelectedGeneration] = useState<GenerationItem | null>(null);
-  const [showGTUpload, setShowGTUpload] = useState(false);
-  const [showGTVerify, setShowGTVerify] = useState(false);
-  const [showEvalResults, setShowEvalResults] = useState(false);
-  const [extractedEntities, setExtractedEntities] = useState<GroundTruthEntity[]>([]);
+  // Evaluation flow state - only keep what's needed for progress tracking
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [evaluationProgress, setEvaluationProgress] = useState<EvaluationProgress | null>(null);
+
+  // GT Viewer state
+  const [gtViewerOpen, setGtViewerOpen] = useState(false);
+  const [gtViewerPatientId, setGtViewerPatientId] = useState<string>('');
+
+  // GT Upload state
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadPatientId, setUploadPatientId] = useState<string>('');
+  const [uploadReportUuid, setUploadReportUuid] = useState<string>('');
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+  
+  // Ref to track if we're in a manual refresh to prevent useEffect from triggering fetchData
+  const isManualRefreshRef = useRef(false);
+  // Track if initial setup is complete to prevent premature fetchData calls
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    loadFilters();
-    // Initialize date range to last 7 days
-    const now = new Date();
-    const past = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    setStart(past.toISOString());
-    setEnd(now.toISOString());
+    // Load demo mode status
+    const loadDemoMode = async () => {
+      try {
+        const { demo_mode } = await apiService.getDemoMode();
+        setIsDemoMode(demo_mode);
+      } catch (error) {
+        console.error('Failed to load demo mode status:', error);
+        // Fallback to false if API call fails
+        setIsDemoMode(false);
+      }
+    };
+    loadDemoMode();
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [selectedLLM, selectedHash, start, end]);
+    loadFilters();
+    // Initialize with empty date filters to show all generations
+    // setStart and setEnd remain empty strings by default
+    // Mark initialization as complete
+    setIsInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    // Only fetch data after initialization is complete and not during manual refresh
+    if (isInitialized && !isManualRefreshRef.current) {
+      fetchData();
+    }
+  }, [selectedLLM, selectedHash, start, end, patientId, isInitialized]);
 
   const loadFilters = async () => {
     try {
@@ -88,15 +133,19 @@ export default function Observability() {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (overrideParams?: { start?: string; end?: string }) => {
     setLoading(true);
     try {
       const params: any = {};
-      if (start) params.start = start;
-      if (end) params.end = end;
+      if (overrideParams?.start || start) params.start = overrideParams?.start || start;
+      if (overrideParams?.end || end) params.end = overrideParams?.end || end;
       if (selectedLLM) params.model_llm = selectedLLM;
       if (selectedHash) params.filenames_hash = selectedHash;
+      if (patientId) params.patient_id = patientId;
+      
+      console.log('📊 Fetching generations with params:', params);
       const { items } = await apiService.getGenerations(params);
+      console.log(`📊 Received ${items.length} generations`);
       setItems(items as GenerationItem[]);
     } catch (e) {
       console.error('Failed to load generations', e);
@@ -105,119 +154,278 @@ export default function Observability() {
     }
   };
 
+  const refreshData = async () => {
+    // Update the end time to "now" to capture any new data
+    const now = new Date();
+    const newEndTime = now.toISOString();
+    console.log('🔄 Refresh: Updating end time from', end, 'to', newEndTime);
+    
+    // Set flag to prevent useEffect from triggering fetchData
+    isManualRefreshRef.current = true;
+    
+    // Update state and fetch with the new end time immediately
+    setEnd(newEndTime);
+    await fetchData({ end: newEndTime });
+    
+    // Reset flag after fetch is complete
+    isManualRefreshRef.current = false;
+  };
+
   // Helper to get the report UUID from a generation
   const getReportUuid = (generation: GenerationItem): string | null => {
     return generation.report?.uuid || null;
   };
 
-  // Evaluation handlers
+  // Evaluation handlers - Modified to use auto-load GT workflow with demo mode support
   const handleStartEvaluation = async (generation: GenerationItem) => {
     const reportUuid = getReportUuid(generation);
     if (!reportUuid) {
       alert('Report UUID not found in this generation record');
       return;
     }
-    setSelectedGeneration(generation);
     
     // Route based on what data already exists
     if (generation.evaluation_status === 'COMPLETED') {
       // Evaluation exists → Show results directly
-      setShowEvalResults(true);
+      onShowEvalResults?.(generation);
     } else if (generation.gt_status === 'COMPLETED') {
       // GT exists but no evaluation → Fetch GT entities and show verify dialog
       try {
         const gtData = await apiService.getGroundTruth(generation.patient_id, reportUuid);
         if (gtData.status === 'found' && gtData.ground_truth?.entities) {
-          setExtractedEntities(gtData.ground_truth.entities);
-          setShowGTVerify(true);
+          onShowGTVerify?.(generation, gtData.ground_truth.entities);
         } else {
-          // GT not found (shouldn't happen), show upload
-          setShowGTUpload(true);
+          // GT not found (shouldn't happen), try auto-load
+          await handleAutoLoadGT(generation, reportUuid);
         }
       } catch (e) {
         console.error('Failed to fetch existing GT:', e);
-        // Fallback to upload
-        setShowGTUpload(true);
+        // Fallback to auto-load  
+        await handleAutoLoadGT(generation, reportUuid);
       }
     } else {
-      // No GT → Show upload dialog
-      setShowGTUpload(true);
+      // No GT → Handle based on demo mode
+      if (isDemoMode) {
+        // Demo mode: Try auto-load (which will reuse existing GT data)
+        // The backend will handle demo mode logic to reuse existing GT
+        await handleAutoLoadGT(generation, reportUuid);
+      } else {
+        // Normal mode: Try auto-load from public folder
+        await handleAutoLoadGT(generation, reportUuid);
+      }
     }
   };
 
-  const handleGTUploadComplete = (entities: GroundTruthEntity[]) => {
-    setExtractedEntities(entities);
-    setShowGTUpload(false);
-    setShowGTVerify(true);
-  };
-
-  const handleGTSave = () => {
-    // Entities saved, stay on verify dialog
-  };
-
-  const handleRunEvaluation = async () => {
-    if (!selectedGeneration) return;
-    const reportUuid = getReportUuid(selectedGeneration);
-    if (!reportUuid) {
-      alert('Report UUID not found');
-      return;
-    }
-
-    setShowGTVerify(false);
-    setIsEvaluating(true);
-
+  // New function to handle auto-load GT workflow with demo mode support
+  const handleAutoLoadGT = async (generation: GenerationItem, reportUuid: string) => {
     try {
-      // LLM provider is determined by backend from LLM_PROVIDER env var
-      await apiService.runEvaluation(
-        selectedGeneration.patient_id,
+      console.log('Starting handleAutoLoadGT for:', { 
+        patientId: generation.patient_id, 
         reportUuid,
-        (data) => {
-          if (data.status === 'FAILED') {
-            alert(`Evaluation failed: ${data.message}`);
-            setIsEvaluating(false);
-          }
+        generation,
+        isDemoMode
+      });
+      
+      setIsEvaluating(true);
+      setEvaluationProgress({ 
+        status: 'STARTED', 
+        progress: 0, 
+        message: isDemoMode ? 'Demo mode: Checking for existing ground truth data...' : 'Checking for ground truth file...'
+      });
+      
+      // In demo mode, skip file availability check and go straight to auto-load
+      // The backend will handle demo mode logic
+      if (!isDemoMode) {
+        // Normal mode: Check if GT file is available
+        console.log('Checking GT availability...');
+        const availability = await apiService.checkGTAvailability(generation.patient_id);
+        console.log('GT availability result:', availability);
+        console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+        
+        if (!availability.available) {
+          console.error('GT not available:', availability);
+          setIsEvaluating(false);
+          alert(`No ground truth file found for patient ${generation.patient_id}. Expected file: GT_${generation.patient_id}.pdf in public folder.`);
+          return;
+        }
+
+        setEvaluationProgress({ status: 'LOADING_FILE', progress: 10, message: `Found GT file: ${availability.filename}` });
+        console.log('GT file available, starting auto-load...');
+      } else {
+        console.log('Demo mode: Skipping file availability check, going directly to auto-load...');
+      }
+
+      // Auto-load GT file
+      const gtResult = await apiService.autoLoadGroundTruth(
+        generation.patient_id,
+        reportUuid,
+        'bedrock',
+        (progress) => {
+          console.log('GT Auto-load progress update:', progress);
+          setEvaluationProgress(progress);
         }
       );
+
+      console.log('GT Auto-load completed with final result:', gtResult);
+
+      if (gtResult?.status === 'COMPLETED') {
+        console.log('GT loaded successfully, starting evaluation...');
+        // GT loaded successfully, now run evaluation
+        setEvaluationProgress({ status: 'STARTED', progress: 0, message: 'Starting evaluation...' });
+        
+        const evalResult = await apiService.runEvaluation(
+          generation.patient_id,
+          reportUuid,
+          (progress) => {
+            console.log('Evaluation progress update:', progress);
+            setEvaluationProgress(progress);
+          }
+        );
+
+        console.log('Evaluation completed with result:', evalResult);
+
+        if (evalResult?.status === 'COMPLETED') {
+          console.log('Evaluation successful, refreshing data...');
+          // Refresh data to show updated status
+          await refreshData();
+          setIsEvaluating(false);
+          
+          // Automatically show results
+          onShowEvalResults?.(generation);
+        } else {
+          throw new Error(`Evaluation failed with status: ${evalResult?.status}. Message: ${evalResult?.message || 'Unknown evaluation error'}`);
+        }
+      } else {
+        console.error('GT Auto-load failed with result:', gtResult);
+        // More detailed error for GT loading failure
+        const errorMsg = gtResult?.message || 'Unknown auto-load error';
+        const statusInfo = gtResult?.status || 'No status returned';
+        throw new Error(`Auto-load GT failed. Status: ${statusInfo}. Message: ${errorMsg}`);
+      }
+
+    } catch (error) {
+      console.error('Auto-load GT and evaluation process failed:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        full: error
+      });
+      
       setIsEvaluating(false);
-      setShowEvalResults(true);
-      fetchData(); // Refresh to show updated evaluation status
-    } catch (e: any) {
-      console.error('Evaluation failed:', e);
-      alert(`Evaluation failed: ${e.message || 'Unknown error'}`);
-      setIsEvaluating(false);
+      
+      // Provide more helpful error messages based on mode
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      if (isDemoMode && errorMsg.includes('No pre-existing ground truth found')) {
+        alert(`Demo Mode: No ground truth data found for patient ${generation.patient_id}. In demo mode, ground truth data must be pre-loaded in the database. Please contact the administrator to ensure demo data is properly configured.`);
+      } else if (isDemoMode) {
+        alert(`Demo Mode Error: ${errorMsg}. Please ensure ground truth data is properly configured for demonstrations.`);
+      } else {
+        alert(`Failed to auto-load GT and run evaluation: ${errorMsg}`);
+      }
     }
   };
 
-  const handleReEvaluate = () => {
-    setShowEvalResults(false);
-    handleRunEvaluation();
+  // GT Viewer handler - simplified to use current patient
+  const handleViewGT = () => {
+    if (patientId) {
+      setGtViewerPatientId(patientId);
+      setGtViewerOpen(true);
+    }
   };
 
-  const handleCloseAllDialogs = () => {
-    setShowGTUpload(false);
-    setShowGTVerify(false);
-    setShowEvalResults(false);
-    setSelectedGeneration(null);
-    setExtractedEntities([]);
+  // GT Upload handlers
+  const handleUploadGT = () => {
+    // Check if demo mode is enabled
+    if (isDemoMode) {
+      alert('Upload functionality is disabled in demo mode. This feature is not available for demonstration purposes.');
+      return;
+    }
+    
+    if (!patientId) {
+      alert('No patient selected');
+      return;
+    }
+    
+    // Find reports for this patient
+    const patientGenerations = items.filter(g => g.patient_id === patientId);
+    
+    if (patientGenerations.length === 0) {
+      alert('No reports found for this patient');
+      return;
+    }
+    
+    // Use the most recent report (first in the sorted list)
+    const latestGeneration = patientGenerations[0];
+    
+    setUploadPatientId(latestGeneration.patient_id);
+    setUploadReportUuid(latestGeneration.report?.uuid || latestGeneration.uuid);
+    setUploadDialogOpen(true);
+  };
+
+  const handleUploadComplete = (entities: GroundTruthEntity[]) => {
+    setUploadDialogOpen(false);
+    // Refresh the data to show updated GT status
+    refreshData();
+    alert(`Ground truth uploaded successfully! Extracted ${entities.length} entities.`);
   };
 
   const distinctLLMs = useMemo(() => llms, [llms]);
   const distinctHashes = useMemo(() => hashes, [hashes]);
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-4">
+    <div className="card h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <h2 className="text-lg font-semibold">{t.observability.title}</h2>
-        <button
-          onClick={fetchData}
-          className="inline-flex items-center px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
-        >
-          <RefreshCw className="w-4 h-4 mr-2" /> {t.observability.refresh}
-        </button>
+        <div className="flex items-center gap-3">
+          {patientId && (
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+              <User className="w-4 h-4 mr-1.5" />
+              Patient: {patientId}
+            </div>
+          )}
+          <button
+            onClick={refreshData}
+            className="inline-flex items-center px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" /> {t.observability.refresh}
+          </button>
+        </div>
       </div>
 
+      {/* GT Action Buttons */}
+      {patientId && (
+        <div className="mb-4 flex gap-3">
+          <button
+            onClick={handleViewGT}
+            className="inline-flex items-center px-4 py-2 text-sm rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-800 transition-colors font-medium"
+            title={`View Ground Truth PDF for Patient ${patientId}`}
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            View Ground Truth PDF
+          </button>
+          
+          <button
+            onClick={handleUploadGT}
+            disabled={isDemoMode}
+            className={`inline-flex items-center px-4 py-2 text-sm rounded-lg transition-colors font-medium ${
+              isDemoMode 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-purple-100 hover:bg-purple-200 text-purple-800'
+            }`}
+            title={
+              isDemoMode 
+                ? 'Upload functionality is disabled in demo mode' 
+                : `Upload Ground Truth PDF for Patient ${patientId}`
+            }
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Ground Truth
+          </button>
+        </div>
+      )}
+
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4 shrink-0">
         <div className="space-y-1">
           <label className="text-xs text-gray-500">{t.observability.filters.startTime}</label>
           <div className="flex items-center gap-2">
@@ -286,7 +494,7 @@ export default function Observability() {
       </div>
 
       {/* Table */}
-      <div className="overflow-auto rounded-lg border border-gray-200">
+      <div className="flex-1 overflow-auto rounded-lg border border-gray-200 min-h-0">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -303,7 +511,7 @@ export default function Observability() {
               <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">{t.observability.table.evaluate}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 bg-white border-b border-gray-200">
             {loading ? (
               <tr>
                 <td colSpan={11} className="px-4 py-8 text-center text-gray-500">{t.observability.table.loading}</td>
@@ -324,32 +532,50 @@ export default function Observability() {
                   <td className="px-2 py-2 text-sm text-gray-700">{g.max_entities_per_batch}</td>
                   <td className="px-2 py-2 text-sm text-gray-700">{g.aggregation_batch_size}</td>
                   <td className="px-2 py-2 text-sm text-gray-700">{g.max_content_size}</td>
-                  <td className="px-2 py-2 text-sm text-gray-700">{g.evaluation_summary?.macro_accuracy?.toFixed(2) ?? '-'}</td>
+                  <td className="px-2 py-2 text-sm text-gray-700">
+                    {!getReportUuid(g) ? (
+                      <span className="text-gray-400">No report</span>
+                    ) : g.evaluation_summary?.macro_accuracy !== undefined ? (
+                      g.evaluation_summary.macro_accuracy.toFixed(2)
+                    ) : (
+                      '-'
+                    )}
+                  </td>
                   <td className="px-3 py-2 text-center">
-                    <button
-                      onClick={() => handleStartEvaluation(g)}
-                      className={`inline-flex items-center px-2 py-1 text-xs rounded-md transition-colors ${
-                        g.evaluation_status === 'COMPLETED'
-                          ? 'bg-green-100 hover:bg-green-200 text-green-800'
+                    <div className="flex gap-1 justify-center">
+                      {/* Evaluation Button */}
+                      <button
+                        onClick={() => handleStartEvaluation(g)}
+                        className={`inline-flex items-center px-2 py-1 text-xs rounded-md transition-colors ${
+                          !getReportUuid(g) 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : g.evaluation_status === 'COMPLETED'
+                            ? 'bg-green-100 hover:bg-green-200 text-green-800'
+                            : g.gt_status === 'COMPLETED'
+                            ? 'bg-amber-100 hover:bg-amber-200 text-amber-800'
+                            : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
+                        }`}
+                        disabled={!getReportUuid(g)}
+                        title={
+                          !getReportUuid(g)
+                            ? 'No report available - cannot evaluate'
+                            : g.evaluation_status === 'COMPLETED'
+                            ? t.observability.evaluation.viewResults
+                            : g.gt_status === 'COMPLETED'
+                            ? t.observability.evaluation.runEvaluationExisting
+                            : t.observability.evaluation.uploadGroundTruthEvaluate
+                        }
+                      >
+                        <BarChart3 className="w-3 h-3 mr-1" />
+                        {!getReportUuid(g) 
+                          ? 'No Report'
+                          : g.evaluation_status === 'COMPLETED'
+                          ? t.observability.evaluation.view
                           : g.gt_status === 'COMPLETED'
-                          ? 'bg-amber-100 hover:bg-amber-200 text-amber-800'
-                          : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
-                      }`}
-                      title={
-                        g.evaluation_status === 'COMPLETED'
-                          ? t.observability.evaluation.viewResults
-                          : g.gt_status === 'COMPLETED'
-                          ? t.observability.evaluation.runEvaluationExisting
-                          : t.observability.evaluation.uploadGroundTruthEvaluate
-                      }
-                    >
-                      <BarChart3 className="w-3 h-3 mr-1" />
-                      {g.evaluation_status === 'COMPLETED'
-                        ? t.observability.evaluation.view
-                        : g.gt_status === 'COMPLETED'
-                        ? t.observability.evaluation.evaluate
-                        : t.observability.evaluation.uploadGT}
-                    </button>
+                          ? t.observability.evaluation.evaluate
+                          : t.observability.evaluation.uploadGT}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -358,51 +584,48 @@ export default function Observability() {
         </table>
       </div>
 
-      {/* GT Upload Dialog */}
-      {showGTUpload && selectedGeneration && getReportUuid(selectedGeneration) && (
-        <GTUploadDialog
-          isOpen={showGTUpload}
-          onClose={handleCloseAllDialogs}
-          patientId={selectedGeneration.patient_id}
-          reportUuid={getReportUuid(selectedGeneration)!}
-          onComplete={handleGTUploadComplete}
-        />
-      )}
-
-      {/* GT Verify Dialog */}
-      {showGTVerify && selectedGeneration && getReportUuid(selectedGeneration) && (
-        <GTVerifyDialog
-          isOpen={showGTVerify}
-          onClose={handleCloseAllDialogs}
-          patientId={selectedGeneration.patient_id}
-          reportUuid={getReportUuid(selectedGeneration)!}
-          initialEntities={extractedEntities}
-          onSave={handleGTSave}
-          onRunEvaluation={handleRunEvaluation}
-        />
-      )}
-
-      {/* Evaluation Results Dialog */}
-      {showEvalResults && selectedGeneration && getReportUuid(selectedGeneration) && (
-        <EvaluationResultsDialog
-          isOpen={showEvalResults}
-          onClose={handleCloseAllDialogs}
-          patientId={selectedGeneration.patient_id}
-          reportUuid={getReportUuid(selectedGeneration)!}
-          onReEvaluate={handleReEvaluate}
-        />
-      )}
-
       {/* Evaluation Progress Overlay */}
       {isEvaluating && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 text-white">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">{t.observability.evaluation.runningTitle}</h3>
-            <p className="text-lg">{t.observability.evaluation.runningDescription}</p>
+            <h3 className="text-xl font-semibold mb-2">
+              {evaluationProgress?.status === 'LOADING_FILE' ? 'Loading Ground Truth...' :
+               evaluationProgress?.status === 'OCR_RUNNING' ? 'Running OCR...' :
+               evaluationProgress?.status === 'EXTRACTING_ENTITIES' ? 'Extracting Entities...' :
+               evaluationProgress?.status === 'EVALUATING' ? 'Running Evaluation...' :
+               t.observability.evaluation.runningTitle}
+            </h3>
+            <p className="text-lg mb-2">
+              {evaluationProgress?.message || t.observability.evaluation.runningDescription}
+            </p>
+            {evaluationProgress?.progress !== undefined && (
+              <div className="w-64 bg-gray-700 rounded-full h-2 mx-auto">
+                <div 
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${evaluationProgress.progress}%` }}
+                ></div>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* GT Viewer Modal */}
+      <GTViewer
+        patientId={gtViewerPatientId}
+        isOpen={gtViewerOpen}
+        onClose={() => setGtViewerOpen(false)}
+      />
+      
+      {/* GT Upload Dialog */}
+      <GTUploadDialog
+        isOpen={uploadDialogOpen}
+        onClose={() => setUploadDialogOpen(false)}
+        patientId={uploadPatientId}
+        reportUuid={uploadReportUuid}
+        onComplete={handleUploadComplete}
+      />
     </div>
   );
 }

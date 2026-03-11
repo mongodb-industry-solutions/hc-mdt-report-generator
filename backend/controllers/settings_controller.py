@@ -136,6 +136,15 @@ async def get_llm_models() -> dict:
     }
 
 
+@router.get("/demo-mode", status_code=200)
+async def get_demo_mode() -> dict:
+    """
+    Get demo mode status from environment variable
+    """
+    demo_mode = os.getenv('DEMO_MODE', 'false').lower() == 'true'
+    return {"demo_mode": demo_mode}
+
+
 @router.post("/llm-models", status_code=201)
 async def add_llm_model(request: LLMModelAddRequest = Body(...)) -> dict:
     """
@@ -520,100 +529,3 @@ async def update_ner_config(
             status_code=500,
             detail=f"Error updating NER configuration: {str(e)}"
         )
-
-
-@router.post("/sync-ollama-models", status_code=200)
-async def sync_ollama_models() -> dict:
-    """
-    Query Ollama for available models and sync to MongoDB.
-    This ensures the app's model list matches what's actually available in Ollama.
-    """
-    ollama_url = "http://localhost:11434"  # Default
-    try:
-        # Get Ollama base URL from settings or environment
-        ollama_url = os.environ.get("GPT_OPEN_BASE_URL") or settings.gpt_open_base_url or "http://localhost:11434"
-        
-        # Remove trailing slash if present
-        ollama_url = ollama_url.rstrip("/")
-        
-        logger.info(f"🔄 Syncing models from Ollama at {ollama_url}/api/tags")
-        
-        # Query Ollama for available models
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(f"{ollama_url}/api/tags")
-            response.raise_for_status()
-            data = response.json()
-        
-        # Extract models from Ollama response
-        ollama_models = []
-        for model in data.get("models", []):
-            model_name = model.get("name", "")
-            model_size = model.get("size", 0)
-            
-            # Format size for display
-            size_gb = round(model_size / (1024**3), 1) if model_size else 0
-            
-            ollama_models.append({
-                "id": model_name,
-                "name": f"Ollama {model_name} ({size_gb}GB)",
-                "provider": "ollama",
-                "apiKeyRequired": False,
-                "description": f"Ollama-hosted {model_name} via /api/generate",
-                "isDefault": False,
-                "endpointType": "local",
-                "base_url": ollama_url,
-                "enabled": True,
-                "isOllama": True  # Flag to identify synced Ollama models
-            })
-        
-        if not ollama_models:
-            return {
-                "success": False,
-                "error": "No models found in Ollama",
-                "synced_models": 0,
-                "models": []
-            }
-        
-        # Load existing models from DB (if any)
-        existing_models = list(_get_effective_models())
-        
-        # Remove old Ollama-synced models (keep manually added ones)
-        non_ollama_models = [m for m in existing_models if not m.get("isOllama", False)]
-        
-        # Merge: keep non-Ollama models + add new Ollama models
-        merged_models = non_ollama_models + ollama_models
-        
-        # Save to MongoDB
-        _save_models_to_db(merged_models)
-        
-        logger.info(f"✅ Synced {len(ollama_models)} models from Ollama")
-        
-        return {
-            "success": True,
-            "synced_models": len(ollama_models),
-            "total_models": len(merged_models),
-            "ollama_url": ollama_url,
-            "models": [m for m in merged_models if m.get("enabled", True)]
-        }
-        
-    except httpx.ConnectError as e:
-        logger.error(f"Could not connect to Ollama: {e}")
-        return {
-            "success": False,
-            "error": f"Could not connect to Ollama at {ollama_url}. Is Ollama running?",
-            "synced_models": 0
-        }
-    except httpx.HTTPStatusError as e:
-        logger.error(f"Ollama API error: {e}")
-        return {
-            "success": False,
-            "error": f"Ollama API returned error: {e.response.status_code}",
-            "synced_models": 0
-        }
-    except Exception as e:
-        logger.error(f"Error syncing Ollama models: {str(e)}")
-        return {
-            "success": False,
-            "error": f"Error syncing Ollama models: {str(e)}",
-            "synced_models": 0
-        }

@@ -87,6 +87,9 @@ def list_generations(
                         gt_status = gt.status
                 except Exception as e:
                     logger.warning(f"Failed to get evaluation/GT status for report {report_uuid}: {e}")
+            else:
+                # Log when report UUID is missing for debugging
+                logger.info(f"Generation {item_dict.get('uuid')} has no report UUID - cannot check evaluation/GT status")
             
             # Add enriched fields
             item_dict["evaluation_status"] = evaluation_status

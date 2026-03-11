@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, User, BarChart3, Settings, X, Eye, Users } from 'lucide-react';
+import { FileText, User, BarChart3, Settings, X, Eye, Users, Menu, ChevronLeft } from 'lucide-react';
 import PatientSelector from './components/PatientSelector';
 import PatientSelectionView from './components/PatientSelectionView';
-import DocumentsList from './components/DocumentsList';
+import DocumentsContainer from './components/DocumentsContainer';
 import ReportsList from './components/ReportsList';
 import ReportViewer from './components/ReportViewer';
 import SettingsPanel from './components/SettingsPanel';
 import Observability from './components/Observability';
+import GTUploadDialog from './components/GTUploadDialog';
+import GTVerifyDialog from './components/GTVerifyDialog';
+import EvaluationResultsDialog from './components/EvaluationResultsDialog';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import PatientsDialog from './components/PatientsDialog';
 import DisclaimerModal from './components/DisclaimerModal';
 import MongoDBHealthcareLogo from './components/CobrandedLogo';
+import InfoModal from './components/InfoModal';
+import InfoButton from './components/InfoButton';
 import { I18nProvider, useI18n } from './i18n/context';
 import { apiService, getApiBaseURL } from './services/api';
-import { PatientDocument, Report, ReportGenerationProgress } from './types';
+import { PatientDocument, Report, ReportGenerationProgress, GroundTruthEntity } from './types';
+import { useInfoModal, tabInfoContent } from './hooks/useInfoModal';
 
 function AppContent() {
   const { t } = useI18n();
@@ -33,9 +39,25 @@ function AppContent() {
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(true);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean>(false);
   
+  // Sidebar collapse state
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  
   // Report generation state - moved here to persist across tab switches
   const [isGeneratingReport, setIsGeneratingReport] = useState<boolean>(false);
   const [reportGenerationProgress, setReportGenerationProgress] = useState<ReportGenerationProgress | null>(null);
+
+  // GT and Evaluation modal states
+  const [showGTUpload, setShowGTUpload] = useState<boolean>(false);
+  const [showGTVerify, setShowGTVerify] = useState<boolean>(false);
+  const [showEvalResults, setShowEvalResults] = useState<boolean>(false);
+  const [selectedGeneration, setSelectedGeneration] = useState<any>(null);
+  const [extractedEntities, setExtractedEntities] = useState<GroundTruthEntity[]>([]);
+  const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
+
+  // Info modal states for each tab
+  const documentsInfo = useInfoModal('documents', currentView === 'documents' && !!patientId);
+  const reportsInfo = useInfoModal('reports', currentView === 'reports' && !!patientId);
+  const observabilityInfo = useInfoModal('observability', currentView === 'observability' && !!patientId);
 
   // Debug: Track generation state across tab switches
   useEffect(() => {
@@ -43,6 +65,19 @@ function AppContent() {
       console.log('🎯 App-level generation state: GENERATING - Progress:', reportGenerationProgress?.progress + '%' || 'null');
     }
   }, [isGeneratingReport, reportGenerationProgress]);
+
+  // Keyboard shortcut for sidebar toggle (Ctrl/Cmd + \\)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === '\\' && patientId) {
+        event.preventDefault();
+        setIsSidebarCollapsed(!isSidebarCollapsed);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isSidebarCollapsed, patientId]);
 
   // Update API base URL when it changes
   useEffect(() => {
@@ -64,35 +99,13 @@ function AppContent() {
     }
   }, [patientId]);
 
-  // Auto-refresh reports when switching to reports tab + first-time settings popup
+  // Auto-refresh reports when switching to reports tab
   useEffect(() => {
     if (currentView === 'reports' && patientId) {
       // Refresh only the reports data when switching to reports tab
       refreshReports();
-
-      // Show Settings on first visit to Reports in this browser tab
-      try {
-        const openedKey = 'claritygr:settings_opened';
-        if (!sessionStorage.getItem(openedKey)) {
-          setShowSettings(true);
-          sessionStorage.setItem(openedKey, 'true');
-        }
-      } catch (e) {
-        // Ignore sessionStorage errors (e.g., privacy mode)
-      }
     }
   }, [currentView, patientId]);
-
-  // Mark settings as opened in this browser tab whenever it is shown
-  useEffect(() => {
-    if (showSettings) {
-      try {
-        sessionStorage.setItem('claritygr:settings_opened', 'true');
-      } catch (e) {
-        // Ignore sessionStorage errors
-      }
-    }
-  }, [showSettings]);
 
   const loadPatientData = async () => {
     setIsLoading(true);
@@ -213,42 +226,124 @@ function AppContent() {
     setReportGenerationProgress(null);
   };
 
+  // GT Modal handlers
+  const handleShowGTUpload = (generation: any) => {
+    setSelectedGeneration(generation);
+    setShowGTUpload(true);
+  };
+
+  const handleShowGTVerify = (generation: any, entities: GroundTruthEntity[]) => {
+    setSelectedGeneration(generation);
+    setExtractedEntities(entities);
+    setShowGTVerify(true);
+  };
+
+  const handleShowEvalResults = (generation: any) => {
+    setSelectedGeneration(generation);
+    setShowEvalResults(true);
+  };
+
+  const handleGTUploadComplete = (entities: GroundTruthEntity[]) => {
+    setExtractedEntities(entities);
+    setShowGTUpload(false);
+    setShowGTVerify(true);
+  };
+
+  const handleGTSave = () => {
+    // Entities saved, stay on verify dialog
+  };
+
+  const handleRunEvaluation = async () => {
+    if (!selectedGeneration) return;
+    const reportUuid = selectedGeneration.report?.uuid;
+    if (!reportUuid) {
+      alert('Report UUID not found');
+      return;
+    }
+
+    setShowGTVerify(false);
+    setIsEvaluating(true);
+
+    try {
+      await apiService.runEvaluation(
+        selectedGeneration.patient_id,
+        reportUuid,
+        (data) => {
+          if (data.status === 'FAILED') {
+            alert(`Evaluation failed: ${data.message}`);
+            setIsEvaluating(false);
+          }
+        }
+      );
+      setIsEvaluating(false);
+      setShowEvalResults(true);
+      // Note: Observability data refresh would need to be handled separately if needed
+    } catch (e: any) {
+      console.error('Evaluation failed:', e);
+      alert(`Evaluation failed: ${e.message || 'Unknown error'}`);
+      setIsEvaluating(false);
+    }
+  };
+
+  const handleReEvaluate = () => {
+    setShowEvalResults(false);
+    handleRunEvaluation();
+  };
+
+  const handleCloseGTDialogs = () => {
+    setShowGTUpload(false);
+    setShowGTVerify(false);
+    setShowEvalResults(false);
+    setSelectedGeneration(null);
+    setExtractedEntities([]);
+  };
+
   const navigation = [
-    { id: 'documents', label: t.navigation.documents, icon: FileText },
-    { id: 'reports', label: t.navigation.reports, icon: BarChart3 },
-    { id: 'observability', label: t.navigation.observability, icon: Eye },
+    { id: 'documents', label: t.navigation.documents, icon: FileText, infoModal: documentsInfo },
+    { id: 'reports', label: t.navigation.reports, icon: BarChart3, infoModal: reportsInfo },
+    { id: 'observability', label: t.navigation.observability, icon: Eye, infoModal: observabilityInfo },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white overflow-x-hidden max-w-[100vw] flex flex-col">
       {disclaimerAccepted && (
         <>
           {/* Fixed Header */}
           <header className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md shadow-lg border-b border-gray-200">
-            <div className="w-full px-4 sm:px-6 lg:px-8">
-              {/* Professional Header with Cobranded Logo */}
-              <div className="bg-gradient-to-r from-navy-800 to-navy-900 text-white px-6 py-4 -mx-4 -mt-0 mb-6 border-b-2 border-mongodb-green">
-                <div className="flex items-center justify-between relative">
-                  {/* Empty div for layout balance */}
-                  <div className="flex-1"></div>
-                  
-                  {/* MongoDB Healthcare Logo - Center */}
-                  <div className="flex-1 flex justify-center">
-                    <div className="transform scale-150">
-                      <MongoDBHealthcareLogo size="lg" />
-                    </div>
+            {/* Professional Header with Cobranded Logo - Full Width */}
+            <div 
+              className="text-white px-6 py-8 border-b-2 border-mongodb-green relative"
+              style={{
+                backgroundImage: `url('/HeaderBackground.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            >
+              {/* Overlay for better text readability */}
+              <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+              <div className="flex items-center justify-between relative z-10">
+                {/* Empty div for layout balance */}
+                <div className="flex-1"></div>
+                
+                {/* MongoDB Healthcare Logo - Center */}
+                <div className="flex-1 flex justify-center">
+                  <div className="transform scale-150">
+                    <MongoDBHealthcareLogo size="xl" />
                   </div>
-                  
-                  {/* Professional Badge - Right Side */}
-                  <div className="flex-1 flex justify-end">
-                    <div className="flex items-center space-x-2 bg-mongodb-green/10 border border-mongodb-green/30 rounded-lg px-4 py-2">
-                      <div className="w-2 h-2 bg-mongodb-green rounded-full"></div>
-                      <span className="text-sm font-medium text-mongodb-green">Backend Connected</span>
-                    </div>
+                </div>
+                
+                {/* Professional Badge - Right Side */}
+                <div className="flex-1 flex justify-end">
+                  <div className="flex items-center space-x-2 bg-mongodb-green/10 border border-mongodb-green/30 rounded-lg px-4 py-2">
+                    <div className="w-2 h-2 bg-mongodb-green rounded-full"></div>
+                    <span className="text-sm font-medium text-mongodb-green">Backend Connected</span>
                   </div>
                 </div>
               </div>
-              
+            </div>
+            
+            <div className="w-full px-4 sm:px-6 lg:px-8 overflow-hidden">
               <div className="flex justify-between items-center py-6">
                 <div className="flex items-center space-x-6">
                   <div className="flex items-center space-x-3">
@@ -307,31 +402,71 @@ function AppContent() {
           </header>
 
           {/* Header Spacer - ensures content starts below fixed header */}
-          <div className="h-64 lg:h-56"></div>
+          <div className="h-68 lg:h-60 shrink-0"></div>
           
           {/* Main Layout */}
-          <div className={`flex min-h-screen ${!patientId ? '' : ''}`}>
+          <div className={`flex flex-1 min-h-0 ${!patientId ? '' : ''}`}>
             {/* Left Sidebar Navigation - Only show when patient is selected */}
             {patientId && (
-              <div className="w-64 fixed left-0 top-64 lg:top-56 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40">
+              <div className={`fixed left-0 top-68 lg:top-60 bottom-0 bg-white/95 backdrop-blur-md shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ${
+                isSidebarCollapsed ? 'w-20' : 'w-80'
+              }`}>
+                {/* Sidebar Header with Title and Toggle */}
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                  {!isSidebarCollapsed && (
+                    <div className="flex-1">
+                      <h2 className="text-lg font-bold text-navy-800 truncate">
+                        Patient Workspace
+                      </h2>
+                      <p className="text-xs text-gray-600 truncate">
+                        {patientId}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-navy-700 hover:text-navy-900 ${isSidebarCollapsed ? 'mx-auto' : 'ml-2'}`}
+                    title={isSidebarCollapsed ? 'Expand Sidebar (Ctrl/⌘ + \\)' : 'Collapse Sidebar (Ctrl/⌘ + \\)'}
+                  >
+                    {isSidebarCollapsed ? (
+                      <Menu className="w-5 h-5" />
+                    ) : (
+                      <ChevronLeft className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+
                 <nav className="p-6 space-y-2">
                   {navigation.map((item) => {
                     const Icon = item.icon;
                     return (
-                      <button
-                        key={item.id}
-                        onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
-                        className={`
-                          w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm
-                          ${currentView === item.id
-                            ? 'bg-gradient-to-r from-navy-700 to-navy-800 text-white border border-navy-600 shadow-lg'
-                            : 'text-navy-700 hover:text-navy-900 hover:bg-gray-50 hover:shadow-md border border-gray-200/50 bg-white/50'
-                          }
-                        `}
-                      >
-                        <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''}`} />
-                        <span className="font-medium">{item.label}</span>
-                      </button>
+                      <div key={item.id} className="flex items-stretch space-x-1">
+                        <button
+                          onClick={() => setCurrentView(item.id as 'documents' | 'reports' | 'observability')}
+                          className={`
+                            ${isSidebarCollapsed ? 'flex-col p-2 space-x-0 space-y-1' : 'flex-row px-4 py-3 space-x-3'}
+                            flex-1 flex items-center rounded-xl font-semibold transition-all duration-200 shadow-sm
+                            ${currentView === item.id
+                              ? 'bg-gradient-to-r from-navy-700 to-navy-800 text-white border border-navy-600 shadow-lg'
+                              : 'text-navy-700 hover:text-navy-900 hover:bg-gray-50 hover:shadow-md border border-gray-200/50 bg-white/50'
+                            }
+                          `}
+                          title={isSidebarCollapsed ? item.label : undefined}
+                        >
+                          <Icon className={`w-5 h-5 ${currentView === item.id ? 'text-mongodb-green' : ''} ${isSidebarCollapsed ? 'mb-1' : ''}`} />
+                          {!isSidebarCollapsed && <span className="font-medium">{item.label}</span>}
+                        </button>
+                        
+                        {/* Info Button - only show when sidebar is expanded */}
+                        {!isSidebarCollapsed && (
+                          <InfoButton
+                            onClick={(position) => item.infoModal.showModal(position)}
+                            className="flex-shrink-0"
+                            isActive={currentView === item.id}
+                          />
+                        )}
+                      </div>
                     );
                   })}
                 </nav>
@@ -339,7 +474,7 @@ function AppContent() {
             )}
 
             {/* Main Content Area */}
-            <div className={`flex-1 ${patientId ? 'ml-64' : ''} px-4 sm:px-6 lg:px-8 py-8`}>
+            <div className={`flex-1 ${patientId ? (isSidebarCollapsed ? 'ml-20' : 'ml-80') : ''} px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300`} style={{ maxWidth: patientId ? (isSidebarCollapsed ? 'calc(100vw - 5rem)' : 'calc(100vw - 20rem)') : '100vw', overflowX: 'hidden' }}>
               {error && (
                 <div className="mb-6 bg-red-50/90 border border-red-200 rounded-xl p-6 backdrop-blur-sm shadow-sm">
                   <div className="flex">
@@ -355,9 +490,9 @@ function AppContent() {
               )}
 
               {/* Standard documents/reports layout */}
-              <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex flex-col lg:flex-row gap-6 overflow-hidden w-full h-full">
               {/* Main Content */}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0 overflow-hidden h-full">
                   {/* Content */}
                   {!patientId ? (
                     /* Show patient selection when no patient is selected */
@@ -372,7 +507,7 @@ function AppContent() {
                   ) : (
                     <>
                       {currentView === 'documents' && (
-                        <DocumentsList
+                        <DocumentsContainer
                           documents={documents}
                           onRefresh={handleRefreshDocuments}
                           patientId={patientId}
@@ -399,7 +534,12 @@ function AppContent() {
                       )}
 
                       {currentView === 'observability' && (
-                        <Observability />
+                        <Observability 
+                          patientId={patientId} 
+                          onShowGTUpload={handleShowGTUpload}
+                          onShowGTVerify={handleShowGTVerify}
+                          onShowEvalResults={handleShowEvalResults}
+                        />
                       )}
                     </>
                   )}
@@ -418,7 +558,7 @@ function AppContent() {
               ></div>
               
               {/* Modal Content */}
-              <div className="relative w-[50vw] h-[95vh] max-w-none">
+              <div className="relative w-[70vw] h-[95vh] max-w-none">
                 <ReportViewer
                   report={selectedReport}
                   onClose={() => setShowReportViewer(false)}
@@ -435,12 +575,82 @@ function AppContent() {
             />
           )}
 
+          {/* GT Upload Dialog */}
+          {showGTUpload && selectedGeneration && (
+            <GTUploadDialog
+              isOpen={showGTUpload}
+              onClose={handleCloseGTDialogs}
+              patientId={selectedGeneration.patient_id}
+              reportUuid={selectedGeneration.report?.uuid}
+              onComplete={handleGTUploadComplete}
+            />
+          )}
+
+          {/* GT Verify Dialog */}
+          {showGTVerify && selectedGeneration && (
+            <GTVerifyDialog
+              isOpen={showGTVerify}
+              onClose={handleCloseGTDialogs}
+              patientId={selectedGeneration.patient_id}
+              reportUuid={selectedGeneration.report?.uuid}
+              initialEntities={extractedEntities}
+              onSave={handleGTSave}
+              onRunEvaluation={handleRunEvaluation}
+            />
+          )}
+
+          {/* Evaluation Results Dialog */}
+          {showEvalResults && selectedGeneration && (
+            <EvaluationResultsDialog
+              isOpen={showEvalResults}
+              onClose={handleCloseGTDialogs}
+              patientId={selectedGeneration.patient_id}
+              reportUuid={selectedGeneration.report?.uuid}
+              onReEvaluate={handleReEvaluate}
+            />
+          )}
+
+          {/* Evaluation Progress Overlay */}
+          {isEvaluating && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 text-white">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                <h3 className="text-xl font-semibold mb-2">Running Evaluation</h3>
+                <p className="text-lg">Please wait while we evaluate the entities...</p>
+              </div>
+            </div>
+          )}
+
           {showPatientsDialog && (
             <PatientsDialog
               isOpen={showPatientsDialog}
               onClose={() => setShowPatientsDialog(false)}
               onSelect={(pid) => setPatientId(pid)}
             />
+          )}
+
+          {/* Info Modals for each tab - only show when patient is selected */}
+          {patientId && (
+            <>
+              <InfoModal
+                isOpen={documentsInfo.isOpen}
+                onClose={documentsInfo.hideModal}
+                content={tabInfoContent.documents}
+                buttonPosition={documentsInfo.buttonPosition}
+              />
+              <InfoModal
+                isOpen={reportsInfo.isOpen}
+                onClose={reportsInfo.hideModal}
+                content={tabInfoContent.reports}
+                buttonPosition={reportsInfo.buttonPosition}
+              />
+              <InfoModal
+                isOpen={observabilityInfo.isOpen}
+                onClose={observabilityInfo.hideModal}
+                content={tabInfoContent.observability}
+                buttonPosition={observabilityInfo.buttonPosition}
+              />
+            </>
           )}
         </>
       )}

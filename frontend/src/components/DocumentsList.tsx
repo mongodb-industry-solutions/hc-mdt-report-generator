@@ -80,31 +80,46 @@ export default function DocumentsList({ documents, onRefresh, patientId, onDocum
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{t.documents.title}</h2>
-          <p className="text-gray-600">
-            {documents.length} {t.documents.documentsFor} {patientId}
-          </p>
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setShowUploadModal(true)}
-            className="btn-primary flex items-center space-x-2"
-          >
-            <Upload className="w-4 h-4" />
-            <span>{t.documents.upload}</span>
-          </button>
-          <button
-            disabled={true}
-            className="btn-outline flex items-center space-x-2 opacity-50 cursor-not-allowed"
-            title="Coming soon: Fetch documents from EHR server"
-          >
-            <Download className="w-4 h-4" />
-            <span>{t.documents.fetchFromEhr}</span>
-          </button>
+      {/* Professional Header */}
+      <div className="bg-gradient-to-r from-white via-slate-50/30 to-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
+        {/* Premium Header Section */}
+        <div className="border-b border-slate-100/80 bg-gradient-to-r from-slate-50/40 via-white to-slate-50/40">
+          <div className="p-6">
+            <div className="flex flex-wrap items-center justify-between gap-6">
+              <div className="flex items-center space-x-4">
+                {/* Premium Icon Container */}
+                <div className="relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800 rounded-xl flex items-center justify-center shadow-lg">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  {/* Status indicator dot */}
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                  </div>
+                </div>
+                
+                {/* Professional Title Section */}
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-3">
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent tracking-tight">
+                      Pre-processed Documents
+                    </h2>
+                    {documents.length > 0 && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border border-emerald-200/50">
+                        {documents.length} Ready
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-slate-600 font-medium">
+                    {documents.length === 0 
+                      ? `No pre-processed documents for ${patientId}` 
+                      : `${documents.length} ${t.documents.documentsFor} ${patientId} - ready for report generation`
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -157,12 +172,12 @@ export default function DocumentsList({ documents, onRefresh, patientId, onDocum
               {/* Document Header */}
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                  <div className="flex items-start space-x-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm flex-shrink-0">
                       <FileText className="w-6 h-6 text-blue-600" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-semibold text-gray-900 break-words leading-tight">
                         {document.filename || `Document ${document.uuid.slice(0, 8)}`}
                       </h3>
                       <div className="flex items-center space-x-2 mt-1">
