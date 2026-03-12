@@ -59,9 +59,8 @@ class AsyncTextractClient:
                 else:
                     self._client = boto3.client('textract', region_name=self.region_name)
                 
-                logger.info(f"✅ AWS Textract client initialized (region: {self.region_name})")
             except Exception as e:
-                logger.error(f"❌ Failed to initialize AWS Textract client: {e}")
+                logger.error(f"Failed to initialize AWS Textract client: {e}")
                 raise
     
     async def extract_text_from_file(self, file_path: str) -> str:
@@ -161,13 +160,12 @@ class AsyncTextractClient:
                 logger.warning(f"Text truncated from {len(extracted_text)} to {self.max_text_length} characters")
                 extracted_text = extracted_text[:self.max_text_length]
             
-            logger.info(f"✅ Textract extracted {len(extracted_text)} characters")
             return extracted_text
             
         except ClientError as e:
             error_code = e.response.get('Error', {}).get('Code', 'Unknown')
             error_message = e.response.get('Error', {}).get('Message', str(e))
-            logger.error(f"❌ AWS Textract error [{error_code}]: {error_message}")
+            logger.error(f"AWS Textract error [{error_code}]: {error_message}")
             raise
         except Exception as e:
             logger.error(f"❌ Unexpected error in Textract extraction: {e}")

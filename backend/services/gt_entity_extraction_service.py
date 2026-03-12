@@ -5,7 +5,7 @@ Extracts entities from OCR text using the same LLM-based approach
 as the main entity extraction, but optimized for ground truth documents.
 
 UPDATED: Now supports template_id for consistency with report generation,
-uses AWS Bedrock as primary choice and Mistral API as secondary choice.
+uses AWS Bedrock as primary choice and gpt_open as fallback.
 """
 
 import os
@@ -64,7 +64,7 @@ class GTEntityExtractionService:
     Supports:
     - Template ID for consistency with report generation
     - AWS Bedrock when LLM_PROVIDER is "bedrock" (primary choice)
-    - Mistral API when LLM_PROVIDER is "mistral" (secondary choice)
+    - gpt_open when LLM_PROVIDER is "gpt_open" or fallback
     - Fallback to gpt_open for other providers
     """
 
@@ -86,7 +86,7 @@ class GTEntityExtractionService:
             template_id: Optional template ID to use (for consistency with report)
             entity_names: Optional list of specific entity names to extract.
                          If None, uses all entities from template.
-            llm_provider: LLM provider to use ("bedrock", "mistral", or "gpt_open").
+            llm_provider: LLM provider to use ("bedrock" or "gpt_open").
                          If None, falls back to LLM_PROVIDER env var.
                          
         Returns:
@@ -141,11 +141,9 @@ class GTEntityExtractionService:
         
         logger.info(f"GT extraction using LLM provider: {provider}")
         
-        # Route based on provider - Bedrock first, then Mistral as secondary
+        # Route based on provider - Bedrock first, then gpt_open as fallback
         if provider == "bedrock":
             return await self._call_bedrock(prompt, system_prompt)
-        elif "mistral" in provider:
-            return await self._call_mistral(prompt, system_prompt)
         elif "ollama" in provider or "gpt" in provider:
             return await self._call_gpt_open(prompt, system_prompt)
         else:
@@ -173,29 +171,6 @@ class GTEntityExtractionService:
             # Fallback to gpt_open
             logger.warning("Falling back to gpt_open")
             return await self._call_gpt_open(prompt, system_prompt)
-    
-    async def _call_mistral(self, prompt: str, system_prompt: str) -> str:
-        """Call Mistral API for extraction (secondary choice)."""
-        try:
-            from infrastructure.llm.mistral_client import AsyncMistralClient
-            
-            logger.info("Using Mistral API for GT entity extraction (secondary choice)")
-            mistral_client = AsyncMistralClient()
-            response = await mistral_client.invoke_mistral_async_robust(
-                system_prompt,
-                prompt,
-                timeout_override=120  # 2 minute timeout for extraction
-            )
-            return response
-            
-        except ImportError as e:
-            logger.error(f"Mistral client not available: {e}")
-            # Fallback to gpt_open
-            logger.warning("Falling back to gpt_open")
-            return await self._call_gpt_open(prompt, system_prompt)
-        except Exception as e:
-            logger.error(f"Mistral API call failed: {e}")
-            raise
     
     async def _call_gpt_open(self, prompt: str, system_prompt: str) -> str:
         """Call GPT-Open compatible server for extraction."""

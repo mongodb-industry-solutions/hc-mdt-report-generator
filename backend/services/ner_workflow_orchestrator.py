@@ -72,7 +72,7 @@ class NERWorkflowOrchestrator:
             logger.info("✅ Progress tracking started")
             
             # Step 4: Initialize clients - NO TIMEOUT!
-            logger.info("🔌 Step 4: Initializing LLM client for long-running extraction (Bedrock primary, Mistral secondary)...")
+            logger.info("🔌 Step 4: Initializing LLM client for long-running extraction (Bedrock primary)...")
             
             # Step 5: Create extraction service
             logger.info("🔧 Step 5: Creating extraction service...")

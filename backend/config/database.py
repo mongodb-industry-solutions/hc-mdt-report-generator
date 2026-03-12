@@ -41,7 +41,6 @@ def get_database() -> Database:
     uri = os.getenv("MONGODB_URI", settings.mongodb_uri)
     db_name = os.getenv("MONGODB_DB", settings.mongodb_db)
     
-    logger.info(f"Connecting to MongoDB: {uri}/{db_name}")
     
     try:
         _mongo_client = MongoClient(
@@ -59,7 +58,6 @@ def get_database() -> Database:
         
         # Test connection once
         _database.command('ping')
-        logger.info(f"✅ MongoDB connected: {db_name} (pooled)")
         
         return _database
         

@@ -33,7 +33,6 @@ class DocumentDataExtractionService:
       
     def __init__(self):  
         self._initialized = True
-        logger.info("Document Data Extraction Service initialized")  
       
     async def initialize(self) -> None:  
         """No initialization needed"""  
@@ -96,8 +95,6 @@ class DocumentDataExtractionService:
                 lcrs = parsed_json.get('lCrs', [])
                 lcrs_count = len(lcrs) if isinstance(lcrs, list) else 0
                 has_pat = 'pat' in parsed_json
-            
-            logger.info(f"✅ JSON parsed for {source_file}: {lcrs_count} lCrs found, pat={has_pat}")
             
             # Store the ENTIRE parsed JSON in extracted_data
             # This preserves lCrs, pat, and all other fields for downstream processing
@@ -168,7 +165,6 @@ class DocumentDataExtractionService:
             
             # If it has DOCUMENTS array but no lCrs, it's likely test-en-doc format
             if has_documents_array and not has_lcrs_array and TEST_EN_DOC_PROCESSOR_AVAILABLE:
-                logger.info(f"🔧 Auto-converting test-en-doc format for {source_file}...")
                 
                 # Extract patient ID and documents
                 patient_id = parsed_json.get('NUMDOS', 'UNKNOWN')
@@ -179,12 +175,9 @@ class DocumentDataExtractionService:
                     processor = TestEnDocProcessor()
                     converted_data = processor._convert_to_lcrs_format(patient_id, documents)
                     
-                    logger.info(f"✅ Converted {len(documents)} documents to lCrs format for {source_file}")
-                    logger.info(f"   Patient ID: {patient_id}, lCrs count: {len(converted_data.get('lCrs', []))}")
-                    
                     return converted_data
                 else:
-                    logger.warning(f"⚠️ test-en-doc format detected but no DOCUMENTS found in {source_file}")
+                    logger.warning(f"test-en-doc format detected but no DOCUMENTS found in {source_file}")
             
             elif has_documents_array and not TEST_EN_DOC_PROCESSOR_AVAILABLE:
                 logger.warning(f"⚠️ test-en-doc format detected in {source_file} but converter not available")

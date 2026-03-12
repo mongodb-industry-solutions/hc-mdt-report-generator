@@ -32,12 +32,12 @@ Processing Flow:
 
 Example:
     >>> from services.entity_extraction_service import EntityExtractionService
-    >>> from infrastructure.llm.mistral_client import AsyncMistralClient
+    >>> from infrastructure.llm.bedrock_client import AsyncBedrockClient
     >>> from services.document_processor import DocumentProcessor
     >>> 
     >>> # Initialize service with dependencies
     >>> service = EntityExtractionService(
-    ...     mistral_client=AsyncMistralClient(),
+    ...     bedrock_client=AsyncBedrockClient(),
     ...     document_processor=DocumentProcessor()
     ... )
     >>> 
@@ -69,7 +69,7 @@ from domain.entities.ner_models import (
 )  
   
 # Infrastructure imports  
-# from infrastructure.llm.mistral_client import AsyncMistralClient  
+
 from infrastructure.llm.bedrock_client import AsyncBedrockClient
   
 # Service imports  
@@ -195,14 +195,9 @@ class EntityExtractionService:
             structured_data: Optional structured JSON data (lCrs) for source filtering
         """  
           
-        logger.info(f"🚀 Starting robust entity extraction")  
-        logger.info(f"📄 Documents: {len(documents)}, Entities: {len(entities)}")
-        
         # Extract structured_data from document metadata if not provided
         if structured_data is None:
             structured_data = self._extract_structured_data_from_documents(documents)
-            if structured_data:
-                logger.info(f"📋 Extracted structured data with {len(structured_data.get('lCrs', []))} lCrs entries")
           
         # Log document details  
         for i, doc in enumerate(documents):  
@@ -1185,14 +1180,6 @@ class EntityExtractionService:
                             prompt,
                             timeout_override=self.batch_timeout,
                         )
-                # elif provider == "mistral":
-                #     # Deprecated - Keeping Mistral as an option for now, but Bedrock is main provider
-                #     mistral_client = AsyncMistralClient()
-                #     model_response = await mistral_client.invoke_mistral_async_robust(
-                #         system_prompt,
-                #         prompt,
-                #         timeout_override=self.batch_timeout,
-                #     )
                 else:
                     # Unified wrapper call (runs in a thread to avoid blocking loop)
                     model_response = await asyncio.to_thread(
@@ -1282,14 +1269,6 @@ class EntityExtractionService:
                             prompt,
                             timeout_override=self.batch_timeout,
                         )
-                # elif provider == "mistral":
-                #     # Secondary option - Mistral support maintained
-                #     mistral_client = AsyncMistralClient()
-                #     model_response = await mistral_client.invoke_mistral_async_robust(
-                #         system_prompt,
-                #         prompt,
-                #         timeout_override=self.batch_timeout,
-                #     )
                 else:
                     model_response = await asyncio.to_thread(
                         generate,
@@ -1535,14 +1514,6 @@ class EntityExtractionService:
                                 prompt,
                                 timeout_override=1200,
                             )
-                    # elif provider == "mistral":
-                    #     # Secondary option - Mistral support maintained  
-                    #     mistral_client = AsyncMistralClient()
-                    #     result = await mistral_client.invoke_mistral_async_robust(
-                    #         system_prompt,
-                    #         prompt,
-                    #         timeout_override=1200,
-                    #     )
                     else:
                         result = await asyncio.to_thread(
                             generate,

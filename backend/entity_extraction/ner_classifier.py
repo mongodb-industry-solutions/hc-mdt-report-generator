@@ -146,7 +146,7 @@ import random
 
 
   
-def invoke_mistral(system_prompt, prompt):  
+def invoke_llm(system_prompt, prompt):  
     try:
         return generate(prompt=prompt, system=system_prompt, provider="gpt_open")
     except Exception as e:
@@ -306,7 +306,7 @@ async def extract_entities_workflow(json_data: str, chunked_docs: List[dict], pr
 
 async def aggregate_entity_matches(found_entities, progress_callback=None):  
     """  
-    Aggregates values for each entity using an LLM (Mistral).  
+    Aggregates values for each entity using an LLM.  
     The LLM is asked to consolidate all values into a unified version,  
     following per-entity aggregation instructions if provided.  
     """  
@@ -361,7 +361,7 @@ async def aggregate_entity_matches(found_entities, progress_callback=None):
             # Run in thread pool to avoid blocking async event loop
             import asyncio
             loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(None, invoke_mistral, system_prompt, prompt)  
+            result = await loop.run_in_executor(None, invoke_llm, system_prompt, prompt)  
             #result = invoke_claude_3_7(f"{system_prompt}\n {prompt}")
             result = result.strip()  
         except Exception as e:  
@@ -502,7 +502,7 @@ async def extract_entities(entities: List[Dict], chunked_docs: List[Dict], proce
                             "total_batches": total_batches,
                             "entities_in_batch": len(entity_batch)
                         },
-                        "stage_detail": f"Calling Mistral API for entity extraction batch"
+                        "stage_detail": f"Calling LLM API for entity extraction batch"
                     })
                     # Force immediate flush
                     await asyncio.sleep(0.001)      
@@ -526,7 +526,7 @@ async def extract_entities(entities: List[Dict], chunked_docs: List[Dict], proce
 
                 import asyncio
                 loop = asyncio.get_event_loop()
-                model_response = await loop.run_in_executor(None, invoke_mistral, system_prompt, prompt)
+                model_response = await loop.run_in_executor(None, invoke_llm, system_prompt, prompt)
                 total_api_calls += 1      
     
     

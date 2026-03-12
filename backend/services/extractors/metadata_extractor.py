@@ -40,7 +40,7 @@ class MetadataExtractor:
                 "processed_at": datetime.now().isoformat(),
                 "character_count": len(content),
                 "word_count": len(content.split()),
-                "ocr_service": "mistral-ocr-latest",
+                "ocr_service": "bedrock-ocr-latest",
                 "source_type": "file_path"
             }
             
@@ -78,7 +78,7 @@ class MetadataExtractor:
                 "processed_at": datetime.now().isoformat(),
                 "character_count": len(content),
                 "word_count": len(content.split()),
-                "ocr_service": "mistral-ocr-latest",
+                "ocr_service": "bedrock-ocr-latest",
                 "source_type": "base64"
             }
             

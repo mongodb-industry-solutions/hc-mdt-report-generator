@@ -2,7 +2,7 @@
 Unified LLM interface (GPT-Open only)
 
 Provides a very small abstraction to call a GPT-Open compatible server with a
-single method. Mistral support has been intentionally removed for simplicity.
+single method. Supports multiple LLM providers through a unified interface.
 
 Usage:
     text = await a_generate(prompt="Hello")
@@ -115,7 +115,7 @@ def generate(
     """Synchronous convenience wrapper.
 
     - Fully supported for provider="gpt_open".
-    - For provider="mistral", this will run an event loop if none is running.
+    - For supported providers, this will run an event loop if none is running.
       If an event loop is already running, a RuntimeError is raised to avoid
       nested loop issues; use `a_generate` in that case.
     """

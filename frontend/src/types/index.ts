@@ -335,7 +335,7 @@ export interface GroundTruthPDF {
 
 export interface GroundTruth {
   uploaded_at: string;
-  ocr_engine: 'bedrock' | 'easyocr' | 'mistral';
+  ocr_engine: 'bedrock' | 'easyocr';
   original_pdf?: GroundTruthPDF;
   ocr_text?: string;
   entities: GroundTruthEntity[];

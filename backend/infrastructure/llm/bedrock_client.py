@@ -21,11 +21,10 @@ class CriticalBedrockError(Exception):
 
 
 class AsyncBedrockClient:
-    """Implementation of AsyncBedrockClient class with same interface as AsyncMistralClient."""
+    """Implementation of AsyncBedrockClient class with generic LLM interface."""
      
     def __init__(self, aws_access_key: Optional[str] = None, aws_secret_key: Optional[str] = None,
                  assumed_role: Optional[str] = None, region_name: Optional[str] = "us-east-1") -> None:
-        logger.info("🔧 Initializing AsyncBedrockClient...")
         self.region_name = region_name
         self.assumed_role = assumed_role
         self.aws_access_key = aws_access_key
@@ -34,7 +33,6 @@ class AsyncBedrockClient:
         self.max_retries = 3
         self.timeout_seconds = 120
         self.bedrock_runtime = None
-        logger.info(f"✅ AsyncBedrockClient initialized with model: {self.model_id}")
     
     def _get_bedrock_client(
             self,
@@ -87,14 +85,13 @@ class AsyncBedrockClient:
         return bedrock_client
     
     async def __aenter__(self):  
-        logger.info("🚪 Entering AsyncBedrockClient context")  
+
         # Initialize bedrock runtime
         if not self.bedrock_runtime:
             self.bedrock_runtime = self._get_bedrock_client(runtime=True)
         return self  
   
     async def __aexit__(self, exc_type, exc_val, exc_tb):  
-        logger.info("🚪 Exiting AsyncBedrockClient context")  
         if exc_type:  
             logger.error(f"❌ Exception in context: {exc_type.__name__}: {exc_val}")  
               
@@ -145,9 +142,8 @@ class AsyncBedrockClient:
     )
     async def invoke_bedrock_async_robust(self, system_prompt: str, prompt: str, timeout_override: Optional[int] = None) -> str:
         """
-        Async Bedrock call with robust retry logic - equivalent to invoke_mistral_async_robust.
+        Async Bedrock call with robust retry logic.
         """
-        logger.info("🤖 Starting Bedrock API call with retry logic...")  
         logger.debug(f"Model: {self.model_id}")  
         logger.debug(f"System prompt length: {len(system_prompt) if system_prompt else 0}")  
         logger.debug(f"User prompt length: {len(prompt) if prompt else 0}")  
@@ -172,18 +168,17 @@ class AsyncBedrockClient:
             response_body = json.loads(response["body"].read().decode("utf-8"))
             result = self._extract_claude_response(response_body)
             
-            logger.info(f"✅ Bedrock API call successful. Response length: {len(result)}")
             return result
             
         except Exception as e:
-            logger.error(f"❌ Bedrock API call failed: {e}")
+            logger.error(f"Bedrock API call failed: {e}")
             if "AccessDenied" in str(e) or "UnauthorizedOperation" in str(e):
                 raise CriticalBedrockError(f"Access denied to Bedrock model {self.model_id}: {e}")
             raise
 
     async def invoke_bedrock_async(self, system_prompt: str, prompt: str) -> str:
         """
-        Simple async Bedrock call - equivalent to invoke_mistral_async.
+        Simple async Bedrock call.
         """
         return await self.invoke_bedrock_async_robust(system_prompt, prompt)
     

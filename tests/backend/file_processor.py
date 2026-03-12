@@ -10,7 +10,6 @@ import pickle
 import json  
 import traceback  
 from universal_document_parser import UniversalDocumentParser  
-from ner_classifier import mistral_ner_classifier  
 from ner_classifier import extract_entities_workflow, chunk_document_by_size  
 from json_to_html import parse_json_to_html  
 from ui_helpers import generate_error_html

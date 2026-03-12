@@ -469,7 +469,7 @@ export default function SettingsPanel({ apiBaseUrl, onApiBaseUrlChange, onClose 
                   <label className="block text-sm font-medium text-gray-700 mb-1">Provider</label>
                   <select className="input-field" value={modelForm.provider} onChange={(e) => handleModelFormChange('provider', e.target.value)}>
                     <option value="openai">openai</option>
-                    <option value="mistral api">mistral api</option>
+
                     <option value="ollama">ollama</option>
                   </select>
                 </div>

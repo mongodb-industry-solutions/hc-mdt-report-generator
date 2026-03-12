@@ -191,52 +191,29 @@ async def startup_validation():
     
     import logging
     logger = logging.getLogger(__name__)
-    logger.info("🚀 Starting ClarityGR application...")
     
     try:
-        # Validate Mistral API
-        #logger.info("🔍 Validating critical services...")
-        #mistral_result = await mistral_validator.validate_api_configuration()
-        
-        #system_status["mistral_api"] = {
-        #    "valid": mistral_result["valid"],
-        #    "error": mistral_result.get("error")
-        #}
-       # 
-       # if not mistral_result["valid"]:
-        #    logger.error(f"❌ CRITICAL: Mistral API validation failed: {mistral_result['error']}")
-        #    logger.error("❌ Application will continue but AI features will be unavailable")
-        #else:
-        #    logger.info("✅ Mistral API validation passed")
-        
         # Initialize database indexes for user authentication
         try:
             create_indexes()
-            logger.info("✅ Database indexes created successfully")
         except Exception as e:
-            logger.error(f"⚠️  Database index creation failed: {e}")
+            logger.error(f"Database index creation failed: {e}")
         
         # Seed EntityConfig from file if missing
         try:
             from config.entity_config import seed_if_missing
-            if seed_if_missing():
-                logger.info("✅ Seeded EntityConfig from file baseline")
-            else:
-                logger.info("EntityConfig already present in DB")
+            seed_if_missing()
         except Exception as e:
-            logger.error(f"⚠️  EntityConfig seeding failed: {e}")
+            logger.error(f"EntityConfig seeding failed: {e}")
         
         # Load JWT blacklisted tokens
         try:
             jwt_service.load_blacklisted_tokens()
-            logger.info("✅ JWT blacklist loaded successfully")
         except Exception as e:
-            logger.error(f"⚠️  JWT blacklist loading failed: {e}")
+            logger.error(f"JWT blacklist loading failed: {e}")
         
-        # Debug LLM Provider Configuration
-        logger.info("🔍 Checking LLM Provider Configuration...")
+        # Initialize LLM Provider Configuration
         llm_provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
-        logger.info(f"🤖 LLM Provider: {llm_provider} (default: bedrock)")
         
         # Validate Bedrock configuration if it's the provider
         if llm_provider == "bedrock":
@@ -245,10 +222,6 @@ async def startup_validation():
                 region = get_current_region()
                 model = get_current_model()
                 available = is_bedrock_available()
-                
-                logger.info(f"🌎 Bedrock Region: {region}")
-                logger.info(f"🧠 Bedrock Model: {model}")
-                logger.info(f"🔗 Bedrock Available: {available}")
                 
                 if available:
                     # Test quick Bedrock connection
@@ -259,28 +232,22 @@ async def startup_validation():
                             "Respond with exactly: 'Bedrock OK'", 
                             timeout_override=10
                         )
-                        if "Bedrock OK" in test_response or "OK" in test_response:
-                            logger.info("✅ Bedrock connection test PASSED")
-                        else:
-                            logger.info(f"⚠️ Bedrock responded but unexpected: {test_response[:50]}")
+                        if not ("Bedrock OK" in test_response or "OK" in test_response):
+                            logger.warning(f"Bedrock responded but unexpected: {test_response[:50]}")
                 else:
-                    logger.error("❌ Bedrock not available - check AWS credentials")
+                    logger.error("Bedrock not available - check AWS credentials")
                     
             except Exception as e:
-                logger.error(f"❌ Bedrock configuration failed: {e}")
-                logger.error("❌ Entity extraction may not work properly")
-        elif llm_provider == "mistral":
-            logger.info("🤖 Using Mistral provider (legacy)")
+                logger.error(f"Bedrock configuration failed: {e}")
+                logger.error("Entity extraction may not work properly")
         elif llm_provider in ["openai", "gpt_open", ""]:
-            logger.info("🤖 Using GPT-Open compatible provider")
+            pass  # GPT-Open compatible provider
         else:
-            logger.warning(f"⚠️ Unknown LLM provider: {llm_provider}")
+            logger.warning(f"Unknown LLM provider: {llm_provider}")
         
         # Initialize LLM clients for model warmup
         try:
-      
-            
-            # Import the services that use Mistral clients
+            # Import the services that use LLM clients
             from services.processors.ocr_processor import OCRProcessor
             from services.processors.text_normalizer import TextNormalizer
             from services.document_categorization_service import DocumentCategorizationService
@@ -290,19 +257,17 @@ async def startup_validation():
             text_normalizer = TextNormalizer() 
             doc_categorizer = DocumentCategorizationService()
             
-            # Force initialization of their Mistral clients
+            # Force initialization of their LLM clients
             await ocr_processor.initialize()
             await text_normalizer.initialize()
             if hasattr(doc_categorizer, 'initialize'):
                 await doc_categorizer.initialize()
             
         except Exception as e:
-            logger.error("⚠️ AI features may not work properly")
-        
-        logger.info("✅ Application startup completed")
+            logger.error("AI features may not work properly")
         
     except Exception as e:
-        logger.error(f"❌ CRITICAL: Startup validation failed: {e}")
+        logger.error(f"CRITICAL: Startup validation failed: {e}")
         # Don't fail startup completely, but mark as degraded  
   
 if __name__ == "__main__":  

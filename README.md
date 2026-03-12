@@ -108,7 +108,7 @@ MONGODB_URI=your-mongodb-connection-string
 MONGODB_DB=your-database-name
 
 # AI/LLM Provider Configuration (choose one or multiple)
-LLM_PROVIDER=bedrock  # or mistral, openai, ollama
+LLM_PROVIDER=bedrock  # or openai, ollama
 
 # CORS and Security (Optional)
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
@@ -141,15 +141,7 @@ aws sso login
 ```
 
 
-#### Option B: Mistral Cloud API
-```bash
-# Add to your .env
-MISTRAL_API_KEY=your-mistral-api-key
-LLM_PROVIDER=mistral
-LLM_MODEL=mistral-medium
-```
-
-#### Option C: Local LLM (Ollama)
+#### Option B: Local LLM (Ollama)
 ```bash
 # First, start Ollama server
 ollama serve
@@ -469,8 +461,8 @@ curl -X POST "http://localhost:8000/patients/PATIENT001/reports/stream" \
 curl -X POST "http://localhost:8000/settings/llm-model" \
   -H "Content-Type: application/json" \
   -d '{
-    "provider": "mistral",
-    "model": "mistral-medium",
+    "provider": "bedrock",
+    "model": "anthropic.claude-v2",
     "api_key": "your-api-key"
   }'
 ```
@@ -498,7 +490,7 @@ Authentication endpoints exist but are **disabled by default**. To enable:
 │
 ├─ OCR Processing
 │  ├─ PDF text extraction
-│  ├─ Image OCR (via Mistral)
+│  ├─ Image OCR (via EasyOCR/Bedrock)
 │  └─ Text normalization
 │
 ├─ Content Analysis
@@ -548,81 +540,6 @@ The platform provides live updates during processing via Server-Sent Events (SSE
 6. **Completed**: Final report available
 
 ---
-
-## 🤖 AI/LLM Configuration
-
-### Supported Providers
-
-#### 1. Mistral AI (Cloud)
-```bash
-# Environment setup
-MISTRAL_API_KEY=your-mistral-api-key
-LLM_PROVIDER=mistral
-LLM_MODEL=mistral-medium  # or mistral-large, mistral-small
-```
-
-**Models Available:**
-- `mistral-small`: Fast, cost-effective
-- `mistral-medium`: Balanced performance  
-- `mistral-large`: Highest accuracy
-
-#### 2. OpenAI API
-```bash
-# Environment setup
-OPENAI_API_KEY=your-openai-api-key
-LLM_PROVIDER=openai
-LLM_MODEL=gpt-3.5-turbo  # or gpt-4, gpt-4-turbo
-```
-
-**Models Available:**
-- `gpt-3.5-turbo`: Fast and cost-effective
-- `gpt-4`: High accuracy
-- `gpt-4-turbo`: Latest model
-
-#### 3. Local LLM (Ollama/GPT-compatible)
-```bash
-# Environment setup
-GPT_OPEN_BASE_URL=http://localhost:11434
-LLM_PROVIDER=ollama
-LLM_MODEL=llama2  # or any installed model
-```
-
-**Popular Models:**
-- `llama2`: General purpose
-- `codellama`: Code-focused
-- `medlm`: Medical domain (if available)
-
-### Runtime Switching
-
-Change AI providers without restart:
-
-```bash
-# Via API
-curl -X POST "http://localhost:8000/settings/llm-model" \
-  -d '{"provider": "mistral", "model": "mistral-large"}'
-
-# Via Web Interface
-Settings → LLM Configuration → Switch Provider
-```
-
-### NER Configuration
-
-Customize entity extraction behavior:
-
-```json
-{
-  "max_retries": 3,
-  "timeout_seconds": 30,
-  "chunk_size": 4000,
-  "overlap_size": 200,
-  "confidence_threshold": 0.7,
-  "entities": {
-    "medications": {"enabled": true, "priority": "high"},
-    "procedures": {"enabled": true, "priority": "medium"},
-    "findings": {"enabled": true, "priority": "high"}
-  }
-}
-```
 
 ---
 
@@ -750,7 +667,7 @@ curl http://localhost:8000/settings/llm-models
 
 # Test API key
 curl -X POST http://localhost:8000/settings/llm-model \
-  -d '{"provider": "mistral", "model": "mistral-medium"}'
+  -d '{"provider": "bedrock", "model": "anthropic.claude-v2"}'
 ```
 
 **Solutions**:
@@ -862,7 +779,7 @@ docker stats
 
 #### Scenario 3: AI Model Comparison
 - Generate a report with one AI model
-- Switch to a different provider (e.g., Mistral → OpenAI)
+- Switch to a different provider (e.g., Bedrock → OpenAI)
 - Generate the same report again
 - Compare results and performance
 

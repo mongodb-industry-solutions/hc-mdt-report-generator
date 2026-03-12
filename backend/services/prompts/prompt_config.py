@@ -13,9 +13,9 @@ class ModelConfig:
     """Model configuration constants"""
     
     # Model names
-    MISTRAL_SMALL = "mistral-small-latest"
-    MISTRAL_SMALL_2503 = "mistral-small-2503"
-    MISTRAL_OCR = "mistral-ocr-latest"
+    OPENAI_GPT35 = "gpt-3.5-turbo"
+    OPENAI_GPT4 = "gpt-4"
+    BEDROCK_CLAUDE = "anthropic.claude-v2"
     
     # Temperature settings for different use cases
     TEMPERATURE_DETERMINISTIC = 0.1  # For structured data extraction
@@ -78,42 +78,42 @@ class ServiceConfig:
     """Configuration for different services"""
     
     DOCUMENT_CATEGORIZATION = {
-        "model": ModelConfig.MISTRAL_SMALL,
+        "model": ModelConfig.OPENAI_GPT35,
         "temperature": ModelConfig.TEMPERATURE_BALANCED,
         "max_tokens": ModelConfig.MAX_TOKENS_SHORT,
         "timeout": ModelConfig.TIMEOUT_QUICK
     }
     
     DOCUMENT_EXTRACTION = {
-        "model": ModelConfig.MISTRAL_SMALL,
+        "model": ModelConfig.OPENAI_GPT35,
         "temperature": ModelConfig.TEMPERATURE_DETERMINISTIC,
         "max_tokens": ModelConfig.MAX_TOKENS_LONG,
         "timeout": ModelConfig.TIMEOUT_STANDARD
     }
     
     DOCUMENT_CHUNKING = {
-        "model": ModelConfig.MISTRAL_SMALL_2503,
+        "model": ModelConfig.OPENAI_GPT35,
         "temperature": ModelConfig.TEMPERATURE_BALANCED,
         "max_tokens": ModelConfig.MAX_TOKENS_MEDIUM,
         "timeout": ModelConfig.TIMEOUT_STANDARD
     }
     
     TEXT_NORMALIZATION = {
-        "model": ModelConfig.MISTRAL_SMALL,
+        "model": ModelConfig.OPENAI_GPT35,
         "temperature": ModelConfig.TEMPERATURE_DETERMINISTIC,
         "max_tokens": ModelConfig.MAX_TOKENS_LONG,
         "timeout": ModelConfig.TIMEOUT_STANDARD
     }
     
     ENTITY_EXTRACTION = {
-        "model": ModelConfig.MISTRAL_SMALL,
+        "model": ModelConfig.OPENAI_GPT35,
         "temperature": ModelConfig.TEMPERATURE_DETERMINISTIC,
         "max_tokens": ModelConfig.MAX_TOKENS_LONG,
         "timeout": ModelConfig.TIMEOUT_EXTENDED
     }
     
     MDT_REPORT = {
-        "model": ModelConfig.MISTRAL_SMALL,
+        "model": ModelConfig.OPENAI_GPT35,
         "temperature": ModelConfig.TEMPERATURE_DETERMINISTIC,
         "max_tokens": ModelConfig.MAX_TOKENS_LONG,
         "timeout": ModelConfig.TIMEOUT_EXTENDED

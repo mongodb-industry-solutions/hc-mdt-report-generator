@@ -14,11 +14,6 @@ logger = logging.getLogger(__name__)
 class NERSettings(BaseSettings):  
     """NER configuration settings with validation."""  
       
-    # API Configuration  
-    mistral_api_key: str = ""  # Now optional, validated based on mode
-    mistral_model: str = "mistral-small-2503"  
-    mistral_mode: str = "api"  # Add mode setting with default
-      
     # Processing Configuration - Default values (overridable at runtime)
     max_entities_per_batch: int = Field(default=10)
     max_content_size: int = Field(default=10000)
@@ -48,8 +43,6 @@ class NERSettings(BaseSettings):
         env_prefix = ""  
         env_file = ".env"  
         extra = "ignore"  
-      
-    # Mistral API key is optional; no validation enforced
   
 @dataclass  
 class ProcessingConfig:  

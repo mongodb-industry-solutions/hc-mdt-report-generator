@@ -75,8 +75,8 @@ async def upload_ground_truth(
     patient_id: str,
     report_uuid: str,
     file: UploadFile = File(...),
-    ocr_engine: str = Form(default="bedrock", description="OCR engine: 'bedrock', 'mistral', or 'easyocr'"),
-    llm_provider: Optional[str] = Form(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'mistral', 'ollama', 'gpt_open'")
+    ocr_engine: str = Form(default="bedrock", description="OCR engine: 'bedrock' or 'easyocr'"),
+    llm_provider: Optional[str] = Form(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'ollama', 'gpt_open'")
 ):
     """
     Upload a ground truth PDF and extract entities.
@@ -93,8 +93,8 @@ async def upload_ground_truth(
         patient_id: Patient identifier
         report_uuid: Report UUID to attach ground truth to
         file: PDF file upload
-        ocr_engine: OCR engine to use ("bedrock", "mistral", or "easyocr")
-        llm_provider: LLM provider for entity extraction ("mistral" or "gpt_open")
+        ocr_engine: OCR engine to use ("bedrock" or "easyocr")
+        llm_provider: LLM provider for entity extraction ("ollama" or "gpt_open")
     """
     
     async def generate_progress() -> AsyncGenerator[str, None]:
@@ -111,7 +111,7 @@ async def upload_ground_truth(
                 return
             
             # Validate OCR engine
-            if ocr_engine not in ["bedrock", "mistral", "easyocr"]:
+            if ocr_engine not in ["bedrock", "easyocr"]:
                 yield _sse_event("FAILED", 0, f"Invalid OCR engine: {ocr_engine}")
                 return
             
@@ -440,7 +440,7 @@ async def get_ground_truth_pdf(patient_id: str, report_uuid: str):
 async def run_evaluation(
     patient_id: str, 
     report_uuid: str,
-    llm_provider: Optional[str] = Query(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'mistral', 'ollama', 'gpt_open'")
+    llm_provider: Optional[str] = Query(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'ollama', 'gpt_open'")
 ):
     """
     Run evaluation comparing generated entities against ground truth.
@@ -452,7 +452,7 @@ async def run_evaluation(
     Args:
         patient_id: Patient identifier
         report_uuid: Report UUID
-        llm_provider: LLM provider for semantic scoring ("mistral" or "gpt_open")
+        llm_provider: LLM provider for semantic scoring ("ollama" or "gpt_open")
     """
     
     async def generate_progress() -> AsyncGenerator[str, None]:
@@ -742,8 +742,8 @@ async def check_gt_availability(patient_id: str):
 async def auto_load_ground_truth(
     patient_id: str,
     report_uuid: str,
-    ocr_engine: str = Query(default="bedrock", description="OCR engine: 'bedrock', 'mistral', or 'easyocr'"),
-    llm_provider: Optional[str] = Query(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'mistral', 'ollama', 'gpt_open'")
+    ocr_engine: str = Query(default="bedrock", description="OCR engine: 'bedrock' or 'easyocr'"),
+    llm_provider: Optional[str] = Query(default=None, description="LLM provider. If None, uses LLM_PROVIDER env var. Options: 'ollama', 'gpt_open'")
 ):
     """
     Auto-load ground truth PDF from public folder and extract entities.
@@ -761,7 +761,7 @@ async def auto_load_ground_truth(
     Args:
         patient_id: Patient identifier
         report_uuid: Report UUID to attach ground truth to
-        ocr_engine: OCR engine to use ("bedrock", "mistral", or "easyocr")
+        ocr_engine: OCR engine to use ("bedrock" or "easyocr")
         llm_provider: LLM provider for entity extraction
     """
     

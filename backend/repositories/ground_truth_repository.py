@@ -42,7 +42,7 @@ class GroundTruthRepository:
                 doc = collection.find_one({"uuid": uuid})
                 if not doc:
                     raise NotFoundException(f"GroundTruth with uuid {uuid} not found.")
-                logger.info(f"Retrieved ground truth with uuid: {uuid}")
+                # logger.info(f"Retrieved ground truth with uuid: {uuid}")
                 return GroundTruth(**doc)
         except NotFoundException:
             raise
@@ -60,7 +60,7 @@ class GroundTruthRepository:
                     sort=[("created_at", DESCENDING)]
                 )
                 if doc:
-                    logger.info(f"Retrieved latest ground truth for patient {patient_id}")
+                    # logger.info(f"Retrieved latest ground truth for patient {patient_id}")
                     return GroundTruth(**doc)
                 return None
         except Exception as e:
@@ -77,7 +77,7 @@ class GroundTruthRepository:
                     sort=[("created_at", DESCENDING)]
                 )
                 if doc:
-                    logger.info(f"Retrieved latest ground truth for report {report_uuid}")
+                    # logger.info(f"Retrieved latest ground truth for report {report_uuid}")
                     return GroundTruth(**doc)
                 return None
         except Exception as e:
@@ -93,7 +93,7 @@ class GroundTruthRepository:
                     {"patient_id": patient_id}
                 ).sort("created_at", DESCENDING).limit(limit)
                 ground_truths = [GroundTruth(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(ground_truths)} ground truths for patient {patient_id}")
+                # logger.info(f"Retrieved {len(ground_truths)} ground truths for patient {patient_id}")
                 return ground_truths
         except Exception as e:
             logger.error(f"Database error retrieving GTs for patient {patient_id}: {e}")
@@ -108,7 +108,7 @@ class GroundTruthRepository:
                     {"report_uuid": report_uuid}
                 ).sort("created_at", DESCENDING).limit(limit)
                 ground_truths = [GroundTruth(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(ground_truths)} ground truths for report {report_uuid}")
+                # logger.info(f"Retrieved {len(ground_truths)} ground truths for report {report_uuid}")
                 return ground_truths
         except Exception as e:
             logger.error(f"Database error retrieving GTs for report {report_uuid}: {e}")

@@ -20,14 +20,8 @@ MONGODB_DB=clarityGR
 # ============================================================================
 # LLM PROVIDER CONFIGURATION
 # ============================================================================
-# Provider: 'bedrock' for AWS Bedrock, 'ollama' for local Ollama, 'mistral' for Mistral API
+# Provider: 'bedrock' for AWS Bedrock, 'ollama' for local Ollama
 LLM_PROVIDER=bedrock
-
-# Mistral Mode: 'api' for cloud API, 'local' for local deployment
-MISTRAL_MODE=local
-
-# Mistral API Key (only required if LLM_PROVIDER=mistral and MISTRAL_MODE=api)
-# MISTRAL_API_KEY=your-mistral-api-key-here
 
 # ============================================================================
 # OLLAMA CONFIGURATION (for LLM_PROVIDER=ollama)

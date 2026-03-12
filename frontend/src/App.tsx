@@ -59,13 +59,6 @@ function AppContent() {
   const reportsInfo = useInfoModal('reports', currentView === 'reports' && !!patientId);
   const observabilityInfo = useInfoModal('observability', currentView === 'observability' && !!patientId);
 
-  // Debug: Track generation state across tab switches
-  useEffect(() => {
-    if (isGeneratingReport) {
-      console.log('🎯 App-level generation state: GENERATING - Progress:', reportGenerationProgress?.progress + '%' || 'null');
-    }
-  }, [isGeneratingReport, reportGenerationProgress]);
-
   // Keyboard shortcut for sidebar toggle (Ctrl/Cmd + \\)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

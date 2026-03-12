@@ -184,29 +184,29 @@ class MedicalPDFGenerator {
     const pdfStartTime = Date.now();
     const sessionId = `PDF_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    console.log(`🎯 === PDF GENERATION START [${sessionId}] ===`);
-    console.log(`📋 Report: ${report.uuid} | Patient: ${report.patient_id}`);
-    console.log(`📊 Report metadata: Created ${report.created_at} | Status: ${report.status}`);
-    console.log(`🤖 LLM Summary Mode: ENABLED | Backend Provider: Auto-detect`);
+
+
+
+
     
     // Ensure logo is loaded before generating PDF
     progressCallback?.(0, 'Loading resources...');
     
     if (!this.mongoDBLogoBase64) {
-      console.log(`🔧 Loading MongoDB logo...`);
+
       await this.loadMongoDBLogo();
     }
 
     progressCallback?.(5, 'Creating PDF structure...');
-    console.log(`📄 Setting up PDF structure and header...`);
+
     this.addHeader(report);
     
     progressCallback?.(10, 'Adding report summary...');
-    console.log(`📝 Adding report summary section...`);
+
     this.addReportSummary(report);
     
     if (report.content) {
-      console.log(`🧠 Starting LLM-powered section processing...`);
+
       progressCallback?.(15, 'Processing medical sections...');
       await this.addEntitySections(report.content, report.patient_id, progressCallback);
     } else {
@@ -214,18 +214,18 @@ class MedicalPDFGenerator {
     }
     
     progressCallback?.(90, 'Adding footer and disclaimers...');
-    console.log(`📄 Adding footer and disclaimers...`);
+
     this.addFooter(report);
     this.addPageDisclaimers();
     
     progressCallback?.(100, 'Finalizing PDF...');
-    console.log(`✅ Generating final PDF blob...`);
+
     const pdfBlob = this.doc.output('blob');
     
     const totalDuration = Date.now() - pdfStartTime;
-    console.log(`🎯 === PDF GENERATION COMPLETE [${sessionId}] ===`);
-    console.log(`📊 Total generation time: ${totalDuration}ms (${Math.round(totalDuration/1000)}s)`);
-    console.log(`📄 Final PDF size: ${Math.round(pdfBlob.size / 1024)}KB`);
+
+
+
     
     return pdfBlob;
   }
@@ -524,13 +524,13 @@ class MedicalPDFGenerator {
 
   private async addEntitySections(content: ReportContent, patientId: string, progressCallback?: (progress: number, step: string) => void): Promise<void> {
     const processStartTime = Date.now();
-    console.log(`🎯 === PDF SECTION PROCESSING START ===`);
-    console.log(`📋 Patient: ${patientId} | LLM summaries: ENABLED`);
+
+
     
     const sections = this.organizeSections(content);
-    console.log(`📊 Found ${sections.length} sections to process:`);
+
     sections.forEach((section, index) => {
-      console.log(`   ${index + 1}. "${section.title}" (${section.entities.length} entities)`);
+
     });
     
     const baseProgress = 15; // Starting from where generateReportPDF left off
@@ -552,7 +552,7 @@ class MedicalPDFGenerator {
       const sectionStartTime = Date.now();
       
       try {
-        console.log(`🔄 === SECTION ${i + 1}/${sections.length}: ${section.title} ===`);
+
         
         const sectionProgress = baseProgress + ((i / sections.length) * sectionProgressRange);
         progressCallback?.(sectionProgress, `Generating AI summary for ${section.title}...`);
@@ -567,13 +567,13 @@ class MedicalPDFGenerator {
         
         if (!section.summary || section.summary.trim() === '') {
           summaryStats.failed_empty++;
-          console.log(`❌ Section ${i + 1}: EMPTY SUMMARY (${sectionDuration}ms) - will show entity list`);
+
         } else if (section.summary.includes('is documented as:') || section.summary.includes('is comprehensively documented as:')) {
           summaryStats.fallback_used++;
-          console.log(`🔄 Section ${i + 1}: FALLBACK SUMMARY (${sectionDuration}ms) - ${section.summary.length} chars`);
+
         } else {
           summaryStats.llm_success++;
-          console.log(`✅ Section ${i + 1}: LLM SUCCESS (${sectionDuration}ms) - ${section.summary.length} chars`);
+
         }
         
         progressCallback?.(sectionProgress + (sectionProgressRange / sections.length * 0.7), `Adding ${section.title} to PDF...`);
@@ -604,12 +604,12 @@ class MedicalPDFGenerator {
     const avgCharsPerSummary = summaryStats.total > 0 ? Math.round(summaryStats.total_chars / summaryStats.total) : 0;
     
     // Log comprehensive summary
-    console.log(`🎯 === PDF SECTION PROCESSING COMPLETE ===`);
-    console.log(`⏱️ Total processing time: ${totalDuration}ms (${Math.round(totalDuration/1000)}s)`);
-    console.log(`📊 Summary Generation Statistics:`);
-    console.log(`   • Total sections processed: ${summaryStats.total}`);
-    console.log(`   • LLM successes: ${summaryStats.llm_success} (${Math.round(summaryStats.llm_success/summaryStats.total*100)}%)`);
-    console.log(`   • Fallback used: ${summaryStats.fallback_used} (${Math.round(summaryStats.fallback_used/summaryStats.total*100)}%)`);
+
+
+
+
+
+
     console.log(`   • Failed/Empty: ${summaryStats.failed_empty} (${Math.round(summaryStats.failed_empty/summaryStats.total*100)}%)`);
     console.log(`   • Average response time: ${summaryStats.avg_response_time}ms`);
     console.log(`   • Total characters generated: ${summaryStats.total_chars}`);

@@ -1,7 +1,7 @@
 """
 Document Chunking Service
 
-Handles intelligent chunking of medical documents using Mistral AI for semantic understanding.
+Handles intelligent chunking of medical documents using available LLM providers for semantic understanding.
 Splits long documents into meaningful, coherent chunks while preserving medical context.
 """
 
@@ -42,18 +42,18 @@ class DocumentChunk:
 
 class DocumentChunkingService:
     """
-    Service for intelligently chunking medical documents using Mistral AI.
+    Service for intelligently chunking medical documents using available LLM providers.
     
     This service splits long OCR'ed text into meaningful, comprehensive chunks
     while preserving medical context and maintaining logical document structure.
     """
     
     def __init__(self):
-        self.mistral_client = None
+        self.llm_client = None
         self.model = "gpt-open"
         self.system_prompt = SYSTEM_PROMPT
-        # Add option to disable Mistral chunking for debugging
-        self.use_mistral_chunking = os.environ.get("USE_MISTRAL_CHUNKING", "true").lower() == "true"
+        # Add option to disable LLM chunking for debugging
+        self.use_llm_chunking = os.environ.get("USE_LLM_CHUNKING", "true").lower() == "true"
     
     async def initialize(self) -> None:
         """No-op initialize retained for compatibility"""
@@ -87,32 +87,32 @@ class DocumentChunkingService:
         basic_chunks = self._chunk_text_by_size(text, max_chunk_size, overlap)
         logger.info(f"Split text into {len(basic_chunks)} basic chunks")
         
-        # Check if Mistral chunking is enabled
-        if not self.use_mistral_chunking:
-            logger.info("Mistral chunking disabled, using simple chunking")
+        # Check if LLM chunking is enabled
+        if not self.use_llm_chunking:
+            logger.info("LLM chunking disabled, using simple chunking")
             return self._simple_chunk_fallback(text, max_chunk_size, overlap)
         
-        # Initialize Mistral client if needed
-        if not self.mistral_client:
+        # Initialize LLM client if needed
+        if not self.llm_client:
             await self.initialize()
         
         try:
             # Try to process with LLM for semantic understanding
             logger.info("Attempting LLM-based chunking...")
-            return await self._process_chunks_with_mistral(basic_chunks)
+            return await self._process_chunks_with_llm(basic_chunks)
         except Exception as e:
-            logger.warning(f"Mistral chunking failed: {e}. Falling back to simple chunking.")
+            logger.warning(f"LLM chunking failed: {e}. Falling back to simple chunking.")
             # Fallback to simple chunking without AI
             return self._simple_chunk_fallback(text, max_chunk_size, overlap)
     
-    async def _process_chunks_with_mistral(self, basic_chunks: List[str]) -> List[DocumentChunk]:
+    async def _process_chunks_with_llm(self, basic_chunks: List[str]) -> List[DocumentChunk]:
         """Process chunks using LLM for semantic understanding"""
         processed_chunks = []
         previous_chunk_xml = None
         section_id = 0
         
         for i, chunk_text in enumerate(basic_chunks):
-            logger.info(f"Processing chunk {i+1}/{len(basic_chunks)} with Mistral")
+            logger.info(f"Processing chunk {i+1}/{len(basic_chunks)} with LLM")
             logger.info(f"Chunk {i+1} length: {len(chunk_text)} characters")
             
             try:
@@ -121,23 +121,23 @@ class DocumentChunkingService:
                     logger.warning(f"Skipping empty chunk {i+1}")
                     continue
                 
-                # Limit chunk size for Mistral (avoid very large prompts)
+                # Limit chunk size for LLM (avoid very large prompts)
                 if len(chunk_text) > 3000:
                     logger.warning(f"Chunk {i+1} too large ({len(chunk_text)} chars), truncating to 3000")
                     chunk_text = chunk_text[:3000] + "..."
                 
-                # Build prompt for Mistral
+                # Build prompt for LLM
                 prompt = self._build_chunking_prompt(previous_chunk_xml, chunk_text)
                 logger.debug(f"Built prompt for chunk {i+1}, total prompt length: {len(prompt)}")
                 
                 # Get semantic chunking via unified LLM
                 logger.info(f"Calling LLM for chunk {i+1}...")
-                mistral_response = await self._invoke_mistral(prompt)
+                llm_response = await self._invoke_llm(prompt)
                 logger.info(f"Received response for chunk {i+1}")
                 
                 # ADD DEBUG: Check if model responded
-                if not mistral_response:
-                    logger.warning(f"Empty response from Mistral for chunk {i+1}")
+                if not llm_response:
+                    logger.warning(f"Empty response from LLM for chunk {i+1}")
                     # Fallback to simple chunk for this iteration
                     chunk_obj = DocumentChunk(
                         content=chunk_text.strip(),
@@ -151,8 +151,8 @@ class DocumentChunkingService:
                     continue
                 
                 # Parse response and extract chunks
-                chunk_objects = self._parse_mistral_chunking_response(
-                    mistral_response, i, section_id
+                chunk_objects = self._parse_llm_chunking_response(
+                    llm_response, i, section_id
                 )
                 
                 # If no chunks were parsed, create a simple one
@@ -202,7 +202,7 @@ class DocumentChunkingService:
         return processed_chunks
     
     def _simple_chunk_fallback(self, text: str, max_chunk_size: int, overlap: int) -> List[DocumentChunk]:
-        """Fallback simple chunking without AI when Mistral fails"""
+        """Fallback simple chunking without AI when LLM fails"""
         logger.info("Using simple chunking fallback")
         
         basic_chunks = self._chunk_text_by_size(text, max_chunk_size, overlap)
@@ -247,7 +247,7 @@ class DocumentChunkingService:
         """Build the prompt for LLM chunking"""
         return create_chunking_prompt(previous_chunk_xml, raw_text)
     
-    async def _invoke_mistral(self, prompt: str) -> str:
+    async def _invoke_llm(self, prompt: str) -> str:
         """Call unified LLM for chunking (no timeout/retry)"""
         import os
         provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
@@ -283,17 +283,17 @@ class DocumentChunkingService:
             logger.error(f"Prompt preview: {prompt[:200]}..." if len(prompt) > 200 else f"Full prompt: {prompt}")
             raise
     
-    def _parse_mistral_chunking_response(self, response: str, page_id: int, 
+    def _parse_llm_chunking_response(self, response: str, page_id: int, 
                                        base_section_id: int) -> List[DocumentChunk]:
-        """Parse Mistral's chunking response into DocumentChunk objects"""
+        """Parse LLM's chunking response into DocumentChunk objects"""
         chunks = []
         
-        logger.debug(f"Parsing Mistral response: {response[:200]}...")
+        logger.debug(f"Parsing LLM response: {response[:200]}...")
         
         # Extract chunks XML
         chunks_xml = self._extract_from_xml_tags(response, "CHUNKS")
         if not chunks_xml:
-            logger.warning("No CHUNKS XML found in Mistral response")
+            logger.warning("No CHUNKS XML found in LLM response")
             logger.debug(f"Full response was: {response}")
             return chunks
         
@@ -339,7 +339,7 @@ class DocumentChunkingService:
             if chunk_start >= len(chunks_xml):
                 break
         
-        logger.info(f"Successfully parsed {len(chunks)} chunks from Mistral response")
+        logger.info(f"Successfully parsed {len(chunks)} chunks from LLM response")
         return chunks
     
     def _extract_from_xml_tags(self, text: str, tag_name: str) -> Optional[str]:

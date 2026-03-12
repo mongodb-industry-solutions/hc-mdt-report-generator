@@ -34,7 +34,7 @@ class UnprocessedDocumentRepository:
                 doc = collection.find_one({"_id": doc_id})
                 if not doc:
                     raise NotFoundException(f"Unprocessed document with id {doc_id} not found.")
-                logger.info(f"Retrieved unprocessed document with id: {doc_id}")
+                # logger.info(f"Retrieved unprocessed document with id: {doc_id}")
                 return UnprocessedDocument(**doc)
         except NotFoundException:
             raise
@@ -95,7 +95,7 @@ class UnprocessedDocumentRepository:
                 ]
                 results = list(collection.aggregate(pipeline))
                 counts = {item["_id"]: item["count"] for item in results}
-                logger.info(f"Retrieved document counts for {len(counts)} patients")
+                # logger.info(f"Retrieved document counts for {len(counts)} patients")
                 return counts
         except Exception as e:
             logger.error(f"Database error getting patient document counts: {e}")
@@ -108,7 +108,7 @@ class UnprocessedDocumentRepository:
                 collection: Collection = db[self.collection_name]
                 cursor = collection.find({"_id": {"$in": doc_ids}})
                 documents = [UnprocessedDocument(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(documents)} unprocessed documents by IDs")
+                # logger.info(f"Retrieved {len(documents)} unprocessed documents by IDs")
                 return documents
         except Exception as e:
             logger.error(f"Database error retrieving documents by IDs: {e}")

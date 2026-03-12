@@ -1,7 +1,7 @@
 """
 Document Categorization Service
 
-Handles categorization of medical documents using Mistral AI.
+Handles categorization of medical documents using available LLM providers.
 This service performs the first LLM shot to categorize documents into predefined medical categories.
 
 This service processes extracted text from documents to determine their medical document type
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class DocumentCategorizationService:
     """
-    Service for categorizing medical documents using Mistral AI.
+    Service for categorizing medical documents using available LLM providers.
     
     This service performs the first LLM shot to categorize documents into one of the following categories:
     - Administrative coding documents (PMSI/T2A)
@@ -117,7 +117,7 @@ class DocumentCategorizationService:
         Parse the LLM response to extract category, confidence, and reasoning.
         
         Args:
-            response: Raw response from Mistral AI
+            response: Raw response from the LLM provider
             
         Returns:
             Dictionary with category, confidence, and reasoning
