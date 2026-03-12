@@ -209,7 +209,6 @@ class ReportService:
         
         # Check for provider configuration
         provider = os.environ.get("LLM_PROVIDER", "bedrock").lower()
-        mode = get_current_mode()
         
         if provider == "ollama":
             # Ollama doesn't require API keys - skip all checks
