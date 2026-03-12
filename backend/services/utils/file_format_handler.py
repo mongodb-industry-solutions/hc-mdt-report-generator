@@ -96,7 +96,7 @@ class FileFormatHandler:
     
     @classmethod
     def get_document_type(cls, file_path: str) -> str:
-        """Get document type for Mistral API"""
+        """Get document type for LLM API"""
         if cls.is_image_format(file_path):
             return "image_url"
         elif cls.is_document_format(file_path):

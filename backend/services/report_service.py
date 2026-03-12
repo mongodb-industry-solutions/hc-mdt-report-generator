@@ -18,7 +18,7 @@ class ReportService:
     This service orchestrates report creation and generation, including
     MDT (Multi-Disciplinary Team) reports from patient documents.
     
-    Uses AWS Bedrock as primary LLM provider, with Mistral as secondary choice.
+    Uses AWS Bedrock as primary LLM provider, with gpt_open as fallback.
     """
     
     def __init__(self):
@@ -199,12 +199,11 @@ class ReportService:
             if is_critical:
                 import os
                 logger.critical(f"Environment variables: AWS credentials configured: {'Yes' if 'AWS_DEFAULT_REGION' in os.environ else 'No (check AWS setup)'}")
-                logger.critical(f"Environment variables: MISTRAL_API_KEY present: {'Yes' if 'MISTRAL_API_KEY' in os.environ else 'No'}")  # Keep for secondary option
-                logger.critical(f"Settings: mistral_api_key present: {'Yes' if hasattr(self.mdt_generator, 'settings') and self.mdt_generator.settings.mistral_api_key else 'No'}")
+                logger.critical(f"Environment variables: OPENAI_API_KEY present: {'Yes' if 'OPENAI_API_KEY' in os.environ else 'No'}")  # Keep for secondary option
+                logger.critical(f"Settings: openai_api_key present: {'Yes' if hasattr(self.mdt_generator, 'settings') and getattr(self.mdt_generator.settings, 'openai_api_key', None) else 'No'}")
     
     def _check_llm_api_keys(self):
         """Check if the necessary API keys are present based on the provider"""
-        from config.mistral_config import get_current_mode
         import os
         from config.settings import settings
         
@@ -231,12 +230,6 @@ class ReportService:
             # AWS Bedrock doesn't require explicit API keys (uses AWS credentials)
             logger.info("🔑 Using AWS Bedrock - using AWS credentials")
             return
-        elif provider == "mistral" and mode == "api":
-            # Check for Mistral API key (only if provider is mistral and mode is api)
-            api_key = settings.mistral_api_key or os.environ.get("MISTRAL_API_KEY", "")
-            if not api_key:
-                logger.critical("❌ CRITICAL: No Mistral API key found - report generation cannot continue")
-                raise ValueError("CRITICAL: Missing Mistral API key - report generation cannot continue")
     
     async def generate_report_with_progress(
         self, 

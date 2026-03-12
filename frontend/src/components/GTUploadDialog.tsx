@@ -20,7 +20,7 @@ export default function GTUploadDialog({
   onComplete,
 }: GTUploadDialogProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [ocrEngine, setOcrEngine] = useState<'bedrock' | 'easyocr' | 'mistral'>('bedrock');
+  const [ocrEngine, setOcrEngine] = useState<'bedrock' | 'easyocr'>('bedrock');
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState<GTUploadProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -217,21 +217,6 @@ export default function GTUploadDialog({
                 <span className="ml-2 text-sm text-gray-700">
                   EasyOCR
                   <span className="text-xs text-gray-500 ml-1">(faster, local)</span>
-                </span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="ocr-engine"
-                  value="mistral"
-                  checked={ocrEngine === 'mistral'}
-                  onChange={() => setOcrEngine('mistral')}
-                  disabled={isUploading}
-                  className="w-4 h-4 text-navy-700 focus:ring-navy-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">
-                  Mistral OCR
-                  <span className="text-xs text-gray-500 ml-1">(secondary choice)</span>
                 </span>
               </label>
             </div>

@@ -108,7 +108,7 @@ MONGODB_URI=your-mongodb-connection-string
 MONGODB_DB=your-database-name
 
 # AI/LLM Provider Configuration (choose one or multiple)
-LLM_PROVIDER=bedrock  # or mistral, openai, ollama
+LLM_PROVIDER=bedrock  # or openai, ollama
 
 # CORS and Security (Optional)
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
@@ -141,15 +141,7 @@ aws sso login
 ```
 
 
-#### Option B: Mistral Cloud API
-```bash
-# Add to your .env
-MISTRAL_API_KEY=your-mistral-api-key
-LLM_PROVIDER=mistral
-LLM_MODEL=mistral-medium
-```
-
-#### Option C: Local LLM (Ollama)
+#### Option B: Local LLM (Ollama)
 ```bash
 # First, start Ollama server
 ollama serve
@@ -469,8 +461,8 @@ curl -X POST "http://localhost:8000/patients/PATIENT001/reports/stream" \
 curl -X POST "http://localhost:8000/settings/llm-model" \
   -H "Content-Type: application/json" \
   -d '{
-    "provider": "mistral",
-    "model": "mistral-medium",
+    "provider": "bedrock",
+    "model": "anthropic.claude-v2",
     "api_key": "your-api-key"
   }'
 ```
@@ -498,7 +490,7 @@ Authentication endpoints exist but are **disabled by default**. To enable:
 │
 ├─ OCR Processing
 │  ├─ PDF text extraction
-│  ├─ Image OCR (via Mistral)
+│  ├─ Image OCR (via EasyOCR/Bedrock)
 │  └─ Text normalization
 │
 ├─ Content Analysis
@@ -675,7 +667,7 @@ curl http://localhost:8000/settings/llm-models
 
 # Test API key
 curl -X POST http://localhost:8000/settings/llm-model \
-  -d '{"provider": "mistral", "model": "mistral-medium"}'
+  -d '{"provider": "bedrock", "model": "anthropic.claude-v2"}'
 ```
 
 **Solutions**:
@@ -787,7 +779,7 @@ docker stats
 
 #### Scenario 3: AI Model Comparison
 - Generate a report with one AI model
-- Switch to a different provider (e.g., Mistral → OpenAI)
+- Switch to a different provider (e.g., Bedrock → OpenAI)
 - Generate the same report again
 - Compare results and performance
 

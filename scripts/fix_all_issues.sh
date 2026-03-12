@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ClarityGR Master Fix Script
-# Fixes all major issues: MongoDB corruption, Mistral quantization, React/Node.js
+# Fixes all major issues: MongoDB corruption, React/Node.js
 
 # Set up logging
 log() {
@@ -67,7 +67,7 @@ show_banner() {
     echo ""
     echo -e "${YELLOW}🎯 This script will fix the following issues:${NC}"
     echo "   1. 🗄️  MongoDB dependency corruption"
-    echo "   2. 🤖 Mistral AI quantization errors"
+    echo "   2. 📦 React/Node.js dependency issues"
     echo "   3. ⚛️  React/Node.js crypto.hash errors"
     echo "   4. 🧪 System validation and testing"
     echo ""
@@ -79,7 +79,7 @@ ask_confirmation() {
     echo "   • MongoDB will be completely removed and reinstalled"
     echo "   • Node.js will be updated to version 18+"
     echo "   • React dependencies will be cleaned and reinstalled"
-    echo "   • Mistral AI client code will be modified"
+    echo "   • Node.js packages will be reinstalled"
     echo ""
     echo -e "${RED}💾 Backups will be created automatically${NC}"
     echo ""
@@ -150,27 +150,13 @@ fix_mongodb_corruption() {
     fi
 }
 
-# Fix 2: Mistral AI Quantization
-fix_mistral_quantization() {
-    log "STEP" "🤖 Fix 2/3: Mistral AI Quantization"
+# Fix 2: No-op (Mistral removed from system)
+skip_mistral_fix() {
+    log "STEP" "⏭️ Step 2/3: Skipped (Mistral removed from system)"
     echo ""
-    
-    local mistral_fix_script="$SCRIPT_DIR/fix_mistral_quantization.sh"
-    
-    if [ ! -f "$mistral_fix_script" ]; then
-        log "ERROR" "❌ Mistral fix script not found: $mistral_fix_script"
-        record_fix_result "Mistral Quantization" "FAILED"
-        return 1
-    fi
-    
-    log "INFO" "🚀 Running Mistral quantization fix..."
-    if bash "$mistral_fix_script"; then
-        record_fix_result "Mistral Quantization" "SUCCESS"
-        return 0
-    else
-        record_fix_result "Mistral Quantization" "FAILED"
-        return 1
-    fi
+    log "INFO" "✅ No action needed - Mistral integrations have been removed"
+    record_fix_result "Mistral Removal (N/A)" "SKIPPED"
+    return 0
 }
 
 # Fix 3: React/Node.js
@@ -241,17 +227,12 @@ validate_system() {
         validation_passed=false
     fi
     
-    # Check Mistral AI files
-    log "INFO" "🔍 Validating Mistral AI files..."
-    if [ -f "$PROJECT_DIR/src/infrastructure/llm/local_mistral_client.py" ]; then
-        if grep -q "_determine_optimal_quantization" "$PROJECT_DIR/src/infrastructure/llm/local_mistral_client.py"; then
-            log "SUCCESS" "   ✅ Mistral quantization fix applied"
-        else
-            log "WARN" "   ⚠️ Mistral quantization fix not detected"
-            validation_passed=false
-        fi
+    # Validate Mistral removal
+    log "INFO" "🔍 Validating Mistral removal..."
+    if [ ! -f "$PROJECT_DIR/backend/infrastructure/llm/mistral_client.py" ]; then
+        log "SUCCESS" "   ✅ Mistral client properly removed"
     else
-        log "ERROR" "   ❌ Mistral client file not found"
+        log "WARN" "   ⚠️ Mistral client file still exists"
         validation_passed=false
     fi
     
@@ -298,7 +279,7 @@ show_final_report() {
         echo ""
         echo "   2. Run specific tests:"
         echo "      • MongoDB: sudo systemctl status mongod"
-        echo "      • Mistral: python scripts/test_local_mistral.py"
+        echo "      • OpenAI: test OpenAI API connectivity"
         echo "      • React: cd ui && npm run dev"
         echo ""
         echo "   3. Access the application:"
@@ -339,7 +320,7 @@ main() {
     echo ""
     
     # Fix 2: Mistral AI (independent of others)
-    fix_mistral_quantization
+    skip_mistral_fix
     echo ""
     
     # Fix 3: React/Node.js (independent of others)

@@ -21,7 +21,7 @@ class CriticalBedrockError(Exception):
 
 
 class AsyncBedrockClient:
-    """Implementation of AsyncBedrockClient class with same interface as AsyncMistralClient."""
+    """Implementation of AsyncBedrockClient class with generic LLM interface."""
      
     def __init__(self, aws_access_key: Optional[str] = None, aws_secret_key: Optional[str] = None,
                  assumed_role: Optional[str] = None, region_name: Optional[str] = "us-east-1") -> None:
@@ -145,7 +145,7 @@ class AsyncBedrockClient:
     )
     async def invoke_bedrock_async_robust(self, system_prompt: str, prompt: str, timeout_override: Optional[int] = None) -> str:
         """
-        Async Bedrock call with robust retry logic - equivalent to invoke_mistral_async_robust.
+        Async Bedrock call with robust retry logic.
         """
         logger.info("🤖 Starting Bedrock API call with retry logic...")  
         logger.debug(f"Model: {self.model_id}")  
@@ -183,7 +183,7 @@ class AsyncBedrockClient:
 
     async def invoke_bedrock_async(self, system_prompt: str, prompt: str) -> str:
         """
-        Simple async Bedrock call - equivalent to invoke_mistral_async.
+        Simple async Bedrock call.
         """
         return await self.invoke_bedrock_async_robust(system_prompt, prompt)
     

@@ -5,7 +5,6 @@ import logging
 import os
 import httpx
 
-from config.mistral_config import set_mistral_mode, get_current_mode
 from config.settings import settings
 from config.ner_config import settings as ner_settings, update_ner_settings
 from config.database import MongoDBConnection
@@ -226,34 +225,7 @@ async def update_llm_model(
         # Handle model selection based on provider
         provider = selected_model.get("provider", "").lower()
         
-        if provider == "mistral api":
-            # Mistral API model
-            logger.info(f"Setting Mistral API model: {model_id}")
-            
-            # Ensure API mode is enabled
-            set_mistral_mode("api")
-            
-            # Update the model in settings
-            settings.mistral_model = model_id
-            
-            # Update API key if provided
-            if api_key:
-                logger.info("Updating Mistral API key")
-                settings.mistral_api_key = api_key
-                # Update environment variable for runtime
-                os.environ["MISTRAL_API_KEY"] = api_key
-            
-            # Route backend to use Mistral client explicitly
-            os.environ["LLM_PROVIDER"] = "mistral"
-            os.environ["LLM_MODEL"] = model_id
-            logger.info(f"✅ LLM_PROVIDER set to 'mistral', LLM_MODEL set to {model_id}")
-
-            # Optionally keep GPT_OPEN_MODEL/Base URL aligned for UI introspection, though not used in Mistral path
-            if base_url:
-                os.environ["GPT_OPEN_BASE_URL"] = base_url
-            settings.gpt_open_model = model_id
-            
-        elif provider == "openai":
+        if provider == "openai":
             # OpenAI model
             logger.info(f"Setting OpenAI model: {model_id}")
             
@@ -303,12 +275,12 @@ async def update_llm_model(
                 os.environ["GPT_OPEN_BASE_URL"] = selected_base_url
                 logger.info(f"✅ GPT_OPEN_BASE_URL set to {selected_base_url}")
 
-            # Update default model to ollama tag (e.g., 'mistral-small:22b')
+            # Update default model to ollama tag (e.g., 'llama2:7b')
             settings.gpt_open_model = model_id
             os.environ["GPT_OPEN_MODEL"] = model_id
             logger.info(f"✅ GPT_OPEN_MODEL set to {model_id}")
 
-            # Ensure provider is set to gpt_open so key checks don't use Mistral path
+            # Ensure provider is set to gpt_open
             os.environ["LLM_PROVIDER"] = "gpt_open"
             os.environ["LLM_MODEL"] = model_id
             logger.info("✅ LLM_PROVIDER set to 'gpt_open'")
@@ -324,8 +296,7 @@ async def update_llm_model(
         # Return success response
         return {
             "success": True,
-            "message": f"LLM model updated to {model_id}",
-            "current_mode": get_current_mode()
+            "message": f"LLM model updated to {model_id}"
         }
         
     except Exception as e:
@@ -348,9 +319,7 @@ async def set_environment_variable(
         
         # Safety check - only allow specific environment variables to be set
         allowed_keys = [
-            "MISTRAL_API_KEY",
-            "OPENAI_API_KEY",
-            "MISTRAL_MODEL"
+            "OPENAI_API_KEY"
         ]
         
         if key not in allowed_keys:
@@ -362,11 +331,6 @@ async def set_environment_variable(
         # Set the environment variable
         logger.info(f"Setting environment variable {key}")
         os.environ[key] = value
-        
-        # If this is the Mistral API key, also update settings
-        if key == "MISTRAL_API_KEY":
-            settings.mistral_api_key = value
-            logger.info(f"Updated settings.mistral_api_key with value from direct API call")
         
         return {
             "success": True,

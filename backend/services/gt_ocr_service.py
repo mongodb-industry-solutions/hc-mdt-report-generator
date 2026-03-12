@@ -2,7 +2,7 @@
 Ground Truth OCR Service
 
 Handles OCR extraction from ground truth PDF files.
-Supports multiple OCR engines: Mistral OCR, EasyOCR, and AWS Bedrock (Textract + Bedrock).
+Supports multiple OCR engines: EasyOCR and AWS Bedrock (Textract + Bedrock).
 """
 
 import base64
@@ -14,7 +14,7 @@ from typing import Literal, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
-OCREngine = Literal["bedrock", "easyocr", "mistral"]
+OCREngine = Literal["bedrock", "easyocr"]
 
 
 class GTOCRService:
@@ -24,12 +24,12 @@ class GTOCRService:
     Supports:
     - Bedrock OCR: AWS Textract + Bedrock, enterprise-grade (primary choice)
     - EasyOCR: Local, faster, no API costs  
-    - Mistral OCR: Cloud-based, higher quality (secondary choice)
+    - EasyOCR: Local processing, moderate accuracy but free (secondary choice)
     """
 
     def __init__(self):
         self._easyocr_reader = None
-        self._mistral_processor = None
+
         self._aws_ocr_processor = None
 
     async def extract_text(
@@ -43,7 +43,7 @@ class GTOCRService:
         
         Args:
             pdf_content: PDF file content as bytes
-            ocr_engine: OCR engine to use ("bedrock", "easyocr", or "mistral")
+            ocr_engine: OCR engine to use ("bedrock" or "easyocr")
             languages: List of language codes (default: ["fr", "en"])
             
         Returns:
@@ -56,43 +56,8 @@ class GTOCRService:
             return await self._extract_with_bedrock(pdf_content)
         elif ocr_engine == "easyocr":
             return await self._extract_with_easyocr(pdf_content, languages)
-        elif ocr_engine == "mistral":
-            return await self._extract_with_mistral(pdf_content)
         else:
             raise ValueError(f"Unsupported OCR engine: {ocr_engine}")
-
-    async def _extract_with_mistral(self, pdf_content: bytes) -> Tuple[str, int]:
-        """
-        Extract text using Mistral OCR API.
-        
-        Args:
-            pdf_content: PDF file content as bytes
-            
-        Returns:
-            Tuple of (extracted_text, page_count)
-        """
-        try:
-            from services.processors.ocr_processor import OCRProcessor
-            
-            if self._mistral_processor is None:
-                self._mistral_processor = OCRProcessor()
-                await self._mistral_processor.initialize()
-            
-            # Convert PDF bytes to base64
-            pdf_base64 = base64.b64encode(pdf_content).decode("utf-8")
-            
-            # Process using Mistral OCR
-            extracted_text = await self._mistral_processor.process_base64(pdf_base64, ".pdf")
-            
-            # Estimate page count from PDF
-            page_count = self._estimate_page_count(pdf_content)
-            
-            logger.info(f"Mistral OCR extracted {len(extracted_text)} characters from {page_count} pages")
-            return extracted_text, page_count
-            
-        except Exception as e:
-            logger.error(f"Mistral OCR extraction failed: {e}")
-            raise
 
     async def _extract_with_easyocr(
         self,

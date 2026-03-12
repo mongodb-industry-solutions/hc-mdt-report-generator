@@ -56,7 +56,7 @@ class GroundTruth(BaseModel):
     )
     
     # OCR metadata
-    ocr_engine: str = Field(..., description="OCR engine used: 'bedrock', 'easyocr', or 'mistral'")
+    ocr_engine: str = Field(..., description="OCR engine used: 'bedrock' or 'easyocr'")
     ocr_text: Optional[str] = Field(default=None, description="Full OCR output text")
     
     # Original PDF

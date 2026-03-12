@@ -9,7 +9,7 @@ Evaluates generated entities against ground truth using:
 
 UPDATED: 
 - Now uses separate collections for ground_truths and evaluations.
-- Respects LLM_PROVIDER setting (bedrock primary, mistral secondary, gpt_open fallback)
+- Respects LLM_PROVIDER setting (bedrock primary, gpt_open fallback)
 - Fixed scoring: GT empty = 0, both empty = 0
 """
 
@@ -63,7 +63,7 @@ class EvaluationService:
             report_uuid: UUID of the report to evaluate
             patient_id: Patient ID for linking
             ground_truth_uuid: Optional specific GT UUID. If None, uses latest GT for the report.
-            llm_provider: LLM provider for semantic scoring ("bedrock", "mistral", or "gpt_open").
+            llm_provider: LLM provider for semantic scoring ("bedrock" or "gpt_open").
                          If None, falls back to LLM_PROVIDER env var (defaults to bedrock).
             
         Returns:
@@ -259,7 +259,7 @@ class EvaluationService:
         Args:
             gold_map: Ground truth {name: value} map
             pred_map: Predicted {name: value} map
-            llm_provider: LLM provider to use ("bedrock", "mistral", or "gpt_open")
+            llm_provider: LLM provider to use ("bedrock" or "gpt_open")
             
         Returns:
             Dictionary mapping entity names to semantic scores
@@ -361,14 +361,11 @@ Respond with JSON only: {{"EntityName": 0.85, ...}}"""
         
         logger.info(f"Evaluation LLM scoring using provider: {provider or 'bedrock (default)'}")
         
-        # Route based on provider - Bedrock first, then Mistral as secondary
+        # Route based on provider - Bedrock first, then gpt_open as fallback
         # - "bedrock" -> use AWS Bedrock (primary choice)
-        # - "mistral" -> use Mistral API (secondary choice, requires MISTRAL_MODE=api and MISTRAL_API_KEY)
         # - "ollama" or "gpt" -> use gpt_open (which routes to Ollama if configured)
         if provider == "bedrock":
             return await self._call_bedrock(prompt, system_prompt)
-        elif "mistral" in provider:
-            return await self._call_mistral(prompt, system_prompt)
         elif "ollama" in provider or "gpt" in provider:
             return await self._call_gpt_open(prompt, system_prompt)
         else:
@@ -395,28 +392,6 @@ Respond with JSON only: {{"EntityName": 0.85, ...}}"""
             logger.error(f"Bedrock API call failed: {e}")
             logger.warning("Falling back to gpt_open")
             return await self._call_gpt_open(prompt, system_prompt)
-    
-    async def _call_mistral(self, prompt: str, system_prompt: str) -> str:
-        """Call Mistral API for LLM scoring (secondary choice)."""
-        try:
-            from infrastructure.llm.mistral_client import AsyncMistralClient
-            
-            logger.info("Using Mistral API for evaluation semantic scoring (secondary choice)")
-            mistral_client = AsyncMistralClient()
-            response = await mistral_client.invoke_mistral_async_robust(
-                system_prompt,
-                prompt,
-                timeout_override=60  # 1 minute timeout for scoring
-            )
-            return response
-            
-        except ImportError as e:
-            logger.error(f"Mistral client not available: {e}")
-            logger.warning("Falling back to gpt_open")
-            return await self._call_gpt_open(prompt, system_prompt)
-        except Exception as e:
-            logger.error(f"Mistral API call failed: {e}")
-            raise
     
     async def _call_gpt_open(self, prompt: str, system_prompt: str) -> str:
         """Call GPT-Open compatible server for LLM scoring."""

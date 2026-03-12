@@ -2,7 +2,7 @@
 OCR Processor
 
 Handles OCR processing using AWS hybrid approach (Textract + Bedrock).
-Migrated from Mistral OCR to AWS-native solutions.
+Migrated from legacy OCR to AWS-native solutions.
 """
 
 import os
@@ -19,7 +19,7 @@ class OCRProcessor(AWSHybridOCRProcessor):
     """
     OCR processor using AWS hybrid approach (Textract + Bedrock)
     
-    This processor has been migrated from Mistral OCR to use:
+    This processor has been migrated from legacy OCR to use:
     1. AWS Textract for document text extraction (OCR)
     2. AWS Bedrock (Claude) for text cleanup/processing 
     

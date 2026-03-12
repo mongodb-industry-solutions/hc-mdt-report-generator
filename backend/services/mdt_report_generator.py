@@ -46,8 +46,8 @@ def _resolve_current_llm_model() -> str:
   1) If LLM_PROVIDER=bedrock, return Bedrock model name
   2) Explicit environment variable LLM_MODEL (set by settings_controller)
   3) app_settings.gpt_open_model (OpenAI/Ollama path)
-  4) app_settings.mistral_model (Mistral path)
-  5) ner_settings.mistral_model (legacy fallback)
+  4) app_settings.openai_model (OpenAI path)
+  5) ner_settings.default_model (legacy fallback)
   """
   # Check if we're using Bedrock provider
   llm_provider = os.environ.get("LLM_PROVIDER", "").lower()
@@ -68,8 +68,8 @@ def _resolve_current_llm_model() -> str:
   return (
     os.environ.get("LLM_MODEL")
     or getattr(app_settings, "gpt_open_model", None)
-    or getattr(app_settings, "mistral_model", None)
-    or ner_settings.mistral_model
+    or getattr(app_settings, "openai_model", None)
+    or getattr(ner_settings, "default_model", "gpt-3.5-turbo")
   )
 
   

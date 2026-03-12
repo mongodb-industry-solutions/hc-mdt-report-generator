@@ -31,7 +31,7 @@ class GroundTruthEntity(BaseModel):
 class GroundTruth(BaseModel):
     """Ground truth data for evaluation, uploaded by user as scanned PDF."""
     uploaded_at: datetime
-    ocr_engine: str = Field(..., description="OCR engine used: 'mistral', 'easyocr', or 'bedrock'")
+    ocr_engine: str = Field(..., description="OCR engine used: 'easyocr' or 'bedrock'")
     original_pdf: Optional[GroundTruthPDF] = None
     ocr_text: Optional[str] = Field(default=None, description="Full OCR output text")
     entities: List[GroundTruthEntity] = Field(default_factory=list)

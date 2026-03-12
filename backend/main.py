@@ -194,21 +194,6 @@ async def startup_validation():
     logger.info("🚀 Starting ClarityGR application...")
     
     try:
-        # Validate Mistral API
-        #logger.info("🔍 Validating critical services...")
-        #mistral_result = await mistral_validator.validate_api_configuration()
-        
-        #system_status["mistral_api"] = {
-        #    "valid": mistral_result["valid"],
-        #    "error": mistral_result.get("error")
-        #}
-       # 
-       # if not mistral_result["valid"]:
-        #    logger.error(f"❌ CRITICAL: Mistral API validation failed: {mistral_result['error']}")
-        #    logger.error("❌ Application will continue but AI features will be unavailable")
-        #else:
-        #    logger.info("✅ Mistral API validation passed")
-        
         # Initialize database indexes for user authentication
         try:
             create_indexes()
@@ -269,8 +254,6 @@ async def startup_validation():
             except Exception as e:
                 logger.error(f"❌ Bedrock configuration failed: {e}")
                 logger.error("❌ Entity extraction may not work properly")
-        elif llm_provider == "mistral":
-            logger.info("🤖 Using Mistral provider (legacy)")
         elif llm_provider in ["openai", "gpt_open", ""]:
             logger.info("🤖 Using GPT-Open compatible provider")
         else:
@@ -280,7 +263,7 @@ async def startup_validation():
         try:
       
             
-            # Import the services that use Mistral clients
+            # Import the services that use LLM clients
             from services.processors.ocr_processor import OCRProcessor
             from services.processors.text_normalizer import TextNormalizer
             from services.document_categorization_service import DocumentCategorizationService
@@ -290,7 +273,7 @@ async def startup_validation():
             text_normalizer = TextNormalizer() 
             doc_categorizer = DocumentCategorizationService()
             
-            # Force initialization of their Mistral clients
+            # Force initialization of their LLM clients
             await ocr_processor.initialize()
             await text_normalizer.initialize()
             if hasattr(doc_categorizer, 'initialize'):

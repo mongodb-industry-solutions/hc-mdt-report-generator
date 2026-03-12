@@ -30,7 +30,6 @@ GPT_OPEN_MAX_TOKENS=${GPT_OPEN_MAX_TOKENS:-7000}
 # ========================================
 # DUMMY VALUES (required by settings.py but not used in local mode)
 # ========================================
-MISTRAL_API_KEY=
 
 # ========================================
 # NER processing configuration

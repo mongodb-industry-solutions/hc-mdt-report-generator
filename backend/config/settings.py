@@ -67,18 +67,6 @@ class Settings(BaseSettings):
     log_auth_events: bool = Field(default=True, alias="LOG_AUTH_EVENTS")
     log_security_events: bool = Field(default=True, alias="LOG_SECURITY_EVENTS")
     
-    # Mistral Configuration
-    mistral_mode: str = Field(default="api", alias="MISTRAL_MODE")  # 'api' or 'local'
-    mistral_api_key: str = Field(default="", alias="MISTRAL_API_KEY")  # Only required for API mode
-    mistral_model: str = Field(default="mistral-small-latest", alias="MISTRAL_MODEL")
-    
-    # Local Mistral Configuration
-    mistral_local_gpu_memory_utilization: float = Field(default=0.9, alias="MISTRAL_LOCAL_GPU_MEMORY_UTILIZATION")
-    # Tensor parallel size is now always 1 (single GPU) - multi-GPU support removed
-    mistral_local_max_tokens: int = Field(default=10000, alias="MISTRAL_LOCAL_MAX_TOKENS")
-    
-    # Mistral settings are optional; no strict validation enforced anymore
-    
     # GPT-Open Configuration
     gpt_open_base_url: str = Field(default="http://localhost:8080", alias="GPT_OPEN_BASE_URL")
     gpt_open_timeout: float = Field(default=300.0, alias="GPT_OPEN_TIMEOUT")

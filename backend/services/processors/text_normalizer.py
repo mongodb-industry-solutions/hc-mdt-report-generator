@@ -1,7 +1,7 @@
 """
 Text Normalizer
 
-Handles text normalization using Mistral AI.
+Handles text normalization using LLM providers.
 Separates normalization logic from service orchestration.
 """
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class TextNormalizer:
-    """Handles text normalization using Mistral AI"""
+    """Handles text normalization using configurable LLM providers"""
     
     def __init__(self):
         self.system_prompt = SYSTEM_PROMPT
@@ -26,7 +26,7 @@ class TextNormalizer:
     
     async def normalize(self, raw_text: str, file_type: str = "unknown") -> Dict[str, Any]:
         """
-        Normalize raw text data using Mistral AI.
+        Normalize raw text data using configured LLM provider.
         
         Args:
             raw_text: The raw text to normalize (from OCR or plain text)
@@ -40,7 +40,7 @@ class TextNormalizer:
         # Build normalization prompt based on file type
         prompt = self._build_normalization_prompt(raw_text, file_type)
         
-        # Call Mistral for normalization
+        # Call LLM for normalization
         logger.info("Calling LLM for text normalization...")
         normalized_response = await self._invoke_llm(prompt)
         
@@ -69,7 +69,7 @@ class TextNormalizer:
             raise
     
     def _parse_normalization_response(self, response: str) -> Dict[str, Any]:
-        """Parse the normalization response from Mistral"""
+        """Parse the normalization response from LLM"""
         try:
             # Debug: Log the actual response
             logger.debug(f"Raw LLM response: {response[:500]}...")

@@ -89,9 +89,9 @@ class ApiService {
   
   // Get the current LLM model ID
   getCurrentLLMModelId(): string {
-    if (typeof window === 'undefined') return 'mistral-small-latest';
+    if (typeof window === 'undefined') return 'openai-gpt-3.5-turbo';
     const storedModelId = localStorage.getItem(LLM_MODEL_STORAGE_KEY);
-    return storedModelId || 'mistral-small-latest'; // Default if not set
+    return storedModelId || 'openai-gpt-3.5-turbo'; // Default if not set
   }
   
   // Update LLM model and persist to localStorage
@@ -131,19 +131,6 @@ class ApiService {
       });
       
       console.log('🤖 LLM Model updated to:', modelId);
-      
-      // Also update the MISTRAL_API_KEY directly in settings if this is a Mistral model
-      if (modelId.startsWith('mistral-') && apiKey) {
-        console.log('🔑 Setting MISTRAL_API_KEY directly');
-        try {
-          await this.api.post('/settings/set-env-var', {
-            key: 'MISTRAL_API_KEY',
-            value: apiKey
-          });
-        } catch (err) {
-          console.warn('Failed to directly set MISTRAL_API_KEY, but continuing anyway', err);
-        }
-      }
       
       return response.data.success || false;
     } catch (error) {
@@ -723,7 +710,7 @@ class ApiService {
     patientId: string,
     reportUuid: string,
     file: File,
-    ocrEngine: 'bedrock' | 'easyocr' | 'mistral' = 'bedrock',
+    ocrEngine: 'bedrock' | 'easyocr' = 'bedrock',
     onProgress?: (data: GTUploadProgress) => void
   ): Promise<GTUploadProgress | null> {
     const formData = new FormData();
@@ -838,7 +825,7 @@ class ApiService {
   async autoLoadGroundTruth(
     patientId: string,
     reportUuid: string,
-    ocrEngine: 'bedrock' | 'easyocr' | 'mistral' = 'bedrock',
+    ocrEngine: 'bedrock' | 'easyocr' = 'bedrock',
     onProgress?: (data: GTUploadProgress) => void
   ): Promise<GTUploadProgress | null> {
     

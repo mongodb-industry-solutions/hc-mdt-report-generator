@@ -20,7 +20,7 @@ class PatientIdExtractionService:
     Service for extracting patient identifiers from medical documents - SIMPLIFIED.
     
     This service:
-    1. Attempts to extract NumdosGR using LLM (AWS Bedrock primary, Mistral secondary)
+    1. Attempts to extract NumdosGR using LLM (AWS Bedrock primary)
     2. Auto-generates ID if not found
     3. Runs independently of user templates
     4. Never fails - always provides valid patient_id
@@ -104,7 +104,7 @@ class PatientIdExtractionService:
         
         This follows the SAME LLM provider selection as entity extraction:
         - AWS Bedrock when LLM_PROVIDER is "bedrock" (primary choice)
-        - Mistral client when LLM_PROVIDER is "mistral" (secondary choice)
+        - Bedrock client when LLM_PROVIDER is "bedrock" (primary choice)
         - Falls back to generate() function for other providers (GPT-Open)
         """
         try:
@@ -147,17 +147,6 @@ Return ONLY the JSON, no explanation."""
                         prompt,
                         timeout_override=120,
                     )
-            elif provider == "mistral":
-                logger.info("Using Mistral client for patient ID extraction (secondary choice)")
-                # Use Mistral official client (same as entity extraction)
-                from infrastructure.llm.mistral_client import AsyncMistralClient
-                
-                mistral_client = AsyncMistralClient()
-                response = await mistral_client.invoke_mistral_async_robust(
-                    system_prompt,
-                    prompt,
-                    timeout_override=120,
-                )
             else:
                 logger.info(f"Using generate() function for patient ID extraction (provider={provider or 'default'})")
                 # Use unified wrapper call (same as entity extraction)

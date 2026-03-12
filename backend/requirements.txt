@@ -22,11 +22,11 @@ aiofiles>=23.0.0
 Pillow>=10.0.0  
   
 # AI/ML  
-# PyTorch for local Mistral inference (CUDA support required)
+# PyTorch for EasyOCR (CUDA support required)
 torch>=2.0.0
 torchvision>=0.15.0
 torchaudio>=2.0.0
-# Transformers and related dependencies for Mistral3 support - LATEST VERSIONS
+# Transformers and related dependencies for general ML support
 transformers>=4.47.0
 accelerate>=0.35.0
 tokenizers>=0.20.0
@@ -36,8 +36,6 @@ tokenizers>=0.20.0
 huggingface_hub>=0.20.0  # Required for model downloading and caching
 # Token counting for better max_tokens heuristics
 tiktoken>=0.7.0
-# Mistral AI API client
-mistralai>=1.0.0
   
 # Cloud Services  
 boto3>=1.26.0  
