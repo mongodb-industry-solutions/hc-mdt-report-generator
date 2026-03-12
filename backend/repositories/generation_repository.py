@@ -34,7 +34,7 @@ class GenerationRepository:
                 sort_field = "timestamp_utc"
                 cursor = cursor.sort(sort_field, -1 if sort_desc else 1)
                 docs = [GenerationLog(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(docs)} generation logs")
+                # logger.info(f"Retrieved {len(docs)} generation logs")
                 return docs
         except Exception as e:
             logger.error(f"Database error listing generation logs: {e}")

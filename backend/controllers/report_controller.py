@@ -391,17 +391,12 @@ async def generate_section_summary(patient_id: str, request: dict):
             summary_service = SectionSummaryService()
             summary = await summary_service.generate_summary(section_title, entities)
             
-            logger.info(f"✅ Generated summary for {section_title}: {len(summary or '')} characters")
             if summary:
                 # Log if summary appears to be from fallback (contains specific pattern)
                 if "is documented as:" in summary or "is comprehensively documented as:" in summary:
-                    logger.warning(f"🔄 Summary for {section_title} appears to be from fallback function")
-                else:
-                    logger.info(f"🤖 Summary for {section_title} appears to be from LLM generation")
-                    
-                logger.info(f"📝 Summary preview: {summary[:200]}...")
+                    logger.warning(f"Summary for {section_title} appears to be from fallback function")
             else:
-                logger.warning(f"⚠️ Empty summary returned for {section_title}")
+                logger.warning(f"Empty summary returned for {section_title}")
             
             return {"summary": summary}
             

@@ -45,7 +45,7 @@ export default function DocumentPreviewModal({
       // Priority 1: OCR text (most likely to be readable)
       if (document.ocr_text && document.ocr_text.trim()) {
         content = document.ocr_text;
-        console.log('Using OCR text content');
+
       }
       // Priority 2: Try to decode file_content if it looks like text
       else if (document.file_content) {
@@ -55,53 +55,53 @@ export default function DocumentPreviewModal({
           // Check if it's readable text (not binary)
           if (decoded.length > 0 && /^[\x20-\x7E\s]+$/.test(decoded.substring(0, 1000))) {
             content = decoded;
-            console.log('Using decoded file content');
+
           } else {
             // If not readable, treat file_content as plain text
             content = document.file_content;
-            console.log('Using file content as plain text');
+
           }
         } catch {
           // If base64 decode fails, use as plain text
           content = document.file_content;
-          console.log('Using file content as plain text (base64 decode failed)');
+
         }
       }
       // Priority 3: Show extracted data as JSON if available
       else if (document.extracted_data && Object.keys(document.extracted_data).length > 0) {
         content = 'EXTRACTED MEDICAL DATA:\n\n' + JSON.stringify(document.extracted_data, null, 2);
-        console.log('Using extracted data as JSON');
+
       }
       // Priority 4: Try API fetch as last resort
       else {
-        console.log('No local content available, trying API fetch...');
+
         const { apiService } = await import('../services/api');
         const fullDocument = await apiService.getDocument(patientId, document.uuid);
         
         if (fullDocument.ocr_text) {
           content = fullDocument.ocr_text;
-          console.log('Got OCR text from API');
+
         } else if (fullDocument.file_content) {
           try {
             const decoded = atob(fullDocument.file_content);
             content = decoded;
-            console.log('Got and decoded file content from API');
+
           } catch {
             content = fullDocument.file_content;
-            console.log('Got file content from API (no decode)');
+
           }
         } else if (fullDocument.extracted_data) {
           content = 'EXTRACTED MEDICAL DATA:\n\n' + JSON.stringify(fullDocument.extracted_data, null, 2);
-          console.log('Got extracted data from API');
+
         }
       }
       
       if (content && content.trim()) {
         setDocumentContent(content);
-        console.log(`Loaded content: ${content.length} characters`);
+
       } else {
         setDocumentContent('No readable content found in this document');
-        console.log('No content could be extracted');
+
       }
       
     } catch (err) {

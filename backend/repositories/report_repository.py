@@ -21,7 +21,7 @@ class ReportRepository:
                 doc = collection.find_one({"uuid": uuid})
                 if not doc:
                     raise NotFoundException(f"Report with uuid {uuid} not found.")
-                logger.info(f"Retrieved report with uuid: {uuid}")
+                # logger.info(f"Retrieved report with uuid: {uuid}")
                 return Report(**doc)
         except NotFoundException:
             raise
@@ -36,7 +36,7 @@ class ReportRepository:
                 # Sort by created_at descending so newest reports appear first
                 cursor = collection.find({"patient_id": patient_id}).sort("created_at", -1).skip(skip).limit(limit)
                 reports = [Report(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(reports)} reports for patient {patient_id}")
+                # logger.info(f"Retrieved {len(reports)} reports for patient {patient_id}")
                 return reports
         except Exception as e:
             logger.error(f"Database error retrieving reports for patient {patient_id}: {e}")

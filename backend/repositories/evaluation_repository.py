@@ -44,7 +44,7 @@ class EvaluationRepository:
                 doc = collection.find_one({"uuid": uuid})
                 if not doc:
                     raise NotFoundException(f"Evaluation with uuid {uuid} not found.")
-                logger.info(f"Retrieved evaluation with uuid: {uuid}")
+                # logger.info(f"Retrieved evaluation with uuid: {uuid}")
                 return Evaluation(**doc)
         except NotFoundException:
             raise
@@ -62,7 +62,7 @@ class EvaluationRepository:
                     sort=[("created_at", DESCENDING)]
                 )
                 if doc:
-                    logger.info(f"Retrieved latest evaluation for patient {patient_id}")
+                    # logger.info(f"Retrieved latest evaluation for patient {patient_id}")
                     return Evaluation(**doc)
                 return None
         except Exception as e:
@@ -79,7 +79,7 @@ class EvaluationRepository:
                     sort=[("created_at", DESCENDING)]
                 )
                 if doc:
-                    logger.info(f"Retrieved latest evaluation for report {report_uuid}")
+                    # logger.info(f"Retrieved latest evaluation for report {report_uuid}")
                     return Evaluation(**doc)
                 return None
         except Exception as e:
@@ -95,7 +95,7 @@ class EvaluationRepository:
                     {"patient_id": patient_id}
                 ).sort("created_at", DESCENDING).limit(limit)
                 evaluations = [Evaluation(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(evaluations)} evaluations for patient {patient_id}")
+                # logger.info(f"Retrieved {len(evaluations)} evaluations for patient {patient_id}")
                 return evaluations
         except Exception as e:
             logger.error(f"Database error retrieving evals for patient {patient_id}: {e}")
@@ -110,7 +110,7 @@ class EvaluationRepository:
                     {"report_uuid": report_uuid}
                 ).sort("created_at", DESCENDING).limit(limit)
                 evaluations = [Evaluation(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(evaluations)} evaluations for report {report_uuid}")
+                # logger.info(f"Retrieved {len(evaluations)} evaluations for report {report_uuid}")
                 return evaluations
         except Exception as e:
             logger.error(f"Database error retrieving evals for report {report_uuid}: {e}")
@@ -125,7 +125,7 @@ class EvaluationRepository:
                     {"ground_truth_uuid": ground_truth_uuid}
                 ).sort("created_at", DESCENDING)
                 evaluations = [Evaluation(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(evaluations)} evaluations for GT {ground_truth_uuid}")
+                # logger.info(f"Retrieved {len(evaluations)} evaluations for GT {ground_truth_uuid}")
                 return evaluations
         except Exception as e:
             logger.error(f"Database error retrieving evals for GT {ground_truth_uuid}: {e}")

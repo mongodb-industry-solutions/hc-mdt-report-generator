@@ -22,7 +22,7 @@ class PatientDocumentRepository:
                 doc = collection.find_one({"uuid": uuid})
                 if not doc:
                     raise NotFoundException(f"Patient document with uuid {uuid} not found.")
-                logger.info(f"Retrieved patient document with uuid: {uuid}")
+                # logger.info(f"Retrieved patient document with uuid: {uuid}")
                 return PatientDocument(**doc)
         except NotFoundException:
             raise
@@ -88,7 +88,7 @@ class PatientDocumentRepository:
                 collection: Collection = db[self.collection_name]
                 doc = collection.find_one({"patient_id": patient_id, "filename": filename})
                 if doc:
-                    logger.info(f"Retrieved document with filename: {filename} for patient: {patient_id}")
+                    # logger.info(f"Retrieved document with filename: {filename} for patient: {patient_id}")
                     return PatientDocument(**doc)
                 return None
         except Exception as e:
@@ -204,7 +204,7 @@ class PatientDocumentRepository:
                 collection: Collection = db[self.collection_name]
                 cursor = collection.find({"patient_id": patient_id})
                 documents = [PatientDocument(**doc) for doc in cursor]
-                logger.info(f"Retrieved {len(documents)} documents for patient {patient_id}")
+                # logger.info(f"Retrieved {len(documents)} documents for patient {patient_id}")
                 return documents
         except Exception as e:
             logger.error(f"Database error retrieving all documents for patient {patient_id}: {e}")

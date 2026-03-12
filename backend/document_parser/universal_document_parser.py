@@ -62,17 +62,13 @@ class UniversalDocumentParser:
     async def initialize(self):                      
         """Initialize database connections"""      
         if self.is_initialized:      
-            logger.info("Parser already initialized")      
             return      
                   
-        logger.info("🔧 Starting parser initialization...")      
         initialization_errors = []                      
               
         try:                      
-            logger.info(f"🎉 Parser initialization completed with {len(initialization_errors)} warnings/errors")      
-                  
             if initialization_errors:      
-                logger.warning("⚠️  Initialization warnings/errors:")      
+                logger.warning("Initialization warnings/errors:")      
                 for i, error in enumerate(initialization_errors, 1):      
                     logger.warning(f"   {i}. {error}")      
                           
@@ -130,16 +126,13 @@ class UniversalDocumentParser:
         errors = []              
         document_id = str(uuid.uuid4())  
           
-        logger.info(f"🚀 Starting document parsing for document ID: {document_id}")  
-          
         # Auto-initialize if not already done  
         if not self.is_initialized:  
-            logger.info("🔧 Parser not initialized, initializing now...")  
             try:  
                 await self.initialize()  
             except Exception as e:  
                 error_msg = f"Parser initialization failed: {e}"  
-                logger.error(f"❌ {error_msg}")  
+                logger.error(f"{error_msg}")  
                 errors.append(error_msg)  
                 return {              
                     "document_id": document_id,              

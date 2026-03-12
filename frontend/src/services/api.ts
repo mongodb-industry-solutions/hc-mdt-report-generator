@@ -58,8 +58,6 @@ class ApiService {
   api: AxiosInstance; // Changed to public for other services to use
 
   constructor(baseURL: string = getApiBaseURL()) {
-    // Log the API URL being used for debugging
-    console.log('🌐 API Base URL:', baseURL);
     this.api = axios.create({
       baseURL,
       timeout: 30000,
@@ -84,7 +82,6 @@ class ApiService {
     if (typeof window !== 'undefined') {
       localStorage.setItem(API_URL_STORAGE_KEY, url);
     }
-    console.log('🌐 API Base URL updated to:', url);
   }
   
   // Get the current LLM model ID
@@ -108,7 +105,6 @@ class ApiService {
       // If API key is provided, save it using the model-specific storage
       if (apiKey) {
         this.storeLLMApiKey(apiKey, modelId);
-        console.log('🔑 API key cached for model:', modelId);
       } else {
         // Try to get the API key from localStorage for this specific model
         apiKey = this.getLLMApiKey(modelId);
@@ -117,7 +113,6 @@ class ApiService {
       // If base URL is provided for OpenAI models, save it
       if (baseUrl && modelId === 'gpt-oss-20b' && typeof window !== 'undefined') {
         localStorage.setItem('claritygr_gpt_open_url', baseUrl);
-        console.log('🌐 GPT Open base URL cached:', baseUrl);
       }
       
       // Ensure we're sending a non-empty API key if available
@@ -129,8 +124,6 @@ class ApiService {
         api_key: keyToSend,
         base_url: baseUrl
       });
-      
-      console.log('🤖 LLM Model updated to:', modelId);
       
       return response.data.success || false;
     } catch (error) {
@@ -830,19 +823,14 @@ class ApiService {
   ): Promise<GTUploadProgress | null> {
     
     const url = `${this.api.defaults.baseURL}/patients/${patientId}/reports/${reportUuid}/ground-truth/auto-load?ocr_engine=${ocrEngine}`;
-    console.log('Auto-load GT URL:', url); // Debug logging
     
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });
 
-    console.log('Auto-load GT response status:', response.status); // Debug logging
-    console.log('Auto-load GT response headers:', response.headers); // Debug logging
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Auto-load GT error response:', errorText); // Debug logging
       throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
 
@@ -865,11 +853,10 @@ class ApiService {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6)) as GTUploadProgress;
-              console.log('Auto-load GT progress data:', data); // Debug logging
               lastData = data;
               onProgress?.(data);
             } catch (e) {
-              console.error('Failed to parse SSE data:', e, 'Line:', line); // Debug logging
+              console.error('Failed to parse SSE data:', e, 'Line:', line);
             }
           }
         }
@@ -878,7 +865,6 @@ class ApiService {
       reader.releaseLock();
     }
 
-    console.log('Auto-load GT final result:', lastData); // Debug logging
     return lastData;
   }
 

@@ -240,17 +240,13 @@ async def update_llm_model(
             selected_base_url = base_url or model_base_url
             
             if selected_base_url:
-                logger.info(f"Updating GPT Open base URL to: {selected_base_url}")
                 settings.gpt_open_base_url = selected_base_url
                 # Update environment variable for runtime
                 os.environ["GPT_OPEN_BASE_URL"] = selected_base_url
-                logger.info(f"✅ Base URL set to {selected_base_url}")
             
             # Update API key if provided
             if api_key:
-                logger.info("Updating OpenAI API key")
                 os.environ["OPENAI_API_KEY"] = api_key
-                logger.info("✅ OpenAI API key has been set in the environment")
             
             # Set default model to be used. If the target is an Ollama host (common port 11434),
             # use the Ollama tag format with a colon so the client routes to /api/generate.
@@ -273,17 +269,14 @@ async def update_llm_model(
             if selected_base_url:
                 settings.gpt_open_base_url = selected_base_url
                 os.environ["GPT_OPEN_BASE_URL"] = selected_base_url
-                logger.info(f"✅ GPT_OPEN_BASE_URL set to {selected_base_url}")
 
             # Update default model to ollama tag (e.g., 'llama2:7b')
             settings.gpt_open_model = model_id
             os.environ["GPT_OPEN_MODEL"] = model_id
-            logger.info(f"✅ GPT_OPEN_MODEL set to {model_id}")
 
             # Ensure provider is set to gpt_open
             os.environ["LLM_PROVIDER"] = "gpt_open"
             os.environ["LLM_MODEL"] = model_id
-            logger.info("✅ LLM_PROVIDER set to 'gpt_open'")
 
         else:
             # Provider not supported

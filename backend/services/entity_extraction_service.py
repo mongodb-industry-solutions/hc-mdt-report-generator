@@ -195,14 +195,9 @@ class EntityExtractionService:
             structured_data: Optional structured JSON data (lCrs) for source filtering
         """  
           
-        logger.info(f"🚀 Starting robust entity extraction")  
-        logger.info(f"📄 Documents: {len(documents)}, Entities: {len(entities)}")
-        
         # Extract structured_data from document metadata if not provided
         if structured_data is None:
             structured_data = self._extract_structured_data_from_documents(documents)
-            if structured_data:
-                logger.info(f"📋 Extracted structured data with {len(structured_data.get('lCrs', []))} lCrs entries")
           
         # Log document details  
         for i, doc in enumerate(documents):  

@@ -53,9 +53,7 @@ def get_mongo_client():
     """Get MongoDB client from environment variables."""
     mongo_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
     db_name = os.getenv("MONGODB_DB", "clarityGR")
-    
-    print(f"📦 Connecting to MongoDB: {mongo_uri}")
-    print(f"📦 Database: {db_name}")
+
     
     client = MongoClient(mongo_uri)
     return client[db_name]

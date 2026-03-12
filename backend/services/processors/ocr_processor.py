@@ -36,10 +36,9 @@ class OCRProcessor(AWSHybridOCRProcessor):
         # Set file size limit (inherited from Textract limits)
         self.max_file_size = 10 * 1024 * 1024  # 10MB
         
-        logger.info("🔄 OCR processor initialized with AWS hybrid approach (Textract + Bedrock)")
-        logger.info(f"📍 AWS Region: {region}")
-        logger.info(f"👤 AWS Profile: {profile or 'default'}")
-        logger.info(f"📏 Max file size: {self.max_file_size / (1024*1024):.1f}MB")
+        logger.info("OCR processor initialized with AWS")
+        logger.info(f"AWS Region: {region}")
+        logger.info(f"AWS Profile: {profile or 'default'}")
     
     async def process_file(self, file_path: str) -> str:
         """
