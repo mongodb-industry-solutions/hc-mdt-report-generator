@@ -30,6 +30,15 @@ envSecrets:
   JWT_ALGORITHM: mdt-report-generator-secrets
   JWT_ACCESS_TOKEN_EXPIRE_MINUTES: mdt-report-generator-secrets 
 
+
+# Kanopy security and ownership (requires web-app chart v4.30.0+) 
+security: 
+  dataClassification: "Internal" 
+  dataDesignation: ["MI"]
+ 
+ownership: 
+   driEmail: paty.renartcarnicero@mongodb.com
+
 ## should be used in case of multiple sidecar containers
 # sidecarContainers:
 #   - name: backend
