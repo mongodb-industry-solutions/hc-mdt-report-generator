@@ -763,7 +763,7 @@ export default function UnprocessedDocumentsList({
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full animate-pulse"></div>
                 <span className="text-xs text-slate-500 font-medium">
-                  Select documents and click "Process Selected" to begin intelligent extraction
+                  Select documents and click &quot;Process Selected&quot; to begin intelligent extraction
                 </span>
               </div>
             </div>
