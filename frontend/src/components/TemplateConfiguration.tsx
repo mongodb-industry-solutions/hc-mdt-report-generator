@@ -499,7 +499,7 @@ export default function TemplateConfiguration({ onTemplateChange }: TemplateConf
                       Create sections to group related entities and improve report readability
                     </p>
                     <p className="text-sm text-gray-500 mb-8 max-w-sm mx-auto">
-                      Start by adding your first section, such as "Patient Information" or "Clinical Summary"
+                      Start by adding your first section, such as &quot;Patient Information&quot; or &quot;Clinical Summary&quot;
                     </p>
                     
                     <button

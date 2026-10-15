@@ -184,9 +184,9 @@ export default function DocumentsContainer({
                           <div className="bg-gray-50 p-3 rounded font-mono text-xs border border-gray-200">
                             <div className="text-gray-700 mb-1">📄 Raw Medical Text:</div>
                             <div className="text-gray-500 leading-relaxed">
-                              "Patient Jean Dupont age 65 consultation cardiology diagnosed with hypertension diabetes 
+                              &quot;Patient Jean Dupont age 65 consultation cardiology diagnosed with hypertension diabetes 
                               medication Lisinopril laboratory results blood pressure 140/90 glucose elevated 
-                              appointment scheduled follow-up treatment plan dietary changes..."
+                              appointment scheduled follow-up treatment plan dietary changes...&quot;
                             </div>
                           </div>
                           <div className="mt-3 flex items-center text-gray-500">
@@ -250,7 +250,7 @@ export default function DocumentsContainer({
                                 <div className="ml-auto text-xs text-slate-600 font-medium bg-slate-100 px-2 py-0.5 rounded">Raw Content</div>
                               </div>
                               <div className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-2 rounded border-l-2 border-slate-400 pl-3">
-                                "Patient Jean Dupont, 65 ans, consultation cardiologie..."
+                                &quot;Patient Jean Dupont, 65 ans, consultation cardiologie...&quot;
                               </div>
                             </div>
                             
@@ -264,7 +264,7 @@ export default function DocumentsContainer({
                                 <div className="ml-auto text-xs text-slate-600 font-medium bg-slate-100 px-2 py-0.5 rounded">Structured Data</div>
                               </div>
                               <div className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-2 rounded border-l-2 border-slate-400 pl-3">
-                                "Organized medical entities after NLP processing..."
+                                &quot;Organized medical entities after NLP processing...&quot;
                               </div>
                             </div>
                             
@@ -278,7 +278,7 @@ export default function DocumentsContainer({
                                 <div className="ml-auto text-xs text-slate-600 font-medium bg-slate-100 px-2 py-0.5 rounded">Type Classification</div>
                               </div>
                               <div className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-2 rounded border-l-2 border-slate-400 pl-3">
-                                "consultation_report"
+                                &quot;consultation_report&quot;
                               </div>
                             </div>
                             
@@ -292,7 +292,7 @@ export default function DocumentsContainer({
                                 <div className="ml-auto text-xs text-slate-600 font-medium bg-slate-100 px-2 py-0.5 rounded">Processing Method</div>
                               </div>
                               <div className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-2 rounded border-l-2 border-slate-400 pl-3">
-                                "pdf_text_extraction"
+                                &quot;pdf_text_extraction&quot;
                               </div>
                             </div>
                           </div>

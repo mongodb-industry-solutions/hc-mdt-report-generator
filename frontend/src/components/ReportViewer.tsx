@@ -368,7 +368,7 @@ const EntityCard = ({
                   return (
                     <>
                       <span className="font-medium">
-                        Sources d'extraction ({displaySources.length}):
+                        Sources d&apos;extraction ({displaySources.length}):
                         {entity.metadata?.used_fallback && (
                           <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
                             via fallback
